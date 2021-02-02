@@ -384,6 +384,7 @@ public class Application extends quickfix.MessageCracker implements quickfix.App
             noUnderlyings.set(new UnderlyingSecurityType(SecurityType.FUTURE));
             fixMD.addGroup(noUnderlyings);
         }
+
         String targetCompId = message.getHeader().getString(TargetCompID.FIELD);
         fixMD.getHeader().setString(SenderCompID.FIELD, targetCompId);
         fixMD.getHeader().setString(TargetCompID.FIELD, senderCompId);

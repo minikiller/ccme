@@ -22,7 +22,6 @@ package quickfix.examples.banzai;
 import javax.swing.table.AbstractTableModel;
 import java.util.HashMap;
 
-import static com.sun.corba.se.impl.util.RepositoryId.cache;
 
 public class OrderTableModel extends AbstractTableModel {
 
