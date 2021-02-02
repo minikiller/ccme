@@ -3,7 +3,7 @@
 
 	<parent>
 		<groupId>org.quickfixj</groupId>
-		<artifactId>quickfixj-examples</artifactId>
+		<artifactId>ccme-project</artifactId>
 		<version>2.2.0</version>
 	</parent>
 
