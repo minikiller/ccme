@@ -20,6 +20,7 @@
 package quickfix.examples.banzai;
 
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.CountDownLatch;
 
@@ -30,17 +31,7 @@ import org.quickfixj.jmx.JmxExporter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import quickfix.DefaultMessageFactory;
-import quickfix.FileStoreFactory;
-import quickfix.Initiator;
-import quickfix.LogFactory;
-import quickfix.MessageFactory;
-import quickfix.MessageStoreFactory;
-import quickfix.ScreenLogFactory;
-import quickfix.Session;
-import quickfix.SessionID;
-import quickfix.SessionSettings;
-import quickfix.SocketInitiator;
+import quickfix.*;
 import quickfix.examples.banzai.ui.BanzaiFrame;
 
 /**
@@ -53,19 +44,14 @@ public class Banzai {
     private static Banzai banzai;
     private boolean initiatorStarted = false;
     private Initiator initiator = null;
+    private Initiator md_initiator=null;
     private JFrame frame = null;
 
     public Banzai(String[] args) throws Exception {
         InputStream inputStream = null;
-        if (args.length == 0) {
-            inputStream = Banzai.class.getResourceAsStream("banzai.cfg");
-        } else if (args.length == 1) {
-            inputStream = new FileInputStream(args[0]);
-        }
-        if (inputStream == null) {
-            System.out.println("usage: " + Banzai.class.getName() + " [configFile].");
-            return;
-        }
+
+        inputStream = Banzai.class.getResourceAsStream("banzai.cfg");
+
         SessionSettings settings = new SessionSettings(inputStream);
         inputStream.close();
 
@@ -80,12 +66,61 @@ public class Banzai {
 
         initiator = new SocketInitiator(application, messageStoreFactory, settings, logFactory,
                 messageFactory);
+        boolean runMdClient = false;
+
+        // 根据参数判断是否启动 market client
+        if (args.length == 1) {
+            String value = args[0];
+            if (value.equals("run_banzai_client"))
+                runMdClient = true;
+        }
+
+        //启动连接大盘的client
+        MarketClientApplication marketClientApplication = new MarketClientApplication();
+        if (runMdClient) {
+            md_initiator = createMarketClientApp(marketClientApplication);
+        }
+        if(md_initiator!=null)
+            md_initiator.start();
 
         JmxExporter exporter = new JmxExporter();
         exporter.register(initiator);
 
-        frame = new BanzaiFrame(orderTableModel, executionTableModel, application);
+        frame = new BanzaiFrame(orderTableModel, executionTableModel, application,marketClientApplication);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    }
+
+    private static Initiator createMarketClientApp(MarketClientApplication application) {
+        InputStream inputStream = null;
+
+        inputStream = Banzai.class.getResourceAsStream("marketclient.cfg");
+
+        SessionSettings settings = null;
+        try {
+            settings = new SessionSettings(inputStream);
+            inputStream.close();
+        } catch (ConfigError configError) {
+            configError.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        boolean logHeartbeats = Boolean.valueOf(System.getProperty("logHeartbeats", "true"));
+
+        MessageStoreFactory messageStoreFactory = new FileStoreFactory(settings);
+        LogFactory logFactory = new ScreenLogFactory(true, true, true, logHeartbeats);
+        MessageFactory messageFactory = new DefaultMessageFactory();
+
+        try {
+            Initiator initiator = new SocketInitiator(application, messageStoreFactory, settings, logFactory,
+                    messageFactory);
+//            logon();
+            initiator.start();
+            return initiator;
+        } catch (ConfigError configError) {
+            configError.printStackTrace();
+        }
+        return null;
     }
 
     public synchronized void logon() {

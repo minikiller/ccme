@@ -30,10 +30,12 @@ import java.awt.event.*;
 
 public class OrderTable extends JTable implements MouseListener {
     private final transient BanzaiApplication application;
+    private OrderEntryPanel orderEntryPanel;
 
-    public OrderTable(OrderTableModel orderTableModel, BanzaiApplication application) {
+    public OrderTable(OrderTableModel orderTableModel, BanzaiApplication application,OrderEntryPanel orderEntryPanel) {
         super(orderTableModel);
         this.application = application;
+        this.orderEntryPanel=orderEntryPanel;
         addMouseListener(this);
     }
 
@@ -63,8 +65,13 @@ public class OrderTable extends JTable implements MouseListener {
     }
 
     public void mouseClicked(MouseEvent e) {
-        if (e.getClickCount() != 2)
+        if (e.getClickCount() != 2){
+            int row = rowAtPoint(e.getPoint());
+            Order order = ((OrderTableModel) dataModel).getOrder(row);
+            orderEntryPanel.setSymbolTestFieldValue(order.getSymbol());
             return;
+        }
+
         int row = rowAtPoint(e.getPoint());
         Order order = ((OrderTableModel) dataModel).getOrder(row);
         application.cancel(order);

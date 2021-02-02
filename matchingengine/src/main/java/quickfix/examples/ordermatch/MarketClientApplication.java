@@ -13,7 +13,7 @@ import java.util.Observable;
 public class MarketClientApplication implements Application {
     private final ObservableLogon observableLogon = new ObservableLogon();
     public static final String SENDER_COMP_ID = "MD_CLIENT";
-    public static final String TARGET_COMP_ID = "FEME";
+    public static final String TARGET_COMP_ID = "FEMD";
 
     @Override
     public void onCreate(SessionID sessionId) {

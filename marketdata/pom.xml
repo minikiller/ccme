@@ -7,7 +7,7 @@
 		<version>2.2.0</version>
 	</parent>
 
-	<artifactId>quickfixj-examples-marketdata</artifactId>
+	<artifactId>ccme-marketdata</artifactId>
 	<packaging>bundle</packaging>
 
 	<name>QuickFIX/J Examples - Market Data</name>
@@ -20,12 +20,12 @@
 
 	<build>
 		<plugins>
-			<plugin>
-				<artifactId>maven-shade-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<artifactId>maven-source-plugin</artifactId>
-			</plugin>
+<!--			<plugin>-->
+<!--				<artifactId>maven-shade-plugin</artifactId>-->
+<!--			</plugin>-->
+<!--			<plugin>-->
+<!--				<artifactId>maven-source-plugin</artifactId>-->
+<!--			</plugin>-->
 		</plugins>
 	</build>
 </project>

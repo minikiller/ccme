@@ -34,10 +34,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import quickfix.examples.banzai.BanzaiApplication;
-import quickfix.examples.banzai.ExecutionTableModel;
-import quickfix.examples.banzai.Order;
-import quickfix.examples.banzai.OrderTableModel;
+import quickfix.examples.banzai.*;
 
 /**
  * Main content panel
@@ -49,9 +46,14 @@ public class BanzaiPanel extends JPanel implements Observer, ActionListener {
     private final CancelReplacePanel cancelReplacePanel;
     private final OrderTableModel orderTableModel;
 
+    public OrderEntryPanel getOrderEntryPanel(){
+        return this.orderEntryPanel;
+    }
+
+
     public BanzaiPanel(OrderTableModel orderTableModel,
-                ExecutionTableModel executionTableModel,
-                BanzaiApplication application) {
+                       ExecutionTableModel executionTableModel,
+                       BanzaiApplication application, MarketClientApplication marketClientApplication) {
         setName("BanzaiPanel");
         this.orderTableModel = orderTableModel;
 
@@ -61,7 +63,7 @@ public class BanzaiPanel extends JPanel implements Observer, ActionListener {
         constraints.fill = GridBagConstraints.BOTH;
         constraints.weightx = 1;
 
-        orderEntryPanel = new OrderEntryPanel(orderTableModel, application);
+        orderEntryPanel = new OrderEntryPanel(orderTableModel, application,marketClientApplication);
         constraints.insets = new Insets(0, 0, 5, 0);
         add(orderEntryPanel, constraints);
 
@@ -69,7 +71,7 @@ public class BanzaiPanel extends JPanel implements Observer, ActionListener {
         constraints.weighty = 10;
 
         JTabbedPane tabbedPane = new JTabbedPane();
-        orderPanel = new OrderPanel(orderTableModel, application);
+        orderPanel = new OrderPanel(orderTableModel, application,orderEntryPanel);
         ExecutionPanel executionPanel = new ExecutionPanel(executionTableModel);
 
         tabbedPane.add("Orders", orderPanel);

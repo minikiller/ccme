@@ -36,8 +36,9 @@ import quickfix.examples.banzai.OrderTableModel;
 public class OrderPanel extends JPanel {
 
     private JTable orderTable = null;
+    private OrderEntryPanel orderEntryPanel;
 
-    public OrderPanel(OrderTableModel orderTableModel, BanzaiApplication application) {
+    public OrderPanel(OrderTableModel orderTableModel, BanzaiApplication application,OrderEntryPanel orderEntryPanel) {
         setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         setLayout(new GridBagLayout());
         GridBagConstraints constraints = new GridBagConstraints();
@@ -45,7 +46,8 @@ public class OrderPanel extends JPanel {
         constraints.weightx = 1;
         constraints.weighty = 1;
 
-        orderTable = new OrderTable(orderTableModel, application);
+        this.orderEntryPanel=orderEntryPanel;
+        orderTable = new OrderTable(orderTableModel, application,orderEntryPanel);
         add(new JScrollPane(orderTable), constraints);
     }
 

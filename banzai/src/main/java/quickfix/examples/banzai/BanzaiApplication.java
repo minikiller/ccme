@@ -291,6 +291,19 @@ public class BanzaiApplication implements Application {
         }
     }
 
+    /***
+     * 发送订阅信息
+     * @param message
+     * @param sessionID
+     */
+    public void sendMessage(quickfix.Message message, SessionID sessionID) {
+        try {
+            Session.sendToTarget(message, sessionID);
+        } catch (SessionNotFound e) {
+            System.out.println(e);
+        }
+    }
+
     private void send(quickfix.Message message, SessionID sessionID) {
         try {
             Session.sendToTarget(message, sessionID);

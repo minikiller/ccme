@@ -212,4 +212,27 @@ public class Order implements Cloneable {
     public String getOriginalID() {
         return originalID;
     }
+
+    @Override
+    public String toString() {
+        return "Order{" +
+                "sessionID=" + sessionID +
+                ", symbol='" + symbol + '\'' +
+                ", quantity=" + quantity +
+                ", open=" + open +
+                ", executed=" + executed +
+                ", side=" + side +
+                ", type=" + type +
+                ", tif=" + tif +
+                ", limit=" + limit +
+                ", stop=" + stop +
+                ", avgPx=" + avgPx +
+                ", rejected=" + rejected +
+                ", canceled=" + canceled +
+                ", isNew=" + isNew +
+                ", message='" + message + '\'' +
+                ", ID='" + ID + '\'' +
+                ", originalID='" + originalID + '\'' +
+                '}';
+    }
 }

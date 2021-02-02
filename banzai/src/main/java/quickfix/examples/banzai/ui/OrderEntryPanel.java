@@ -42,15 +42,9 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import quickfix.SessionID;
-import quickfix.examples.banzai.BanzaiApplication;
-import quickfix.examples.banzai.DoubleNumberTextField;
-import quickfix.examples.banzai.IntegerNumberTextField;
-import quickfix.examples.banzai.LogonEvent;
-import quickfix.examples.banzai.Order;
-import quickfix.examples.banzai.OrderSide;
-import quickfix.examples.banzai.OrderTIF;
-import quickfix.examples.banzai.OrderTableModel;
-import quickfix.examples.banzai.OrderType;
+import quickfix.examples.banzai.*;
+import quickfix.field.*;
+import quickfix.fix44.SecurityDefinitionRequest;
 
 @SuppressWarnings("unchecked")
 public class OrderEntryPanel extends JPanel implements Observer {
@@ -62,7 +56,9 @@ public class OrderEntryPanel extends JPanel implements Observer {
 
     private final JTextField symbolTextField = new JTextField();
     private final IntegerNumberTextField quantityTextField = new IntegerNumberTextField();
-
+    public void setSymbolTestFieldValue(String value){
+        symbolTextField.setText(value);
+    }
     private final JComboBox sideComboBox = new JComboBox(OrderSide.toArray());
     private final JComboBox typeComboBox = new JComboBox(OrderType.toArray());
     private final JComboBox tifComboBox = new JComboBox(OrderTIF.toArray());
@@ -77,17 +73,23 @@ public class OrderEntryPanel extends JPanel implements Observer {
 
     private final JLabel messageLabel = new JLabel(" ");
     private final JButton submitButton = new JButton("Submit");
+    private final JButton subscribeButton = new JButton("Subscribe");
 
     private OrderTableModel orderTableModel = null;
     private transient BanzaiApplication application = null;
+    private transient MarketClientApplication  marketClientApplication = null;
 
     private final GridBagConstraints constraints = new GridBagConstraints();
 
+
     public OrderEntryPanel(final OrderTableModel orderTableModel,
-                final BanzaiApplication application) {
+                final BanzaiApplication application,MarketClientApplication  marketClientApplication) {
         setName("OrderEntryPanel");
         this.orderTableModel = orderTableModel;
         this.application = application;
+        this.marketClientApplication=marketClientApplication;
+        if(this.marketClientApplication!=null)
+            marketClientApplication.setOrderTableModel(orderTableModel);
 
         application.addLogonObserver(this);
 
@@ -103,8 +105,13 @@ public class OrderEntryPanel extends JPanel implements Observer {
         createComponents();
     }
 
+    public void setSymbolTextField(String value){
+        symbolTextField.setText(value);
+    }
     public void addActionListener(ActionListener listener) {
         submitButton.addActionListener(listener);
+        subscribeButton.addActionListener(listener);
+
     }
 
     public void setMessage(String message) {
@@ -158,6 +165,8 @@ public class OrderEntryPanel extends JPanel implements Observer {
         constraints.gridwidth = GridBagConstraints.REMAINDER;
         submitButton.setName("SubmitButton");
         add(submitButton, x, y);
+        subscribeButton.setName("SubscribeButton");
+        add(subscribeButton, x, ++y);
         constraints.gridwidth = 0;
         add(messageLabel, 0, ++y);
 
@@ -171,6 +180,8 @@ public class OrderEntryPanel extends JPanel implements Observer {
         messageLabel.setHorizontalAlignment(JLabel.CENTER);
         submitButton.setEnabled(false);
         submitButton.addActionListener(new SubmitListener());
+        subscribeButton.addActionListener(new SubscribeListener());
+
         activateSubmit();
     }
 
@@ -237,6 +248,18 @@ public class OrderEntryPanel extends JPanel implements Observer {
             sessionComboBox.addItem(logonEvent.getSessionID());
         else
             sessionComboBox.removeItem(logonEvent.getSessionID());
+    }
+
+    private class SubscribeListener implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            System.out.println("subscribe is running!");
+            String session="FIX.4.4:MD_BANZAI_CLIENT->FEMD";
+            SessionID sessionId= new SessionID("FIX.4.4","MD_BANZAI_CLIENT","FEMD");
+            SecurityReqID securityReqID=new SecurityReqID("12345");
+            SecurityRequestType requestType=new SecurityRequestType(SecurityRequestType.REQUEST_LIST_SECURITIES);
+            SecurityDefinitionRequest message=new SecurityDefinitionRequest(securityReqID,requestType);
+            marketClientApplication.sendSubscribe(message,sessionId);
+        }
     }
 
     private class SubmitListener implements ActionListener {

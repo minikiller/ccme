@@ -7,10 +7,10 @@
 		<version>2.2.0</version>
 	</parent>
 
-	<artifactId>quickfixj-examples</artifactId>
+	<artifactId>ccme-project</artifactId>
 	<packaging>pom</packaging>
 
-	<name>QuickFIX/J Examples</name>
+	<name>CCME Project</name>
 	<description>QuickFIX/J example applications</description>
 	<url>http://www.quickfixj.org</url>
 
