@@ -22,6 +22,8 @@ package quickfix.examples.banzai;
 import javax.swing.table.AbstractTableModel;
 import java.util.HashMap;
 
+import static com.sun.corba.se.impl.util.RepositoryId.cache;
+
 public class OrderTableModel extends AbstractTableModel {
 
     private final static int SYMBOL = 0;
@@ -50,6 +52,18 @@ public class OrderTableModel extends AbstractTableModel {
                   {"Symbol", "Quantity", "Open", "Executed",
                    "Side", "Type", "Limit", "Stop", "AvgPx",
                    "Target"};
+    }
+
+    public void deleteData() {
+        int rows = getRowCount();
+        if (rows == 0) {
+            return;
+        }
+//        cache.clear();
+        while(rows>0) {
+            fireTableRowsDeleted(0, rows - 1);
+            rows = getRowCount();
+        }
     }
 
     public boolean isCellEditable(int rowIndex, int columnIndex) {

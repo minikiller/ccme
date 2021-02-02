@@ -41,7 +41,8 @@ public class Application extends quickfix.MessageCracker implements quickfix.App
     private static final String INSTRUMENT_NAME = "InstrumentName";
     private static final String INSTRUMENT_DATE = "InstrumentDate";
     //需要订阅的client信息map
-    private static final Map<String, List<String>> subscribeMap = new HashMap();
+//    private static final Map<String, List<String>> subscribeMap = new HashMap();
+    private static final Map<String, String> subscribeMap = new HashMap();
 
     public static final String SENDER_COMP_ID = "FEMD";
     public static final String TARGET_COMP_ID = "MD_CLIENT";
@@ -344,20 +345,21 @@ public class Application extends quickfix.MessageCracker implements quickfix.App
 
         String senderCompId = message.getHeader().getString(SenderCompID.FIELD);
 
-        List<String> symbols = subscribeMap.get(senderCompId);
-        if (symbols != null) {
-            // 如果存在，就清空，重新加载list
-            subscribeMap.remove(senderCompId);
-        }
-        symbols = new ArrayList<>();
-        //循环读取symbol，保存到subscribeMap中
-        for (int i = 1; i <= relatedSymbolCount; ++i) {
-            message.getGroup(i, noRelatedSyms);
-            String symbol = noRelatedSyms.getString(Symbol.FIELD);
-            symbols.add(symbol);
-//            fixMD.setString(Symbol.FIELD, symbol);
-        }
-        subscribeMap.put(senderCompId, symbols);
+//        List<String> symbols = subscribeMap.get(senderCompId);
+//        if (symbols != null) {
+//            // 如果存在，就清空，重新加载list
+//            subscribeMap.remove(senderCompId);
+//        }
+//        symbols = new ArrayList<>();
+//        //循环读取symbol，保存到subscribeMap中
+//        for (int i = 1; i <= relatedSymbolCount; ++i) {
+//            message.getGroup(i, noRelatedSyms);
+//            String symbol = noRelatedSyms.getString(Symbol.FIELD);
+//            symbols.add(symbol);
+////            fixMD.setString(Symbol.FIELD, symbol);
+//        }
+        //暂时订阅所有的股票信息
+        subscribeMap.put(senderCompId, "all");
 //        MarketDataSnapshotFullRefresh.NoMDEntries noMDEntries = new MarketDataSnapshotFullRefresh.NoMDEntries();
 //        noMDEntries.setChar(MDEntryType.FIELD, '0');
 //        noMDEntries.setDouble(MDEntryPx.FIELD, 123.45);
@@ -368,7 +370,20 @@ public class Application extends quickfix.MessageCracker implements quickfix.App
 //        noMDEntries1.setDouble(MDEntryPx.FIELD, 123.45);
 //        noMDEntries1.setDouble(MDEntrySize.FIELD,1.0);
 //        fixMD.addGroup(noMDEntries1);
+        fixMD.setString(Symbol.FIELD,"All");
 
+        MarketDataSnapshotFullRefresh.NoMDEntries group=new MarketDataSnapshotFullRefresh.NoMDEntries ();
+        group.setChar(MDEntryType.FIELD,MDEntryType.BID);
+        fixMD.addGroup(group);
+
+        SecurityDefinition.NoUnderlyings noUnderlyings = new SecurityDefinition.NoUnderlyings();
+//        UnderlyingInstrument underlyingInstrument=new UnderlyingInstrument();
+        for (String symbol : instrumentList) {
+            noUnderlyings.set(new UnderlyingSymbol(symbol));
+            noUnderlyings.set(new UnderlyingCountryOfIssue("CHN"));
+            noUnderlyings.set(new UnderlyingSecurityType(SecurityType.FUTURE));
+            fixMD.addGroup(noUnderlyings);
+        }
         String targetCompId = message.getHeader().getString(TargetCompID.FIELD);
         fixMD.getHeader().setString(SenderCompID.FIELD, targetCompId);
         fixMD.getHeader().setString(TargetCompID.FIELD, senderCompId);
@@ -431,8 +446,10 @@ public class Application extends quickfix.MessageCracker implements quickfix.App
         if (SENDER_COMP_ID.equals(senderCompId) & TARGET_COMP_ID.equals(targetCompId)) {
             System.out.println("get message from matching engine ...");
             Util.printMsg(report);
-            for (Map.Entry<String, List<String>> entry : subscribeMap.entrySet()) {
-                List<String> symbolList=entry.getValue();
+//            for (Map.Entry<String, List<String>> entry : subscribeMap.entrySet())
+            for (Map.Entry<String, String> entry : subscribeMap.entrySet())
+            {
+                String symbolList=entry.getValue();
                 String targetId=entry.getKey();
 //                for (String symbol:symbolList){
 //

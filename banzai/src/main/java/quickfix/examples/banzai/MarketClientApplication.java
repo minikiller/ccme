@@ -1,12 +1,13 @@
 package quickfix.examples.banzai;
 
 import quickfix.*;
+import quickfix.Message;
+import quickfix.MessageCracker;
 import quickfix.field.NoRelatedSym;
 import quickfix.field.NoUnderlyings;
 import quickfix.field.Symbol;
 import quickfix.field.UnderlyingSymbol;
-import quickfix.fix44.NewOrderSingle;
-import quickfix.fix44.SecurityDefinition;
+import quickfix.fix44.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,6 +72,7 @@ public class MarketClientApplication extends MessageCracker implements Applicati
 
     /**
      * 获得大盘数据
+     *
      * @param message
      * @param sessionID
      * @throws FieldNotFound
@@ -79,27 +81,54 @@ public class MarketClientApplication extends MessageCracker implements Applicati
      */
     public void onMessage(SecurityDefinition message, SessionID sessionID) throws FieldNotFound, IncorrectTagValue, UnsupportedMessageType {
         System.out.println("get message ");
-        List<Order> orderList=new ArrayList<>();
+        orderTableModel.deleteData();
+        List<Order> orderList = new ArrayList<>();
         int relatedSymbolCount = message.getInt(NoUnderlyings.FIELD);
         SecurityDefinition.NoUnderlyings noUnderlyings = new SecurityDefinition.NoUnderlyings();
         for (int i = 1; i <= relatedSymbolCount; ++i) {
-            message.getGroup(i,noUnderlyings);
-            String symbol= noUnderlyings.getString(UnderlyingSymbol.FIELD);;
-            Order order=new Order();
+            message.getGroup(i, noUnderlyings);
+            String symbol = noUnderlyings.getString(UnderlyingSymbol.FIELD);
+            ;
+            Order order = new Order();
             order.setSymbol(symbol);
-            SessionID sessionId= new SessionID("FIX.4.4","MD_BANZAI_CLIENT","FEMD");
+            SessionID sessionId = new SessionID("FIX.4.4", "MD_BANZAI_CLIENT", "FEMD");
             order.setSessionID(sessionId);
             orderTableModel.addOrder(order);
             orderList.add(order);
         }
 //        UnderlyingSymbol symbol=new UnderlyingSymbol();
 
-        System.out.println("get message "+orderList);
+        System.out.println("get message " + orderList);
 
     }
 
+    public void onMessage(MarketDataIncrementalRefresh message, SessionID sessionID) throws FieldNotFound, IncorrectTagValue, UnsupportedMessageType {
+    }
+
+    public void onMessage(MarketDataSnapshotFullRefresh message, SessionID sessionID) throws FieldNotFound, IncorrectTagValue, UnsupportedMessageType {
+        System.out.println("get MarketDataSnapshotFullRefresh message ");
+        orderTableModel.deleteData();
+        List<Order> orderList = new ArrayList<>();
+        int relatedSymbolCount = message.getInt(NoUnderlyings.FIELD);
+        SecurityDefinition.NoUnderlyings noUnderlyings = new SecurityDefinition.NoUnderlyings();
+        for (int i = 1; i <= relatedSymbolCount; ++i) {
+            message.getGroup(i, noUnderlyings);
+            String symbol = noUnderlyings.getString(UnderlyingSymbol.FIELD);
+            ;
+            Order order = new Order();
+            order.setSymbol(symbol);
+            SessionID sessionId = new SessionID("FIX.4.4", "MD_BANZAI_CLIENT", "FEMD");
+            order.setSessionID(sessionId);
+            orderTableModel.addOrder(order);
+            orderList.add(order);
+        }
+        System.out.println("get message " + orderList);
+
+    }
+
+
     public void setOrderTableModel(OrderTableModel orderTableModel) {
-        this.orderTableModel=orderTableModel;
+        this.orderTableModel = orderTableModel;
     }
 
     private static class ObservableLogon extends Observable {

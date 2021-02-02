@@ -44,6 +44,7 @@ import javax.swing.JTextField;
 import quickfix.SessionID;
 import quickfix.examples.banzai.*;
 import quickfix.field.*;
+import quickfix.fix44.MarketDataRequest;
 import quickfix.fix44.SecurityDefinitionRequest;
 
 @SuppressWarnings("unchecked")
@@ -56,9 +57,13 @@ public class OrderEntryPanel extends JPanel implements Observer {
 
     private final JTextField symbolTextField = new JTextField();
     private final IntegerNumberTextField quantityTextField = new IntegerNumberTextField();
-    public void setSymbolTestFieldValue(String value){
+
+    public void setSymbolTestFieldValue(String value) {
         symbolTextField.setText(value);
+        symbolEntered = true;
+
     }
+
     private final JComboBox sideComboBox = new JComboBox(OrderSide.toArray());
     private final JComboBox typeComboBox = new JComboBox(OrderType.toArray());
     private final JComboBox tifComboBox = new JComboBox(OrderTIF.toArray());
@@ -77,18 +82,18 @@ public class OrderEntryPanel extends JPanel implements Observer {
 
     private OrderTableModel orderTableModel = null;
     private transient BanzaiApplication application = null;
-    private transient MarketClientApplication  marketClientApplication = null;
+    private transient MarketClientApplication marketClientApplication = null;
 
     private final GridBagConstraints constraints = new GridBagConstraints();
 
 
     public OrderEntryPanel(final OrderTableModel orderTableModel,
-                final BanzaiApplication application,MarketClientApplication  marketClientApplication) {
+                           final BanzaiApplication application, MarketClientApplication marketClientApplication) {
         setName("OrderEntryPanel");
         this.orderTableModel = orderTableModel;
         this.application = application;
-        this.marketClientApplication=marketClientApplication;
-        if(this.marketClientApplication!=null)
+        this.marketClientApplication = marketClientApplication;
+        if (this.marketClientApplication != null)
             marketClientApplication.setOrderTableModel(orderTableModel);
 
         application.addLogonObserver(this);
@@ -105,9 +110,10 @@ public class OrderEntryPanel extends JPanel implements Observer {
         createComponents();
     }
 
-    public void setSymbolTextField(String value){
+    public void setSymbolTextField(String value) {
         symbolTextField.setText(value);
     }
+
     public void addActionListener(ActionListener listener) {
         submitButton.addActionListener(listener);
         subscribeButton.addActionListener(listener);
@@ -178,10 +184,10 @@ public class OrderEntryPanel extends JPanel implements Observer {
         messageLabel.setFont(font);
         messageLabel.setForeground(Color.red);
         messageLabel.setHorizontalAlignment(JLabel.CENTER);
-        submitButton.setEnabled(false);
+//        submitButton.setEnabled(false);
         submitButton.addActionListener(new SubmitListener());
         subscribeButton.addActionListener(new SubscribeListener());
-
+        symbolTextField.setEnabled(false);
         activateSubmit();
     }
 
@@ -253,13 +259,39 @@ public class OrderEntryPanel extends JPanel implements Observer {
     private class SubscribeListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             System.out.println("subscribe is running!");
-            String session="FIX.4.4:MD_BANZAI_CLIENT->FEMD";
-            SessionID sessionId= new SessionID("FIX.4.4","MD_BANZAI_CLIENT","FEMD");
-            SecurityReqID securityReqID=new SecurityReqID("12345");
-            SecurityRequestType requestType=new SecurityRequestType(SecurityRequestType.REQUEST_LIST_SECURITIES);
-            SecurityDefinitionRequest message=new SecurityDefinitionRequest(securityReqID,requestType);
-            marketClientApplication.sendSubscribe(message,sessionId);
+            sendMarketDataRequest();
+            subscribeButton.setEnabled(false);
         }
+    }
+
+    private void sendSecurityDefinitionRequest() {
+//        String session = "FIX.4.4:MD_BANZAI_CLIENT->FEMD";
+        SessionID sessionId = new SessionID("FIX.4.4", "MD_BANZAI_CLIENT", "FEMD");
+        SecurityReqID securityReqID = new SecurityReqID(Util.generateID());
+        SecurityRequestType requestType = new SecurityRequestType(SecurityRequestType.REQUEST_LIST_SECURITIES);
+        SecurityDefinitionRequest message = new SecurityDefinitionRequest(securityReqID, requestType);
+        marketClientApplication.sendSubscribe(message, sessionId);
+    }
+
+    /**
+     * 发送大盘数据请求给MargetData
+     */
+    private void sendMarketDataRequest() {
+        MDReqID reqID = new MDReqID(Util.generateID());
+        SubscriptionRequestType requestType = new SubscriptionRequestType(SubscriptionRequestType.SNAPSHOT_UPDATES);
+        MarketDepth marketDepth = new MarketDepth(0);
+        MarketDataRequest request = new MarketDataRequest(reqID, requestType, marketDepth);
+
+        MarketDataRequest.NoMDEntryTypes group = new MarketDataRequest.NoMDEntryTypes();
+        group.setChar(MDEntryType.FIELD, MDEntryType.BID);
+        request.addGroup(group);
+
+        MarketDataRequest.NoRelatedSym noRelatedSym = new MarketDataRequest.NoRelatedSym();
+        noRelatedSym.setString(Symbol.FIELD, "All");//设置默认symbols
+        request.addGroup(noRelatedSym);
+
+        SessionID sessionId = new SessionID("FIX.4.4", "MD_BANZAI_CLIENT", "FEMD");
+        marketClientApplication.sendSubscribe(request, sessionId);
     }
 
     private class SubmitListener implements ActionListener {
@@ -311,8 +343,10 @@ public class OrderEntryPanel extends JPanel implements Observer {
             return value.length() > 0;
         }
 
-        public void keyTyped(KeyEvent e) {}
+        public void keyTyped(KeyEvent e) {
+        }
 
-        public void keyPressed(KeyEvent e) {}
+        public void keyPressed(KeyEvent e) {
+        }
     }
 }
