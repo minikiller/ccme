@@ -1,10 +1,11 @@
 package quickfix.examples.ordermatch;
 
 import quickfix.Message;
+import quickfix.examples.executor.Util;
 
 import java.util.*;
 
-public class Util {
+public class MatchUtil {
     public static String get32UUID() {
         String uuid = UUID.randomUUID().toString().trim().replaceAll("-", "");
         return uuid;
@@ -22,20 +23,15 @@ public class Util {
     }
 
     /**
-     * 获得大盘对数据字典
+     * 返回map，基于单脚单为key，value为当前单脚单时间序列之后symbol list
+     * 格式： <s-d1,[s-d2,s-d3]>
      *
-     * @param
      * @return
      */
     public static Map<String, List<String>> getAfterMap() {
         Map<String, List<String>> after = new HashMap<>();
-        List<String> nameList = new ArrayList<>();
-        nameList.add("FMG3");
-        nameList.add("HEF1");
-        List<String> dateList = new ArrayList<>();
-        dateList.add("JUN21");
-        dateList.add("MAR21");
-        dateList.add("SEP21");
+        List<String> nameList = Util.getNameList();
+        List<String> dateList = Util.getDateList();
 
         List<String> singleList = new ArrayList<>();
         List<String> doubleList = new ArrayList<>();
@@ -71,15 +67,16 @@ public class Util {
         return after;
     }
 
+    /**
+     * 返回map，基于单脚单为key，value为当前单脚单时间序列之前symbol list
+     * 格式： <s-d3,[s-d1,s-d2]>
+     *
+     * @return
+     */
     public static Map<String, List<String>> getBeforeMap() {
         Map<String, List<String>> before = new HashMap<>();
-        List<String> nameList = new ArrayList<>();
-        nameList.add("FMG3");
-        nameList.add("HEF1");
-        List<String> dateList = new ArrayList<>();
-        dateList.add("JUN21");
-        dateList.add("MAR21");
-        dateList.add("SEP21");
+        List<String> nameList = Util.getNameList();
+        List<String> dateList = Util.getDateList();
 
         List<String> singleList = new ArrayList<>();
         List<String> doubleList = new ArrayList<>();
@@ -107,11 +104,11 @@ public class Util {
         int j = 0;
         for (String name : singleList) {
             List<String> tmpList = new ArrayList<>();
-            String[] _str=name.split("-");
+            String[] _str = name.split("-");
             int index = map.get(_str[1]);
             while (index - j > 0) {
-                String str=nameMap.get(j);
-                tmpList.add(_str[0]+"-"+str+"-"+_str[1]);
+                String str = nameMap.get(j);
+                tmpList.add(_str[0] + "-" + str + "-" + _str[1]);
                 j++;
             }
             before.put(name, tmpList);
@@ -120,9 +117,6 @@ public class Util {
         return before;
     }
 
-    //	public static List<String> getBeforeOrder(String symbol,List<String> stringList){
-//
-//	}
     public static void main(String[] param) {
 //        String str = "FMG3-MAR21, FMG3-JUN21, FMG3-SEP21, HEF1-MAR21, HEF1-JUN21, HEF1-SEP21, FMG3-MAR21-JUN21, FMG3-MAR21-SEP21, FMG3-JUN21-SEP21, HEF1-MAR21-JUN21, HEF1-MAR21-SEP21, HEF1-JUN21-SEP21";
 //        String[] strArray = str.split(",");
@@ -131,5 +125,6 @@ public class Util {
 //            stringList.add(strArray[i]);
 //        }
         getBeforeMap();
+        getAfterMap();
     }
 }

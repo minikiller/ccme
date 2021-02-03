@@ -171,11 +171,11 @@ public class OrderMatcher {
             if (side == Side.BUY) {
                 //存在D2卖单,更新D1的卖单
                 //存在D1买单,更新D2的买单
-                processSpreadOrder(symbolStrings[0], symbolStrings[1], symbolStrings[2], Side.BUY, Side.SELL, Util.generateID(), senderCompId, targetCompId, ordType, price, (int) qty, clOrdId);
+                processSpreadOrder(symbolStrings[0], symbolStrings[1], symbolStrings[2], Side.BUY, Side.SELL, MatchUtil.generateID(), senderCompId, targetCompId, ordType, price, (int) qty, clOrdId);
             } else {
                 //存在D2买单,更新D1的买单
                 //存在D1卖单,更新D2的卖单
-                processSpreadOrder(symbolStrings[0], symbolStrings[2], symbolStrings[1], Side.SELL, Side.BUY, Util.generateID(), senderCompId, targetCompId, ordType, price, (int) qty, clOrdId);
+                processSpreadOrder(symbolStrings[0], symbolStrings[2], symbolStrings[1], Side.SELL, Side.BUY, MatchUtil.generateID(), senderCompId, targetCompId, ordType, price, (int) qty, clOrdId);
             }
         } catch (Exception e) {
             rejectOrder(targetCompId, senderCompId, clOrdId, symbol, side, e.getMessage());
@@ -211,10 +211,10 @@ public class OrderMatcher {
                 //采用正向套利
                 //判断是否是买单
                 if (side == Side.BUY) {
-                    processOutrightOrder(symbolStrings[0], symbolStrings[1], Side.SELL, Side.BUY, Util.generateID(), order.getOwner(), order.getTarget(), order.getType(),
+                    processOutrightOrder(symbolStrings[0], symbolStrings[1], Side.SELL, Side.BUY, MatchUtil.generateID(), order.getOwner(), order.getTarget(), order.getType(),
                             order.getPrice(), order.getOpenQuantity(), order.getClientOrderId());
                 } else {
-                    processOutrightOrder(symbolStrings[0], symbolStrings[1], Side.BUY, Side.SELL, Util.generateID(), order.getOwner(), order.getTarget(), order.getType(),
+                    processOutrightOrder(symbolStrings[0], symbolStrings[1], Side.BUY, Side.SELL, MatchUtil.generateID(), order.getOwner(), order.getTarget(), order.getType(),
                             order.getPrice(), order.getOpenQuantity(), order.getClientOrderId());
                 }
             }

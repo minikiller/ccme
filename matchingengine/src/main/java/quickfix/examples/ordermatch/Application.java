@@ -38,11 +38,11 @@ public class Application extends MessageCracker implements quickfix.Application 
     }
 
     public void fromAdmin(Message message, SessionID sessionId) {
-        Util.printMsg(message);
+        MatchUtil.printMsg(message);
     }
 
     public void fromApp(Message message, SessionID sessionId) throws FieldNotFound, IncorrectTagValue, UnsupportedMessageType {
-        Util.printMsg(message);
+        MatchUtil.printMsg(message);
         crack(message, sessionId);
     }
 
