@@ -28,3 +28,8 @@ sudo mvn clean package
 ```
 ctrl+B then press d
 ```
+
+### 6. run
+``` 
+sudo java -cp marketdata/target/ccme-marketdata-2.2.0-standalone.jar quickfix.examples.executor.MarkettaServer
+```
