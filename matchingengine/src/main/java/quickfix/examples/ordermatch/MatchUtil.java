@@ -67,7 +67,7 @@ public class MatchUtil {
 
     /**
      * 返回单脚单的时间后序单脚单列表
-     * 例如 <d1,[d2,d3]>
+     * 例如 <s-d1,[s-d2,s-d3]>
      * @return
      */
     public static Map<String, List<String>> getAfterSingleMap() {

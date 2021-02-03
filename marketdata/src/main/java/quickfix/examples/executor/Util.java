@@ -44,7 +44,7 @@ public class Util {
         try {
             settings = new SessionSettings(inputStream);
             instrumentNameList = Arrays
-                    .asList(settings.getString(INSTRUMENT_DATE).trim().split(","));
+                    .asList(settings.getString(INSTRUMENT_NAME).trim().split(","));
 
             inputStream.close();
         } catch (ConfigError configError) {
@@ -70,7 +70,7 @@ public class Util {
         try {
             settings = new SessionSettings(inputStream);
             instrumentDateList = Arrays
-                    .asList(settings.getString(INSTRUMENT_NAME).trim().split(","));
+                    .asList(settings.getString(INSTRUMENT_DATE).trim().split(","));
 
             inputStream.close();
         } catch (ConfigError configError) {
