@@ -235,6 +235,9 @@ public class BanzaiApplication implements Application {
                 order.setNew(false);
             }
         }
+        else if (ordStatus.valueEquals(OrdStatus.REPLACED)) {
+             //todo process replaced change value
+        }
 
         try {
             order.setMessage(message.getField(new Text()).getValue());
@@ -274,7 +277,7 @@ public class BanzaiApplication implements Application {
         }
         orderTableModel.updateOrder(order, message.getField(new OrigClOrdID()).getValue());
     }
-
+    //todo need to concern
     private boolean alreadyProcessed(ExecID execID, SessionID sessionID) {
         HashSet<ExecID> set = execIDs.get(sessionID);
         if (set == null) {
@@ -532,6 +535,7 @@ public class BanzaiApplication implements Application {
                 typeToFIXType(order.getType()));
 //      new HandlInst('1')
         message.setField(new Symbol(order.getSymbol()));
+        message.setField(new Price(order.getLimit()));
         orderTableModel.addID(order, newOrder.getID());
         send(populateCancelReplace(order, newOrder, message), order.getSessionID());
     }

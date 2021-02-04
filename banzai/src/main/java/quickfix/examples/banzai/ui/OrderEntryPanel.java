@@ -73,7 +73,7 @@ public class OrderEntryPanel extends JPanel implements Observer {
 
     private final JComboBox sessionComboBox = new JComboBox();
 
-    private final JLabel limitPriceLabel = new JLabel("Limit");
+    private final JLabel limitPriceLabel = new JLabel("Price");
     private final JLabel stopPriceLabel = new JLabel("Stop");
 
     private final JLabel messageLabel = new JLabel(" ");
