@@ -28,8 +28,6 @@ import quickfix.fix44.*;
 public class Application extends MessageCracker implements quickfix.Application {
     private OrderMatcher orderMatcher = null;
     private final IdGenerator generator = new IdGenerator();
-    String[] dateStrings = {"JAN21", "APR21", "JUL21", "OCT21"};
-    String[] symbolStrings;
     private MarketClientApplication app = null; //用于和大盘数据交换的变量
 
     public Application(MarketClientApplication app) {
@@ -46,6 +44,10 @@ public class Application extends MessageCracker implements quickfix.Application 
         crack(message, sessionId);
     }
 
+    public void onMessage(NewOrderSingle message, SessionID sessionID) throws FieldNotFound, IncorrectTagValue, UnsupportedMessageType {
+        orderMatcher.processNewOrderSingle(message, sessionID);
+    }
+
     public void onMessage(OrderCancelRequest message, SessionID sessionID) throws FieldNotFound {
         orderMatcher.processOrderCancelRequest(message, sessionID);
     }
@@ -54,13 +56,6 @@ public class Application extends MessageCracker implements quickfix.Application 
         orderMatcher.processOrderCancelReplaceRequest(message, sessionID);
     }
 
-    public void onMessage(NewOrderSingle message, SessionID sessionID) throws FieldNotFound, IncorrectTagValue, UnsupportedMessageType {
-        orderMatcher.processNewOrderSingle(message, sessionID);
-    }
-
-    public void onMessage(NewOrderMultileg message, SessionID sessionID) throws FieldNotFound, IncorrectTagValue, UnsupportedMessageType {
-        orderMatcher.processNewOrderMultileg(message, sessionID);
-    }
 
     public void onCreate(SessionID sessionId) {
         System.out.println("Create - " + sessionId);

@@ -30,7 +30,7 @@ public class OrderType {
     static public final OrderType STOP_LIMIT = new OrderType("Stop Limit");
     private final String name;
 
-    static private final OrderType[] array = { MARKET, LIMIT, STOP, STOP_LIMIT };
+    static private final OrderType[] array = { LIMIT, MARKET, STOP, STOP_LIMIT };
 
     private OrderType(String name) {
         this.name = name;
