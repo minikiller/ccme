@@ -30,13 +30,21 @@ import java.util.List;
 import java.util.Map;
 
 public class OrderMatcher {
-    private final HashMap<String, Market> markets = new HashMap<>();
+    private HashMap<String, Market> markets = new HashMap<>();
     private MarketClientApplication marketClientApplication = null;
 
     private final Map<String, List<String>> beforeDoubleMap = MatchUtil.getBeforeDoubleMap();
     private final Map<String, List<String>> afterDoubleMap = MatchUtil.getAfterDoubleMap();
     private final Map<String, List<String>> beforeSingleMap = MatchUtil.getBeforeSingleMap();
     private final Map<String, List<String>> afterSingleMap = MatchUtil.getAfterSingleMap();
+
+    public HashMap<String, Market> getMarkets() {
+        return markets;
+    }
+
+    public void setMarkets(HashMap<String, Market> markets) {
+        this.markets = markets;
+    }
 
     public OrderMatcher(MarketClientApplication app) {
         this.marketClientApplication = app;
@@ -161,17 +169,6 @@ public class OrderMatcher {
         }
     }
 
-
-//    public boolean haveOrder(String symbol, char side) {
-//        //订单是否存在
-//        Order order = find(symbol, side);
-//        if (order != null) {
-//            return true;
-//        }
-//        return false;
-//    }
-
-
     private void rejectOrder(String senderCompId, String targetCompId, String clOrdId,
                              String symbol, char side, String message) {
 
@@ -252,12 +249,13 @@ public class OrderMatcher {
             ArrayList<Order> orders = new ArrayList<>();
             List<ImplyOrder> implyOrders = new ArrayList<>();
             match(order.getSymbol(), orders);
-            if (orders.size() == 0) {
+            if (orders.size() == 0) {//说明未撮合成功
                 implyOrders = createImplyOrder(order);
+                while (implyOrders.size() > 0) {
+                    implyOrder(implyOrders.remove(0)); //发送报告给客户端
+                }
             }
-            while (implyOrders.size() > 0) {
-                implyOrder(implyOrders.remove(0)); //发送报告给客户端
-            }
+
             while (orders.size() > 0) {
                 fillOrder(orders.remove(0));
             }
@@ -269,10 +267,10 @@ public class OrderMatcher {
 
     //创建隐含订单
     private List<ImplyOrder> createImplyOrder(Order order) {
-        if (order.isSingle() == true) { //单脚单
-            return createSingleImplyOrder(order);
-        } else {//双脚单
-            return createDoubleImplyOrder(order);
+        if (order.isSingle() == true) {
+            return createSingleImplyOrder(order);//处理单脚单
+        } else {
+            return createDoubleImplyOrder(order);//处理双脚单
         }
     }
 
@@ -293,20 +291,67 @@ public class OrderMatcher {
         createSingle(order, orders, afterSingleSymbols);
         //返回单脚单之前的双脚单列表
         List<String> beforeDoubleSymbols = beforeDoubleMap.get(order.getSymbol());
-        createDouble(order, orders, beforeDoubleSymbols);
+        createBeforeDouble(order, orders, beforeDoubleSymbols);
         //返回单脚单之后的双脚单列表
         List<String> afterDoubleSymbols = afterDoubleMap.get(order.getSymbol());
-        createDouble(order, orders, afterDoubleSymbols);
+        createAfterDouble(order, orders, afterDoubleSymbols);
         return orders;
     }
 
-    private void createDouble(Order order, List<ImplyOrder> orders, List<String> doubleSymbols) {
+    /**
+     * 输入：s_d3，
+     * 处理单脚单之前的双脚单列表： s_d1_d3,s_d2_d3
+     *
+     * @param order
+     * @param orders
+     * @param doubleSymbols
+     */
+    private void createBeforeDouble(Order order, List<ImplyOrder> orders, List<String> doubleSymbols) {
         for (String str : doubleSymbols) {
             Market market = getMarket(str);
-            ImplyOrder implyOrder = market.matchDoubleImply(order);
-            if (implyOrder != null) {
-                orders.add(implyOrder);
-                insert(implyOrder);
+            ImplyOrder implyOrder = null;
+            if (order.getSide() == Side.BUY) {
+                implyOrder = market.matchSingleBuy(order, Side.BUY);
+                if (implyOrder != null) {
+                    orders.add(implyOrder);
+                    insert(implyOrder);
+                }
+            }
+            if (order.getSide() == Side.SELL) {
+                implyOrder = market.matchSingleSell(order, Side.SELL);
+                if (implyOrder != null) {
+                    orders.add(implyOrder);
+                    insert(implyOrder);
+                }
+            }
+        }
+    }
+
+    /**
+     * 输入：s_d1，
+     * 处理单脚单之后的双脚单列表： s_d1_d2,s_d1_d2
+     *
+     * @param order
+     * @param orders
+     * @param doubleSymbols
+     */
+    private void createAfterDouble(Order order, List<ImplyOrder> orders, List<String> doubleSymbols) {
+        for (String str : doubleSymbols) {
+            Market market = getMarket(str);
+            ImplyOrder implyOrder = null;
+            if (order.getSide() == Side.BUY) {
+                implyOrder = market.matchSingleBuy(order, Side.SELL);
+                if (implyOrder != null) {
+                    orders.add(implyOrder);
+                    insert(implyOrder);
+                }
+            }
+            if (order.getSide() == Side.SELL) {
+                implyOrder = market.matchSingleSell(order, Side.BUY);
+                if (implyOrder != null) {
+                    orders.add(implyOrder);
+                    insert(implyOrder);
+                }
             }
         }
     }
@@ -347,7 +392,8 @@ public class OrderMatcher {
                 implyOrders.add(implyOrder);
                 insert(implyOrder);
             }
-        } else if (order.getSide() == Side.SELL) {
+        }
+        if (order.getSide() == Side.SELL) {
             implyOrder = market_d1.matchDoubleSell(order, Side.BUY);
             if (implyOrder != null) {
                 implyOrders.add(implyOrder);

@@ -24,7 +24,10 @@ import quickfix.field.Side;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Market {
 
@@ -154,90 +157,201 @@ public class Market {
 //            return null;
 //        }
         ImplyOrder implyOrder = null;
-        Order _order;
         if (order.getSide() == Side.BUY) {
             if (askOrders.size() == 0) return null;
-            _order = askOrders.get(0);
+            Order _order = getMaxOrder(order.getQuantity(), askOrders);
+            if (_order == null)
+                return null;
             String symbol = MatchUtil.getDoubleSymbol(order.getSymbol(), _order.getSymbol());
-            implyOrder = ImplyOrder.createInstance(symbol, order, _order,_order.getSide());
+            implyOrder = ImplyOrder.createInstance(symbol, order, _order, _order.getSide());
         } else if (order.getSide() == Side.SELL) {
             if (bidOrders.size() == 0) return null;
-            _order = bidOrders.get(0);
+            Order _order = getMinOrder(order.getQuantity(), bidOrders);
+            if (_order == null)
+                return null;
+
             String symbol = MatchUtil.getDoubleSymbol(order.getSymbol(), _order.getSymbol());
-            implyOrder = ImplyOrder.createInstance(symbol, order, _order,_order.getSide());
+            implyOrder = ImplyOrder.createInstance(symbol, order, _order, _order.getSide());
         }
 
         return implyOrder;
     }
 
     /**
-     * 根据单脚单和双脚单创建单脚单， 生成OUT的四种
+     * 输入：order=s_d1_d2@买单
+     * 输入：s_d2@买单 ---》 s_d1@买单
+     * 输入：s_d1@卖单 ---》 s_d2@卖单
      *
-     * @param order
-     * @return
-     */
-    public ImplyOrder matchDoubleImply(Order order) {
-        if (bidOrders.size() == 0 || askOrders.size() == 0) {
-            return null;
-        }
-        return null;
-    }
-
-    /**
-     * order=s_d1_d2 买单,匹配s_d1的卖单
-     * 生成s_d2的卖单
      * @param order
      * @param side
      * @return
      */
     public ImplyOrder matchDoubleBuy(Order order, char side) {
-        ImplyOrder implyOrder=null;
+        ImplyOrder implyOrder = null;
         //实现OUT第二行第一个规则：s_d1_d2买单+s_d2买单 ---》 s_d1买单
-        if(side==Side.BUY){
+        if (side == Side.BUY) {
             if (bidOrders.size() == 0)
                 return null;
-            Order _order = bidOrders.get(0);
+            Order _order = getMinOrder(order.getQuantity(), bidOrders);
+            if (_order == null)
+                return null;
             String symbol = MatchUtil.getSingleSymbol(order.getSymbol(), _order.getSymbol());
-            implyOrder = ImplyOrder.createInstance(symbol, order, _order,Side.BUY);
+            implyOrder = ImplyOrder.createInstance(symbol, order, _order, Side.BUY);
         }
         //实现OUT第一行第二个规则：s_d1_d2买单+s_d1卖单 ---》 s_d2卖单
-        if (side==Side.SELL){
+        if (side == Side.SELL) {
             if (askOrders.size() == 0)
                 return null;
-            Order _order = askOrders.get(0);
+            Order _order = getMaxOrder(order.getQuantity(), askOrders);
+            if (_order == null)
+                return null;
             String symbol = MatchUtil.getSingleSymbol(order.getSymbol(), _order.getSymbol());
-            implyOrder = ImplyOrder.createInstance(symbol, order, _order,Side.SELL);
+            implyOrder = ImplyOrder.createInstance(symbol, order, _order, Side.SELL);
         }
 
         return implyOrder;
     }
 
     /**
-     * order=s_d1_d2 卖单
+     * 输入：order=s_d1_d2@卖单
+     * 输入：s_d1@买单 ---》 输出：s_d2@买单
+     * 输入：s_d2@卖单 ---》 输出：s_d1@卖单
      *
      * @param order
      * @param side
      * @return
      */
     public ImplyOrder matchDoubleSell(Order order, char side) {
-        ImplyOrder implyOrder=null;
+        ImplyOrder implyOrder = null;
         //实现OUT第一行第一个规则：s_d1_d2卖单 + s_d1买单 ---》 s_d2买单
-        if(side==Side.BUY){
+        if (side == Side.BUY) {
             if (bidOrders.size() == 0)
                 return null;
-            Order _order = bidOrders.get(0);
+            Order _order = getMinOrder(order.getQuantity(), bidOrders);
+            if (_order == null)
+                return null;
             String symbol = MatchUtil.getSingleSymbol(order.getSymbol(), _order.getSymbol());
-            implyOrder = ImplyOrder.createInstance(symbol, order, _order,Side.BUY);
+            implyOrder = ImplyOrder.createInstance(symbol, order, _order, Side.BUY);
         }
         //实现OUT第二行第二个规则：s_d1_d2卖单 + s_d2卖单 ---》 s_d1卖单
-        if (side==Side.SELL){
+        if (side == Side.SELL) {
             if (askOrders.size() == 0)
                 return null;
-            Order _order = askOrders.get(0);
+            Order _order = getMinOrder(order.getQuantity(), askOrders);
+            if (_order == null)
+                return null;
+
             String symbol = MatchUtil.getSingleSymbol(order.getSymbol(), _order.getSymbol());
-            implyOrder = ImplyOrder.createInstance(symbol, order, _order,Side.SELL);
+            implyOrder = ImplyOrder.createInstance(symbol, order, _order, Side.SELL);
         }
 
         return implyOrder;
+    }
+
+    /**
+     * 输入：order=s_d2@买单
+     * 输入：s_d1_d2@买单 ---》 输出：s_d1@买单
+     * <p>
+     * 输入：order=s_d1@买单
+     * 输入：s_d1_d2@卖单 ---》 输出：s_d2@买单
+     *
+     * @param order
+     * @param side
+     * @return
+     */
+    public ImplyOrder matchSingleBuy(Order order, char side) {
+        ImplyOrder implyOrder = null;
+        //实现OUT第二行第一个规则：s_d2买单 + s_d1_d2买单 +  ---》 s_d1买单
+        if (side == Side.BUY) {
+            if (bidOrders.size() == 0)
+                return null;
+            Order _order = getMinOrder(order.getQuantity(), bidOrders);
+            if (_order == null)
+                return null;
+            String symbol = MatchUtil.getSingleSymbol(order.getSymbol(), _order.getSymbol());
+            implyOrder = ImplyOrder.createInstance(symbol, order, _order, Side.BUY);
+        }
+        //实现OUT第一行第一个规则：s_d1买单 + s_d1_d2卖单 +  ---》 s_d2买单
+        if (side == Side.SELL) {
+            if (askOrders.size() == 0)
+                return null;
+            Order _order = getMaxOrder(order.getQuantity(), askOrders);
+            if (_order == null)
+                return null;
+            String symbol = MatchUtil.getSingleSymbol(order.getSymbol(), _order.getSymbol());
+            implyOrder = ImplyOrder.createInstance(symbol, order, _order, Side.BUY);
+        }
+        return implyOrder;
+    }
+
+    /**
+     * 输入：order=s_d2@卖单
+     * 输入：s_d1_d2@卖单 ---》 输出：s_d1@卖单
+     * <p>
+     * 输入：order=s_d1@卖单
+     * 输入：s_d1_d2@买单 ---》 输出：s_d2@卖单
+     *
+     * @param order
+     * @param side
+     * @return
+     */
+    public ImplyOrder matchSingleSell(Order order, char side) {
+        ImplyOrder implyOrder = null;
+        //实现OUT第二行第二个规则：s_d2卖单 + s_d1_d2卖单 +  ---》 s_d1卖单
+        if (side == Side.SELL) {
+            if (askOrders.size() == 0)
+                return null;
+            Order _order = getMaxOrder(order.getQuantity(), askOrders);
+            if (_order == null)
+                return null;
+            String symbol = MatchUtil.getSingleSymbol(order.getSymbol(), _order.getSymbol());
+            implyOrder = ImplyOrder.createInstance(symbol, order, _order, Side.SELL);
+        }
+        //实现OUT第一行第二个规则：s_d1卖单 + s_d1_d2买单 +  ---》 s_d2卖单
+        if (side == Side.BUY) {
+            if (bidOrders.size() == 0)
+                return null;
+            Order _order = getMinOrder(order.getQuantity(), bidOrders);
+            if (_order == null)
+                return null;
+            String symbol = MatchUtil.getSingleSymbol(order.getSymbol(), _order.getSymbol());
+            implyOrder = ImplyOrder.createInstance(symbol, order, _order, Side.SELL);
+        }
+        //实现OUT第一行第一个规则：s_d1买单 + s_d1_d2卖单 +  ---》 s_d2买单
+        return implyOrder;
+    }
+
+    /**
+     * 获得有效的订单，规则：只能是普通订单，不能是隐含单
+     *
+     * @param quantity
+     * @param orders
+     * @return
+     */
+    public Order getMaxOrder(long quantity, List<Order> orders) {
+        List<Order> orderList=new ArrayList<>(orders);
+        List<Order> result = orderList.stream()                // convert list to stream
+                .filter(order -> quantity == (order.getQuantity())) //数量一致
+                .filter(order -> !(order instanceof ImplyOrder)) //不能是隐含单
+                .collect(Collectors.toList());
+        if (result.size() > 0) {
+            Order order = Collections.max(result, Comparator.comparing(s -> s.getPrice()));
+            return order;
+        } else
+            return null;
+
+    }
+
+    public Order getMinOrder(long quantity, List<Order> orders) {
+        List<Order> orderList=new ArrayList<>(orders);
+        List<Order> result = orderList.stream()                // convert list to stream
+                .filter(order -> quantity == (order.getQuantity())) //数量一致
+                .filter(order -> !(order instanceof ImplyOrder)) //不能是隐含单
+                .collect(Collectors.toList());
+        if (result.size() > 0) {
+            Order order = Collections.min(result, Comparator.comparing(s -> s.getPrice()));
+            return order;
+        } else
+            return null;
     }
 }

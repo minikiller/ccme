@@ -199,18 +199,33 @@ public class MatchUtil {
      * 输入一个双脚单，返回一个单脚单
      * if 输入 s_d1_d2,s_d1 return s_d2
      * if 输入 s_d1_d2,s_d2 return s_d1
-     * @param doubleSymbol
-     * @param singleSymbol
+     * @param doubleSymbol 双脚单
+     * @param singleSymbol 单脚单
      * @return
      */
     public static String getSingleSymbol(String doubleSymbol, String singleSymbol) {
         String[] str=doubleSymbol.split("-");
-        String leftSymbol=str[0]+"-"+str[1];
-        String rightSymbol=str[0]+"-"+str[2];
-        if (leftSymbol.equals(singleSymbol)){
-            return rightSymbol;
-        }else {
-            return leftSymbol;
+        if(str.length==3){
+            String leftSymbol=str[0]+"-"+str[1];
+            String rightSymbol=str[0]+"-"+str[2];
+            if (leftSymbol.equals(singleSymbol)){
+                return rightSymbol;
+            }else {
+                return leftSymbol;
+            }
         }
+        else{
+            String[] str1=singleSymbol.split("-");
+            String leftSymbol=str1[0]+"-"+str1[1];
+            String rightSymbol=str1[0]+"-"+str1[2];
+            if (leftSymbol.equals(doubleSymbol)){
+                return rightSymbol;
+            }else {
+                return leftSymbol;
+            }
+        }
+
     }
+
+
 }
