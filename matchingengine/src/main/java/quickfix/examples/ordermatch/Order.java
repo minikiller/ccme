@@ -36,8 +36,7 @@ public class Order {
     private double avgExecutedPrice;
     private double lastExecutedPrice;
     private long lastExecutedQuantity;
-    private int isSpread;
-    private String parentOrderId;
+    private boolean isSingle = true; //是否是单脚单，还是双脚单
 
     public Order(String clientId, String symbol, String owner, String target, char side, char type,
                  double price, long quantity) {
@@ -52,7 +51,10 @@ public class Order {
         this.quantity = quantity;
         openQuantity = quantity;
         entryTime = System.currentTimeMillis();
+        //判断单脚单还是双脚单
+        if (symbol.split("-").length == 3) this.isSingle = false;
     }
+
 
     public double getAvgExecutedPrice() {
         return avgExecutedPrice;
@@ -146,19 +148,11 @@ public class Order {
         return lastExecutedPrice;
     }
 
-    public int getIsSpread() {
-        return isSpread;
+    public boolean isSingle() {
+        return isSingle;
     }
 
-    public void setIsSpread(int isSpread) {
-        this.isSpread = isSpread;
-    }
-
-    public String getParentOrderId() {
-        return parentOrderId;
-    }
-
-    public void setParentOrderId(String parentOrderId) {
-        this.parentOrderId = parentOrderId;
+    public void setSingle(boolean single) {
+        isSingle = single;
     }
 }

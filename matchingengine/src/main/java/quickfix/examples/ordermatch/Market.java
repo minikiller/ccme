@@ -26,11 +26,13 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 public class Market {
 
     private final List<Order> bidOrders = new ArrayList<>();
     private final List<Order> askOrders = new ArrayList<>();
+
 
     public boolean match(String symbol, List<Order> orders) {
         while (true) {
@@ -73,6 +75,7 @@ public class Market {
     }
 
     private boolean insert(Order order, boolean descending, List<Order> orders) {
+
         if (orders.size() == 0) {
             orders.add(order);
         } else if (order.getType() == OrdType.MARKET) {
@@ -98,39 +101,13 @@ public class Market {
         }
     }
 
-    public void replace(Order order,double price,double qty) {
-        order.setQuantity((int)qty);
+    public void replace(Order order, double price, double qty) {
+        order.setQuantity((int) qty);
         order.setPrice(price);
     }
 
     public Order find(String symbol, char side, String id) {
         return find(side == Side.BUY ? bidOrders : askOrders, id);
-    }
-
-    public Order findImplied(char side,String id) {
-        return findImplied(side == Side.BUY ? bidOrders : askOrders,id);
-    }
-
-    private Order findImplied(List<Order> orders,String id) {
-        for (Order order : orders) {
-            if (order.getParentOrderId().equals(id)) {
-                return order;
-            }
-        }
-        return null;
-    }
-
-    public Order findSpread(String symbol, char side) {
-        return findSpread(side == Side.BUY ? bidOrders : askOrders,symbol);
-    }
-
-    private Order findSpread(List<Order> orders,String symbol) {
-        for (Order order : orders) {
-            if (order.getSymbol().equals(symbol)) {
-                return order;
-            }
-        }
-        return null;
     }
 
     private Order find(List<Order> orders, String clientOrderId) {
@@ -143,7 +120,7 @@ public class Market {
     }
 
     public void display(String symbol) {
-        if(bidOrders.size() > 0 || askOrders.size() > 0){
+        if (bidOrders.size() > 0 || askOrders.size() > 0) {
             System.out.println("MARKET: " + symbol);
         }
         displaySide(bidOrders, "BIDS");
@@ -151,7 +128,7 @@ public class Market {
     }
 
     private void displaySide(List<Order> orders, String title) {
-        if(orders.size() == 0){
+        if (orders.size() == 0) {
             return;
         }
         DecimalFormat priceFormat = new DecimalFormat("#.00");
@@ -159,8 +136,49 @@ public class Market {
         System.out.println(title + ":\n----");
         for (Order order : orders) {
             System.out.println("股票代码: " + order.getSymbol() + " 价格: $" + priceFormat.format(order.getPrice())
-                    + " | 总量:"+ qtyFormat.format(order.getOpenQuantity()) + " ｜ 待成交: " +order.getOpenQuantity() + " ｜ 拥有者: " + order.getOwner() + " ｜ 时间:"
-                    + new Date(order.getEntryTime())+" | 编号:"+order.getClientOrderId());
+                    + " | 总量:" + qtyFormat.format(order.getOpenQuantity()) + " ｜ 待成交: " + order.getOpenQuantity() + " ｜ 拥有者: " + order.getOwner() + " ｜ 时间:"
+                    + new Date(order.getEntryTime()) + " | 编号:" + order.getClientOrderId());
         }
+    }
+
+    /**
+     * 根据单脚单和单脚单创建双脚单，
+     * 生成IN的两种:
+     * (BUY)s_d1+(SELL)s_d2=(BUY)s_d1_d2
+     * (SELL)s_d1+(BUY)s_d2=(SELL)s_d1_d2
+     *
+     * @param order
+     * @return
+     */
+    public ImplyOrder matchSingleImply(Order order) {
+        if (bidOrders.size() == 0 || askOrders.size() == 0) {
+            return null;
+        }
+        ImplyOrder implyOrder=null;
+        Order _order;
+        if (order.getSide() == Side.BUY) {
+            _order=askOrders.get(0);
+            String symbol=MatchUtil.getDoubleSymbol(order.getSymbol(),_order.getSymbol());
+            implyOrder = ImplyOrder.createInstance(symbol,order, _order);
+        } else if (order.getSide() == Side.SELL) {
+            _order=bidOrders.get(0);
+            String symbol=MatchUtil.getDoubleSymbol(order.getSymbol(),_order.getSymbol());
+            implyOrder = ImplyOrder.createInstance(symbol,order,_order);
+        }
+
+        return implyOrder;
+    }
+
+    /**
+     * 根据单脚单和双脚单创建单脚单， 生成OUT的四种
+     *
+     * @param order
+     * @return
+     */
+    public ImplyOrder matchDoubleImply(Order order) {
+        if (bidOrders.size() == 0 || askOrders.size() == 0) {
+            return null;
+        }
+        return null;
     }
 }

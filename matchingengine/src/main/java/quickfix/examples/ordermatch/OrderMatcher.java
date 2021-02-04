@@ -26,10 +26,17 @@ import quickfix.fix44.Message;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class OrderMatcher {
     private final HashMap<String, Market> markets = new HashMap<>();
     private MarketClientApplication marketClientApplication = null;
+
+    private final Map<String, List<String>> beforeDoubleMap = MatchUtil.getBeforeDoubleMap();
+    private final Map<String, List<String>> afterDoubleMap = MatchUtil.getAfterDoubleMap();
+    private final Map<String, List<String>> beforeSingleMap = MatchUtil.getBeforeSingleMap();
+    private final Map<String, List<String>> afterSingleMap = MatchUtil.getAfterSingleMap();
 
     public OrderMatcher(MarketClientApplication app) {
         this.marketClientApplication = app;
@@ -51,9 +58,9 @@ public class OrderMatcher {
         return getMarket(symbol).find(symbol, side, id);
     }
 
-    public Order find(String symbol, char side) {
-        return getMarket(symbol).findSpread(symbol, side);
-    }
+//    public Order find(String symbol, char side) {
+//        return getMarket(symbol).findSpread(symbol, side);
+//    }
 
     public void erase(Order order) {
         getMarket(order.getSymbol()).erase(order);
@@ -159,14 +166,14 @@ public class OrderMatcher {
 
 
 
-    public boolean haveOrder(String symbol, char side) {
-        //订单是否存在
-        Order order = find(symbol, side);
-        if (order != null) {
-            return true;
-        }
-        return false;
-    }
+//    public boolean haveOrder(String symbol, char side) {
+//        //订单是否存在
+//        Order order = find(symbol, side);
+//        if (order != null) {
+//            return true;
+//        }
+//        return false;
+//    }
 
 
 
@@ -252,7 +259,9 @@ public class OrderMatcher {
 
             ArrayList<Order> orders = new ArrayList<>();
             match(order.getSymbol(), orders);
-
+            if(orders.size()==0){
+                createImplyOrder(order);
+            }
             while (orders.size() > 0) {
                 fillOrder(orders.remove(0));
             }
@@ -260,6 +269,64 @@ public class OrderMatcher {
         } else {
             rejectOrder(order);
         }
+    }
+
+    //创建隐含订单
+    private void createImplyOrder(Order order) {
+        if (order.isSingle()==true){ //单脚单
+            createSingleImplyOrder(order);
+        }
+        else{//双脚单
+            createDoubleImplyOrder(order);
+        }
+    }
+
+    /**
+     * 根据单脚单创建隐含单
+     * @param order
+     */
+    public void createSingleImplyOrder(Order order) {
+        //返回单脚单之前的单脚单列表
+        List<String> beforeSingleSymbols= beforeSingleMap.get(order.getSymbol());
+        for(String str:beforeSingleSymbols){
+            Market market=getMarket(str);
+            ImplyOrder implyOrder= market.matchSingleImply(order);
+            insert(implyOrder);
+        }
+        //返回单脚单之后的单脚单列表
+        List<String> afterSingleSymbols= afterSingleMap.get(order.getSymbol());
+        for (String str:afterSingleSymbols){
+            Market market=getMarket(str);
+            ImplyOrder implyOrder= market.matchSingleImply(order);
+            insert(implyOrder);
+        }
+        //返回单脚单之前的双脚单列表
+        List<String> beforeDoubleSymbols= beforeDoubleMap.get(order.getSymbol());
+        for(String str:beforeDoubleSymbols){
+            Market market=getMarket(str);
+            ImplyOrder implyOrder=market.matchDoubleImply(order);
+            insert(implyOrder);
+        }
+        //返回单脚单之后的双脚单列表
+        List<String> afterDoubleSymbols= afterDoubleMap.get(order.getSymbol());
+        for (String str:afterDoubleSymbols){
+            Market market=getMarket(str);
+            ImplyOrder implyOrder=market.matchDoubleImply(order);
+            insert(implyOrder);
+        }
+    }
+    /**
+     * 根据双脚单创建隐含单
+     * @param order
+     */
+    public void createDoubleImplyOrder(Order order) {
+        //拆分双脚单为两个单脚单，即s-d1-d2,分成s-d1,s-d2
+        String[] str=order.getSymbol().split("-");
+        String symbol_d1=str[0]+str[1];
+        String symbol_d2=str[0]+str[2];
+        Market market_d1=markets.get(symbol_d1);
+        Market market_d2=markets.get(symbol_d2);
+
     }
 
     private void rejectOrder(Order order) {
