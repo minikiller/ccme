@@ -194,4 +194,23 @@ public class MatchUtil {
         getBeforeDoubleMap();
         getAfterDoubleMap();
     }
+
+    /**
+     * 输入一个双脚单，返回一个单脚单
+     * if 输入 s_d1_d2,s_d1 return s_d2
+     * if 输入 s_d1_d2,s_d2 return s_d1
+     * @param doubleSymbol
+     * @param singleSymbol
+     * @return
+     */
+    public static String getSingleSymbol(String doubleSymbol, String singleSymbol) {
+        String[] str=doubleSymbol.split("-");
+        String leftSymbol=str[0]+"-"+str[1];
+        String rightSymbol=str[0]+"-"+str[2];
+        if (leftSymbol.equals(singleSymbol)){
+            return rightSymbol;
+        }else {
+            return leftSymbol;
+        }
+    }
 }

@@ -253,9 +253,9 @@ public class OrderMatcher {
             List<ImplyOrder> implyOrders = new ArrayList<>();
             match(order.getSymbol(), orders);
             if (orders.size() == 0) {
-                implyOrders=createImplyOrder(order);
+                implyOrders = createImplyOrder(order);
             }
-            while(implyOrders.size()>0){
+            while (implyOrders.size() > 0) {
                 implyOrder(implyOrders.remove(0)); //发送报告给客户端
             }
             while (orders.size() > 0) {
@@ -331,10 +331,34 @@ public class OrderMatcher {
         //拆分双脚单为两个单脚单，即s-d1-d2,分成s-d1,s-d2
         List<ImplyOrder> implyOrders = new ArrayList<>();
         String[] str = order.getSymbol().split("-");
-        String symbol_d1 = str[0] + str[1];
-        String symbol_d2 = str[0] + str[2];
+        String symbol_d1 = str[0] + "-" + str[1];
+        String symbol_d2 = str[0] + "-" + str[2];
         Market market_d1 = getMarket(symbol_d1);
         Market market_d2 = getMarket(symbol_d2);
+        ImplyOrder implyOrder = null;
+        if (order.getSide() == Side.BUY) {
+            implyOrder = market_d2.matchDoubleBuy(order, Side.BUY);
+            if (implyOrder != null) {
+                implyOrders.add(implyOrder);
+                insert(implyOrder);
+            }
+            implyOrder = market_d1.matchDoubleBuy(order, Side.SELL);
+            if (implyOrder != null) {
+                implyOrders.add(implyOrder);
+                insert(implyOrder);
+            }
+        } else if (order.getSide() == Side.SELL) {
+            implyOrder = market_d1.matchDoubleSell(order, Side.BUY);
+            if (implyOrder != null) {
+                implyOrders.add(implyOrder);
+                insert(implyOrder);
+            }
+            implyOrder = market_d2.matchDoubleSell(order, Side.SELL);
+            if (implyOrder != null) {
+                implyOrders.add(implyOrder);
+                insert(implyOrder);
+            }
+        }
         return implyOrders;
     }
 

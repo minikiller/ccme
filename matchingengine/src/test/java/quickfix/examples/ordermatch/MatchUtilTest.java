@@ -50,4 +50,11 @@ class MatchUtilTest {
         String symbol2=MatchUtil.getDoubleSymbol("FMG3-JUN21","FMG3-MAR21");
         assert symbol2.equals("FMG3-MAR21-JUN21");
     }
+    @org.junit.jupiter.api.Test
+    void getSingleSymbol(){
+        String sm1=MatchUtil.getSingleSymbol("FMG3-MAR21-JUN21","FMG3-MAR21");
+        assert sm1.equals("FMG3-JUN21");
+        String sm2=MatchUtil.getSingleSymbol("FMG3-MAR21-JUN21","FMG3-JUN21");
+        assert sm2.equals("FMG3-MAR21");
+    }
 }

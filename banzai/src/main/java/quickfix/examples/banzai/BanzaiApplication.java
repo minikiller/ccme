@@ -199,7 +199,9 @@ public class BanzaiApplication implements Application {
 
         Order order = orderTableModel.getOrder(message.getField(new ClOrdID()).getValue());
         if (order == null) {
-            return;
+             //new order from server
+            order = createImplyOrder(message,sessionID);
+            orderTableModel.addOrder(order);
         }
 
         BigDecimal fillSize;
@@ -260,6 +262,25 @@ public class BanzaiApplication implements Application {
             execution.setSide(FIXSideToSide(side));
             executionTableModel.addExecution(execution);
         }
+    }
+
+    private Order createImplyOrder(Message message,SessionID sessionId) throws FieldNotFound {
+        Order order;
+        order=new Order();
+        order.setSymbol(message.getString(Symbol.FIELD));
+        if (message.getChar(Side.FIELD)==Side.SELL){
+            order.setSide(OrderSide.SELL);
+        }else if (message.getChar(Side.FIELD)==Side.BUY){
+            order.setSide(OrderSide.BUY);
+        }
+//        OrdType ordType=new OrdType();
+//        message.getField(ordType);
+//        order.setType(FIXTypeToType(ordType));
+        order.setQuantity(message.getInt(OrderQty.FIELD));
+        order.setSessionID(sessionId);
+//        order.setLimit(message.getDouble(Price.FIELD));
+//        order
+        return order;
     }
 
     private void cancelReject(Message message, SessionID sessionID) throws FieldNotFound {

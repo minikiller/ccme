@@ -24,9 +24,7 @@ import quickfix.field.Side;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 public class Market {
 
@@ -135,9 +133,10 @@ public class Market {
         DecimalFormat qtyFormat = new DecimalFormat("######");
         System.out.println(title + ":\n----");
         for (Order order : orders) {
-            System.out.println("股票代码: " + order.getSymbol() + " 价格: $" + priceFormat.format(order.getPrice())
-                    + " | 总量:" + qtyFormat.format(order.getOpenQuantity()) + " ｜ 待成交: " + order.getOpenQuantity() + " ｜ 拥有者: " + order.getOwner() + " ｜ 时间:"
-                    + new Date(order.getEntryTime()) + " | 编号:" + order.getClientOrderId());
+            System.out.println("股票代码: " + order.getSymbol() + " ｜ 价格: $" + priceFormat.format(order.getPrice())
+                    + " | 总量:" + qtyFormat.format(order.getOpenQuantity()) + " ｜ 待成交: " + order.getOpenQuantity() + " ｜ 拥有者: " + order.getOwner()
+                    + " | 编号:" + order.getClientOrderId());
+            System.out.println("\n");
         }
     }
 
@@ -151,19 +150,21 @@ public class Market {
      * @return
      */
     public ImplyOrder matchSingleImply(Order order) {
-        if (bidOrders.size() == 0 || askOrders.size() == 0) {
-            return null;
-        }
-        ImplyOrder implyOrder=null;
+//        if (bidOrders.size() == 0 || askOrders.size() == 0) {
+//            return null;
+//        }
+        ImplyOrder implyOrder = null;
         Order _order;
         if (order.getSide() == Side.BUY) {
-            _order=askOrders.get(0);
-            String symbol=MatchUtil.getDoubleSymbol(order.getSymbol(),_order.getSymbol());
-            implyOrder = ImplyOrder.createInstance(symbol,order, _order);
+            if (askOrders.size() == 0) return null;
+            _order = askOrders.get(0);
+            String symbol = MatchUtil.getDoubleSymbol(order.getSymbol(), _order.getSymbol());
+            implyOrder = ImplyOrder.createInstance(symbol, order, _order,_order.getSide());
         } else if (order.getSide() == Side.SELL) {
-            _order=bidOrders.get(0);
-            String symbol=MatchUtil.getDoubleSymbol(order.getSymbol(),_order.getSymbol());
-            implyOrder = ImplyOrder.createInstance(symbol,order,_order);
+            if (bidOrders.size() == 0) return null;
+            _order = bidOrders.get(0);
+            String symbol = MatchUtil.getDoubleSymbol(order.getSymbol(), _order.getSymbol());
+            implyOrder = ImplyOrder.createInstance(symbol, order, _order,_order.getSide());
         }
 
         return implyOrder;
@@ -180,5 +181,63 @@ public class Market {
             return null;
         }
         return null;
+    }
+
+    /**
+     * order=s_d1_d2 买单,匹配s_d1的卖单
+     * 生成s_d2的卖单
+     * @param order
+     * @param side
+     * @return
+     */
+    public ImplyOrder matchDoubleBuy(Order order, char side) {
+        ImplyOrder implyOrder=null;
+        //实现OUT第二行第一个规则：s_d1_d2买单+s_d2买单 ---》 s_d1买单
+        if(side==Side.BUY){
+            if (bidOrders.size() == 0)
+                return null;
+            Order _order = bidOrders.get(0);
+            String symbol = MatchUtil.getSingleSymbol(order.getSymbol(), _order.getSymbol());
+            implyOrder = ImplyOrder.createInstance(symbol, order, _order,Side.BUY);
+        }
+        //实现OUT第一行第二个规则：s_d1_d2买单+s_d1卖单 ---》 s_d2卖单
+        if (side==Side.SELL){
+            if (askOrders.size() == 0)
+                return null;
+            Order _order = askOrders.get(0);
+            String symbol = MatchUtil.getSingleSymbol(order.getSymbol(), _order.getSymbol());
+            implyOrder = ImplyOrder.createInstance(symbol, order, _order,Side.SELL);
+        }
+
+        return implyOrder;
+    }
+
+    /**
+     * order=s_d1_d2 卖单
+     *
+     * @param order
+     * @param side
+     * @return
+     */
+    public ImplyOrder matchDoubleSell(Order order, char side) {
+        ImplyOrder implyOrder=null;
+        //实现OUT第一行第一个规则：s_d1_d2卖单 + s_d1买单 ---》 s_d2买单
+        if(side==Side.BUY){
+            if (bidOrders.size() == 0)
+                return null;
+            Order _order = bidOrders.get(0);
+            String symbol = MatchUtil.getSingleSymbol(order.getSymbol(), _order.getSymbol());
+            implyOrder = ImplyOrder.createInstance(symbol, order, _order,Side.BUY);
+        }
+        //实现OUT第二行第二个规则：s_d1_d2卖单 + s_d2卖单 ---》 s_d1卖单
+        if (side==Side.SELL){
+            if (askOrders.size() == 0)
+                return null;
+            Order _order = askOrders.get(0);
+            String symbol = MatchUtil.getSingleSymbol(order.getSymbol(), _order.getSymbol());
+            implyOrder = ImplyOrder.createInstance(symbol, order, _order,Side.SELL);
+        }
+
+        return implyOrder;
     }
 }

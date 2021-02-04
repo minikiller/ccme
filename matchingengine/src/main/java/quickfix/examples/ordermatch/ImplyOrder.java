@@ -1,5 +1,7 @@
 package quickfix.examples.ordermatch;
 
+import quickfix.field.Side;
+
 /**
  * 隐含单
  */
@@ -27,14 +29,14 @@ public class ImplyOrder extends Order {
         this.rightOrder = rightOrder;
     }
 
-    public static ImplyOrder createInstance(String symbol, Order leftOrder, Order rightOrder) {
-        String owner = "FEME";
-        String target = "FEME";
-        String clientId = "FEME";
+    public static ImplyOrder createInstance(String symbol, Order leftOrder, Order rightOrder, char side) {
+        String owner = leftOrder.getOwner();
+        String target = leftOrder.getTarget();
+        String clientId = MatchUtil.generateID();
         char type = leftOrder.getType();
-        double price = leftOrder.getPrice() - rightOrder.getPrice();
+        double price = rightOrder.getPrice()-leftOrder.getPrice() ;
         long quantity = leftOrder.getQuantity();
-        char side = leftOrder.getSide();
+
         ImplyOrder order = new ImplyOrder(clientId, symbol, owner, target, side, type, price, quantity);
         order.leftOrder = leftOrder;
         order.rightOrder = rightOrder;
