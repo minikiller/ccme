@@ -41,4 +41,13 @@ class MatchUtilTest {
         List<String> list=map.get("FMG3-JUN21");
         assert list.size()==1;
     }
+
+    @org.junit.jupiter.api.Test
+    //MAR21,JUN21,SEP21
+    void getDoubleSymbol(){
+        String symbol1=MatchUtil.getDoubleSymbol("FMG3-JUN21","FMG3-SEP21");
+        assert symbol1.equals("FMG3-JUN21-SEP21");
+        String symbol2=MatchUtil.getDoubleSymbol("FMG3-JUN21","FMG3-MAR21");
+        assert symbol2.equals("FMG3-MAR21-JUN21");
+    }
 }
