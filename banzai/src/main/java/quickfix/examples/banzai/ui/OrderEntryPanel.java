@@ -50,7 +50,7 @@ import quickfix.fix44.SecurityDefinitionRequest;
 @SuppressWarnings("unchecked")
 public class OrderEntryPanel extends JPanel implements Observer {
     private boolean symbolEntered = false;
-    private boolean quantityEntered = false;
+    private boolean quantityEntered = true;
     private boolean limitEntered = false;
     private boolean stopEntered = false;
     private boolean sessionEntered = false;
@@ -61,6 +61,7 @@ public class OrderEntryPanel extends JPanel implements Observer {
     public void setSymbolTestFieldValue(String value) {
         symbolTextField.setText(value);
         symbolEntered = true;
+        activateSubmit();
 
     }
 
@@ -152,12 +153,15 @@ public class OrderEntryPanel extends JPanel implements Observer {
         add(symbolTextField, x = 0, ++y);
         constraints.ipadx = 0;
         quantityTextField.setName("QuantityTextField");
+        quantityTextField.setText("1");
         add(quantityTextField, ++x, y);
         sideComboBox.setName("SideComboBox");
         add(sideComboBox, ++x, y);
         typeComboBox.setName("TypeComboBox");
+        limitEntered=true;
         add(typeComboBox, ++x, y);
         limitPriceTextField.setName("LimitPriceTextField");
+        limitPriceTextField.setText("10.0");
         add(limitPriceTextField, ++x, y);
         stopPriceTextField.setName("StopPriceTextField");
         add(stopPriceTextField, ++x, y);
@@ -178,7 +182,7 @@ public class OrderEntryPanel extends JPanel implements Observer {
 
         typeComboBox.addItemListener(new PriceListener());
         typeComboBox.setSelectedItem(OrderType.STOP);
-        typeComboBox.setSelectedItem(OrderType.MARKET);
+        typeComboBox.setSelectedItem(OrderType.LIMIT);
 
         Font font = new Font(messageLabel.getFont().getFontName(), Font.BOLD, 12);
         messageLabel.setFont(font);
