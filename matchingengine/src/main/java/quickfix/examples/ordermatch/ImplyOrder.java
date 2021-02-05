@@ -34,7 +34,7 @@ public class ImplyOrder extends Order {
         String target = leftOrder.getTarget();
         String clientId = MatchUtil.generateID();
         char type = leftOrder.getType();
-        double price = rightOrder.getPrice()-leftOrder.getPrice() ;
+        double price = MatchUtil.caculatePrice(leftOrder,rightOrder) ;
         long quantity = leftOrder.getQuantity();
 
         ImplyOrder order = new ImplyOrder(clientId, symbol, owner, target, side, type, price, quantity);
