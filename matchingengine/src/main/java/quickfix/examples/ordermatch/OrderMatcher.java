@@ -263,7 +263,7 @@ public class OrderMatcher {
             //orders里面存储的是撮合成功的订单列表
             while (orders.size() > 0) {
                 Order _order = orders.remove(0);
-                if (_order instanceof ImplyOrder) { //判断如果是隐含单
+                if (_order instanceof ImplyOrder) { //判断如果是隐含单,则关联的单脚单视为撮合成功
                     ImplyOrder implyOrder = (ImplyOrder) _order;
                     removeImplyOrder(implyOrder.getLeftOrder());
                     removeImplyOrder(implyOrder.getRightOrder());
@@ -271,8 +271,8 @@ public class OrderMatcher {
                 if(_order.getImplyOrder()!=null){
                     //判断如果是已经建立关联的单普或双普，则取消单隐或双隐
                     ImplyOrder implyOrder = (ImplyOrder) _order.getImplyOrder();
-                    getMarket(implyOrder.getSymbol()).erase(implyOrder);
-                    fillOrder(implyOrder);
+                    //todo 应该记录隐含单为取消状态
+                    removeImplyOrder(implyOrder);
                 }
                 fillOrder(_order);
             }
