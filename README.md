@@ -35,3 +35,8 @@ sudo java -cp marketdata/target/ccme-marketdata-2.2.0-standalone.jar quickfix.ex
 ```
 
 ### run md
+
+
+      普通单       隐含单
+单脚  单脚普通单   单脚隐含单
+双脚  双脚普通单   双脚隐含单

@@ -122,7 +122,7 @@ public class Order {
      * 隐含单的完成，自动fill关联普通单
      */
     public void setImplyFilled() {
-        this.executedQuantity=this.quantity;
+        this.executedQuantity = this.quantity;
         this.lastExecutedQuantity = this.quantity;
         this.lastExecutedPrice = this.price;
     }
@@ -146,7 +146,7 @@ public class Order {
     }
 
     public String toString() {
-        return (side == Side.BUY ? "BUY" : "SELL") + " " + quantity + "@$" + price + " (" + openQuantity + ")";
+        return symbol + " -> " + (side == Side.BUY ? "BUY" : "SELL") + " " + quantity + "@$" + price + " (" + openQuantity + ")";
     }
 
     public long getEntryTime() {

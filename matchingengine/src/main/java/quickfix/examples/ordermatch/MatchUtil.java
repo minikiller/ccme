@@ -168,6 +168,7 @@ public class MatchUtil {
 
     /**
      * 输入两个single，返回一个double symbol
+     *
      * @param s_d1
      * @param s_d2
      * @return s_d1_d2
@@ -199,32 +200,90 @@ public class MatchUtil {
      * 输入一个双脚单，返回一个单脚单
      * if 输入 s_d1_d2,s_d1 return s_d2
      * if 输入 s_d1_d2,s_d2 return s_d1
+     *
      * @param doubleSymbol 双脚单
      * @param singleSymbol 单脚单
      * @return
      */
     public static String getSingleSymbol(String doubleSymbol, String singleSymbol) {
-        String[] str=doubleSymbol.split("-");
-        if(str.length==3){
-            String leftSymbol=str[0]+"-"+str[1];
-            String rightSymbol=str[0]+"-"+str[2];
-            if (leftSymbol.equals(singleSymbol)){
+        String[] str = doubleSymbol.split("-");
+        if (str.length == 3) {
+            String leftSymbol = str[0] + "-" + str[1];
+            String rightSymbol = str[0] + "-" + str[2];
+            if (leftSymbol.equals(singleSymbol)) {
                 return rightSymbol;
-            }else {
+            } else {
                 return leftSymbol;
             }
-        }
-        else{
-            String[] str1=singleSymbol.split("-");
-            String leftSymbol=str1[0]+"-"+str1[1];
-            String rightSymbol=str1[0]+"-"+str1[2];
-            if (leftSymbol.equals(doubleSymbol)){
+        } else {
+            String[] str1 = singleSymbol.split("-");
+            String leftSymbol = str1[0] + "-" + str1[1];
+            String rightSymbol = str1[0] + "-" + str1[2];
+            if (leftSymbol.equals(doubleSymbol)) {
                 return rightSymbol;
-            }else {
+            } else {
                 return leftSymbol;
             }
         }
 
+    }
+
+    /**
+     * V1-V2=V1_V2
+     * 推断出:
+     * V1=V1_V2+V2
+     * V2=V1-V1_V2
+     *
+     * @param left
+     * @param right
+     * @return
+     */
+
+    public static double caculatePrice(Order left, Order right) {
+        double price = 0;
+        if (left.isSingle() == true) { //left 是单脚单
+            if (right.isSingle() == true) { //right 是单脚单
+                String[] _str_left = left.getSymbol().split("-");
+                String[] _str_right = right.getSymbol().split("-");
+                Integer i = dateMap.get(_str_left[1]);
+                Integer j = dateMap.get(_str_right[1]);
+                if (i > j) {
+                    price = left.getPrice() - right.getPrice();
+                } else {
+                    price = right.getPrice() - left.getPrice();
+                }
+            } else { //right 是双脚单
+                String[] str1 = right.getSymbol().split("-");
+                assert str1.length == 3;
+
+                //计算s_d1_d2,s_d1,获得s_d2的数值
+                String s_d1 = str1[0] + "-" + str1[1];
+                String s_d2 = str1[0] + "-" + str1[2];
+                if (s_d1.equals(left.getSymbol())) {
+                    price = left.getPrice() - right.getPrice();  //V2=V1-V1_V2
+                } else if (s_d2.equals(left.getSymbol())) {
+                    price = right.getPrice() + left.getPrice();  //V1=V1_V2+V2
+                }
+
+            }
+        } else {//left 是双脚单
+            if (right.isSingle() == true) {//right 是单脚单
+                String[] str = left.getSymbol().split("-");
+                assert str.length == 3;
+                //计算s_d1_d2,s_d1,获得s_d2的数值
+                String s_d1 = str[0] + "-" + str[1];
+                String s_d2 = str[0] + "-" + str[2];
+                if (s_d1.equals(right.getSymbol())) {
+                    price = right.getPrice() - left.getPrice();//V2=V1-V1_V2
+                } else if (s_d2.equals(right.getSymbol())) {
+                    price = right.getPrice() + left.getPrice();  //V1=V1_V2+V2
+                }
+
+            } else {//right 是双脚单
+
+            }
+        }
+        return price;
     }
 
 
