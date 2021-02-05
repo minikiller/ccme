@@ -40,6 +40,8 @@ public class ImplyOrder extends Order {
         ImplyOrder order = new ImplyOrder(clientId, symbol, owner, target, side, type, price, quantity);
         order.leftOrder = leftOrder;
         order.rightOrder = rightOrder;
+        leftOrder.setImplyOrder(order);
+        rightOrder.setImplyOrder(order);
         return order;
     }
 }

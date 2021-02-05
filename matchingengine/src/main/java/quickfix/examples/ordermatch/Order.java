@@ -37,6 +37,7 @@ public class Order {
     private double lastExecutedPrice;
     private long lastExecutedQuantity;
     private boolean isSingle = true; //是否是单脚单，还是双脚单
+    private  Order implyOrder;// 指向隐含单
 
     public Order(String clientId, String symbol, String owner, String target, char side, char type,
                  double price, long quantity) {
@@ -116,6 +117,14 @@ public class Order {
 
     public boolean isFilled() {
         return quantity == executedQuantity;
+    }
+
+    public Order getImplyOrder() {
+        return implyOrder;
+    }
+
+    public void setImplyOrder(Order implyOrder) {
+        this.implyOrder = implyOrder;
     }
 
     /**

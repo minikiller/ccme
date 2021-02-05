@@ -253,19 +253,26 @@ public class OrderMatcher {
             ArrayList<Order> orders = new ArrayList<>();
             List<ImplyOrder> implyOrders = new ArrayList<>();
             match(order.getSymbol(), orders);
-            if (orders.size() == 0) {//说明未撮合成功
+            if (orders.size() == 0) {//说明未撮合成功，处理生成隐含单
                 implyOrders = createImplyOrder(order);
                 while (implyOrders.size() > 0) {
-                    implyOrder(implyOrders.remove(0)); //发送报告给客户端
+                    //发送报告给客户端
+                    updateOrder(implyOrders.remove(0), OrdStatus.NEW);
                 }
             }
-
+            //orders里面存储的是撮合成功的订单列表
             while (orders.size() > 0) {
-                Order _order=orders.remove(0);
-                if(_order instanceof ImplyOrder){ //判断如果是隐含单
-                    ImplyOrder implyOrder=(ImplyOrder) _order;
+                Order _order = orders.remove(0);
+                if (_order instanceof ImplyOrder) { //判断如果是隐含单
+                    ImplyOrder implyOrder = (ImplyOrder) _order;
                     removeImplyOrder(implyOrder.getLeftOrder());
                     removeImplyOrder(implyOrder.getRightOrder());
+                }
+                if(_order.getImplyOrder()!=null){
+                    //判断如果是已经建立关联的单普或双普，则取消单隐或双隐
+                    ImplyOrder implyOrder = (ImplyOrder) _order.getImplyOrder();
+                    getMarket(implyOrder.getSymbol()).erase(implyOrder);
+                    fillOrder(implyOrder);
                 }
                 fillOrder(_order);
             }
@@ -277,6 +284,7 @@ public class OrderMatcher {
 
     /**
      * 隐含单自动取消的清理工作
+     *
      * @param order
      */
     private void removeImplyOrder(Order order) {
@@ -438,10 +446,6 @@ public class OrderMatcher {
 
     private void fillOrder(Order order) {
         updateOrder(order, order.isFilled() ? OrdStatus.FILLED : OrdStatus.PARTIALLY_FILLED);
-    }
-
-    private void implyOrder(ImplyOrder order) {
-        updateOrder(order, OrdStatus.NEW);
     }
 
 }
