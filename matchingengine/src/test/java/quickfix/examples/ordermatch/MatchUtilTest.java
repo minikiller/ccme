@@ -6,8 +6,6 @@ import quickfix.field.Side;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class MatchUtilTest {
 
     @org.junit.jupiter.api.Test
@@ -63,19 +61,44 @@ class MatchUtilTest {
     }
 
     @org.junit.jupiter.api.Test
+    void testPrice11() {
+        Order order1 = new Order("123", "FMG3-MAR21", "N2N", "FEME", Side.BUY, OrdType.LIMIT, 20.0, 1);
+        Order order2 = new Order("123", "FMG3-JUN21", "N2N", "FEME", Side.SELL, OrdType.LIMIT, 10.0, 1);
+        double price = MatchUtil.calculatePrice(order1, order2);
+        assert price == 10.0;
+    }
+
+    @org.junit.jupiter.api.Test
+    void testPrice12() {
+        Order order1 = new Order("123", "FMG3-MAR21", "N2N", "FEME", Side.SELL, OrdType.LIMIT, 20.0, 1);
+        Order order2 = new Order("123", "FMG3-JUN21", "N2N", "FEME", Side.BUY, OrdType.LIMIT, 10.0, 1);
+        double price = MatchUtil.calculatePrice(order2, order1);
+        assert price == 10.0;
+    }
+
+    @org.junit.jupiter.api.Test
     void testPrice1() {
         Order order1 = new Order("123", "FMG3-JUN21", "N2N", "FEME", Side.BUY, OrdType.LIMIT, 10.0, 1);
         Order order2 = new Order("123", "FMG3-MAR21", "N2N", "FEME", Side.BUY, OrdType.LIMIT, 20.0, 1);
-        double price = MatchUtil.caculatePrice(order1, order2);
-        assert price==-10.0;
+        double price = MatchUtil.calculatePrice(order1, order2);
+        assert price == -10.0;
     }
 
     @org.junit.jupiter.api.Test
     void testPrice2() {
-        Order order1 = new Order("123", "FMG3-JUN21", "N2N", "FEME", Side.BUY, OrdType.LIMIT, 10.0, 1);
-        Order order2 = new Order("123", "FMG3-MAR21-JUN21", "N2N", "FEME", Side.BUY, OrdType.LIMIT, 20.0, 1);
-        double price = MatchUtil.caculatePrice(order1, order2);
-        assert price==30.0;
+        Order order1 = new Order("123", "FMG3-JUN21", "N2N", "FEME", Side.BUY, OrdType.LIMIT, 8.0, 1);
+        Order order2 = new Order("123", "FMG3-MAR21-JUN21", "N2N", "FEME", Side.BUY, OrdType.LIMIT, 2.0, 1);
+        double price = MatchUtil.calculatePrice(order1, order2);
+        assert price == 10.0;
+
+    }
+
+    @org.junit.jupiter.api.Test
+    void testPrice21() {
+        Order order1 = new Order("123", "FMG3-JUN21", "N2N", "FEME", Side.BUY, OrdType.LIMIT, 8.0, 1);
+        Order order2 = new Order("123", "FMG3-MAR21-JUN21", "N2N", "FEME", Side.BUY, OrdType.LIMIT, 2.0, 1);
+        double price = MatchUtil.calculatePrice(order2, order1);
+        assert price == 10.0;
 
     }
 
@@ -88,11 +111,21 @@ class MatchUtilTest {
     @org.junit.jupiter.api.Test
     void testPrice3() {
         Order order1 = new Order("123", "FMG3-MAR21", "N2N", "FEME", Side.BUY, OrdType.LIMIT, 10.0, 1);
-        Order order2 = new Order("123", "FMG3-MAR21-JUN21", "N2N", "FEME", Side.BUY, OrdType.LIMIT, 20.0, 1);
-        double price = MatchUtil.caculatePrice(order1, order2);
-        assert price==-10.0;
+        Order order2 = new Order("123", "FMG3-MAR21-JUN21", "N2N", "FEME", Side.BUY, OrdType.LIMIT, 2.0, 1);
+        double price = MatchUtil.calculatePrice(order1, order2);
+        assert price == 8.0;
 
     }
+
+    @org.junit.jupiter.api.Test
+    void testPrice31() {
+        Order order1 = new Order("123", "FMG3-MAR21", "N2N", "FEME", Side.BUY, OrdType.LIMIT, 10.0, 1);
+        Order order2 = new Order("123", "FMG3-MAR21-JUN21", "N2N", "FEME", Side.BUY, OrdType.LIMIT, 2.0, 1);
+        double price = MatchUtil.calculatePrice(order2, order1);
+        assert price == 8.0;
+
+    }
+
     /**
      * test V2=V1-V1_V2
      */
@@ -100,10 +133,11 @@ class MatchUtilTest {
     void testPrice4() {
         Order order1 = new Order("123", "FMG3-MAR21-JUN21", "N2N", "FEME", Side.BUY, OrdType.LIMIT, 10.0, 1);
         Order order2 = new Order("123", "FMG3-MAR21", "N2N", "FEME", Side.BUY, OrdType.LIMIT, 20.0, 1);
-        double price = MatchUtil.caculatePrice(order1, order2);
-        assert price==10.0;
+        double price = MatchUtil.calculatePrice(order1, order2);
+        assert price == 10.0;
 
     }
+
     /**
      * test V1=V1_V2+V2
      */
@@ -111,8 +145,8 @@ class MatchUtilTest {
     void testPrice5() {
         Order order1 = new Order("123", "FMG3-MAR21-JUN21", "N2N", "FEME", Side.BUY, OrdType.LIMIT, 10.0, 1);
         Order order2 = new Order("123", "FMG3-JUN21", "N2N", "FEME", Side.BUY, OrdType.LIMIT, 20.0, 1);
-        double price = MatchUtil.caculatePrice(order1, order2);
-        assert price==30.0;
+        double price = MatchUtil.calculatePrice(order1, order2);
+        assert price == 30.0;
 
     }
 }

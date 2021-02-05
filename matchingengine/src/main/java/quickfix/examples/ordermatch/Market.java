@@ -162,12 +162,16 @@ public class Market {
             Order _order = getMaxOrder(order.getQuantity(), askOrders);
             if (_order == null)
                 return null;
+            if(MatchUtil.calculatePrice(order,_order)<=0)
+                return null;
             String symbol = MatchUtil.getDoubleSymbol(order.getSymbol(), _order.getSymbol());
             implyOrder = ImplyOrder.createInstance(symbol, order, _order, _order.getSide());
         } else if (order.getSide() == Side.SELL) {
             if (bidOrders.size() == 0) return null;
             Order _order = getMinOrder(order.getQuantity(), bidOrders);
             if (_order == null)
+                return null;
+            if(MatchUtil.calculatePrice(order,_order)<=0)
                 return null;
 
             String symbol = MatchUtil.getDoubleSymbol(order.getSymbol(), _order.getSymbol());
@@ -195,6 +199,8 @@ public class Market {
             Order _order = getMinOrder(order.getQuantity(), bidOrders);
             if (_order == null)
                 return null;
+            if(MatchUtil.calculatePrice(order,_order)<=0)
+                return null;
             String symbol = MatchUtil.getSingleSymbol(order.getSymbol(), _order.getSymbol());
             implyOrder = ImplyOrder.createInstance(symbol, order, _order, Side.BUY);
         }
@@ -204,6 +210,8 @@ public class Market {
                 return null;
             Order _order = getMaxOrder(order.getQuantity(), askOrders);
             if (_order == null)
+                return null;
+            if(MatchUtil.calculatePrice(order,_order)<=0)
                 return null;
             String symbol = MatchUtil.getSingleSymbol(order.getSymbol(), _order.getSymbol());
             implyOrder = ImplyOrder.createInstance(symbol, order, _order, Side.SELL);
@@ -230,6 +238,8 @@ public class Market {
             Order _order = getMinOrder(order.getQuantity(), bidOrders);
             if (_order == null)
                 return null;
+            if(MatchUtil.calculatePrice(order,_order)<=0)
+                return null;
             String symbol = MatchUtil.getSingleSymbol(order.getSymbol(), _order.getSymbol());
             implyOrder = ImplyOrder.createInstance(symbol, order, _order, Side.BUY);
         }
@@ -239,6 +249,8 @@ public class Market {
                 return null;
             Order _order = getMinOrder(order.getQuantity(), askOrders);
             if (_order == null)
+                return null;
+            if(MatchUtil.calculatePrice(order,_order)<=0)
                 return null;
 
             String symbol = MatchUtil.getSingleSymbol(order.getSymbol(), _order.getSymbol());
@@ -268,6 +280,8 @@ public class Market {
             Order _order = getMinOrder(order.getQuantity(), bidOrders);
             if (_order == null)
                 return null;
+            if(MatchUtil.calculatePrice(order,_order)<=0)
+                return null;
             String symbol = MatchUtil.getSingleSymbol(order.getSymbol(), _order.getSymbol());
             implyOrder = ImplyOrder.createInstance(symbol, order, _order, Side.BUY);
         }
@@ -277,6 +291,8 @@ public class Market {
                 return null;
             Order _order = getMaxOrder(order.getQuantity(), askOrders);
             if (_order == null)
+                return null;
+            if(MatchUtil.calculatePrice(order,_order)<=0)
                 return null;
             String symbol = MatchUtil.getSingleSymbol(order.getSymbol(), _order.getSymbol());
             implyOrder = ImplyOrder.createInstance(symbol, order, _order, Side.BUY);
@@ -304,6 +320,8 @@ public class Market {
             Order _order = getMaxOrder(order.getQuantity(), askOrders);
             if (_order == null)
                 return null;
+            if(MatchUtil.calculatePrice(order,_order)<=0)
+                return null;
             String symbol = MatchUtil.getSingleSymbol(order.getSymbol(), _order.getSymbol());
             implyOrder = ImplyOrder.createInstance(symbol, order, _order, Side.SELL);
         }
@@ -314,12 +332,16 @@ public class Market {
             Order _order = getMinOrder(order.getQuantity(), bidOrders);
             if (_order == null)
                 return null;
+            if(MatchUtil.calculatePrice(order,_order)<=0)
+                return null;
             String symbol = MatchUtil.getSingleSymbol(order.getSymbol(), _order.getSymbol());
             implyOrder = ImplyOrder.createInstance(symbol, order, _order, Side.SELL);
         }
         //实现OUT第一行第一个规则：s_d1买单 + s_d1_d2卖单 +  ---》 s_d2买单
         return implyOrder;
     }
+
+
 
     /**
      * 获得有效的订单，规则：只能是普通订单，不能是隐含单

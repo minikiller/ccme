@@ -239,7 +239,7 @@ public class MatchUtil {
      * @return
      */
 
-    public static double caculatePrice(Order left, Order right) {
+    public static double calculatePrice(Order left, Order right) {
         double price = 0;
         if (left.isSingle() == true) { //left 是单脚单
             if (right.isSingle() == true) { //right 是单脚单
@@ -248,9 +248,9 @@ public class MatchUtil {
                 Integer i = dateMap.get(_str_left[1]);
                 Integer j = dateMap.get(_str_right[1]);
                 if (i > j) {
-                    price = left.getPrice() - right.getPrice();
-                } else {
                     price = right.getPrice() - left.getPrice();
+                } else {
+                    price = left.getPrice() - right.getPrice();
                 }
             } else { //right 是双脚单
                 String[] str1 = right.getSymbol().split("-");
