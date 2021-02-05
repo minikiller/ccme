@@ -139,9 +139,9 @@ public class BanzaiApplication implements Application {
                     } else if (message.getHeader().isSetField(DeliverToCompID.FIELD)) {
                         // This is here to support OpenFIX certification
                         sendSessionReject(message, SessionRejectReason.COMPID_PROBLEM);
-                    } else if (message.getHeader().getField(msgType).valueEquals("8")) {
+                    } else if (message.getHeader().getField(msgType).valueEquals("8")) {//Execution Report
                         executionReport(message, sessionID);
-                    } else if (message.getHeader().getField(msgType).valueEquals("9")) {
+                    } else if (message.getHeader().getField(msgType).valueEquals("9")) {// Order Cancel Reject
                         cancelReject(message, sessionID);
                     } else {
                         sendBusinessReject(message, BusinessRejectReason.UNSUPPORTED_MESSAGE_TYPE,
@@ -273,13 +273,13 @@ public class BanzaiApplication implements Application {
         }else if (message.getChar(Side.FIELD)==Side.BUY){
             order.setSide(OrderSide.BUY);
         }
-//        OrdType ordType=new OrdType();
-//        message.getField(ordType);
-//        order.setType(FIXTypeToType(ordType));
+        OrdType ordType=new OrdType();
+        message.getField(ordType);
+        order.setType(FIXTypeToType(ordType));
         order.setQuantity(message.getInt(OrderQty.FIELD));
+        order.setOpen(order.getQuantity());
         order.setSessionID(sessionId);
-//        order.setLimit(message.getDouble(Price.FIELD));
-//        order
+        order.setLimit(message.getDouble(Price.FIELD));
         return order;
     }
 

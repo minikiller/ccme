@@ -220,6 +220,10 @@ public class OrderMatcher {
             fixOrder.setDouble(LastShares.FIELD, order.getLastExecutedQuantity());
             fixOrder.setDouble(LastPx.FIELD, order.getPrice());
         }
+        if (status == OrdStatus.NEW) {//新订单，肯定是隐藏订单
+            fixOrder.setChar(OrdType.FIELD, OrdType.LIMIT);
+            fixOrder.setDouble(Price.FIELD, order.getPrice());
+        }
 //        fixOrder.setDouble(LastShares.FIELD, order.getLastExecutedQuantity());
 //        fixOrder.setDouble(LastPx.FIELD, order.getPrice());
         sendToTarget(fixOrder, senderCompId, targetCompId);
@@ -257,12 +261,28 @@ public class OrderMatcher {
             }
 
             while (orders.size() > 0) {
-                fillOrder(orders.remove(0));
+                Order _order=orders.remove(0);
+                if(_order instanceof ImplyOrder){ //判断如果是隐含单
+                    ImplyOrder implyOrder=(ImplyOrder) _order;
+                    removeImplyOrder(implyOrder.getLeftOrder());
+                    removeImplyOrder(implyOrder.getRightOrder());
+                }
+                fillOrder(_order);
             }
             //orderMatcher.display(order.getSymbol());
         } else {
             rejectOrder(order);
         }
+    }
+
+    /**
+     * 隐含单自动取消的清理工作
+     * @param order
+     */
+    private void removeImplyOrder(Order order) {
+        order.setImplyFilled();
+        getMarket(order.getSymbol()).erase(order);
+        fillOrder(order);
     }
 
     //创建隐含订单

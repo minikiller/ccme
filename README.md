@@ -33,3 +33,5 @@ ctrl+B then press d
 ``` 
 sudo java -cp marketdata/target/ccme-marketdata-2.2.0-standalone.jar quickfix.examples.executor.MarkettaServer
 ```
+
+### run md

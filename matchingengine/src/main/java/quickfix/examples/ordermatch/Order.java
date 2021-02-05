@@ -118,6 +118,15 @@ public class Order {
         return quantity == executedQuantity;
     }
 
+    /**
+     * 隐含单的完成，自动fill关联普通单
+     */
+    public void setImplyFilled() {
+        this.executedQuantity=this.quantity;
+        this.lastExecutedQuantity = this.quantity;
+        this.lastExecutedPrice = this.price;
+    }
+
     public void cancel() {
         openQuantity = 0;
     }
