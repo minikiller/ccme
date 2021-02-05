@@ -3,6 +3,7 @@ package quickfix.examples.ordermatch;
 import quickfix.field.OrdType;
 import quickfix.field.Side;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -78,10 +79,10 @@ class MatchUtilTest {
 
     @org.junit.jupiter.api.Test
     void testPrice1() {
-        Order order1 = new Order("123", "FMG3-JUN21", "N2N", "FEME", Side.BUY, OrdType.LIMIT, 10.0, 1);
-        Order order2 = new Order("123", "FMG3-MAR21", "N2N", "FEME", Side.BUY, OrdType.LIMIT, 20.0, 1);
+        Order order1 = new Order("123", "FMG3-JUN21", "N2N", "FEME", Side.BUY, OrdType.LIMIT, 110.15, 1);
+        Order order2 = new Order("123", "FMG3-MAR21", "N2N", "FEME", Side.BUY, OrdType.LIMIT, 111.25, 1);
         double price = MatchUtil.calculatePrice(order1, order2);
-        assert price == -10.0;
+        assert price == 1.1;
     }
 
     @org.junit.jupiter.api.Test

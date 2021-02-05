@@ -3,6 +3,7 @@ package quickfix.examples.ordermatch;
 import quickfix.Message;
 import quickfix.examples.executor.Util;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 public class MatchUtil {
@@ -283,6 +284,8 @@ public class MatchUtil {
 
             }
         }
+        BigDecimal b = new BigDecimal(price);
+        price= b.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
         return price;
     }
 
