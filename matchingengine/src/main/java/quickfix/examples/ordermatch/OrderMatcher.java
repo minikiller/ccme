@@ -207,6 +207,7 @@ public class OrderMatcher {
 
     private void cancelOrder(Order order) {
         order.cancel();
+        cancelImplyOrder(order);
         updateOrder(order, OrdStatus.CANCELED);
         erase(order);
     }

@@ -557,6 +557,7 @@ public class BanzaiApplication implements Application {
 //      new HandlInst('1')
         message.setField(new Symbol(order.getSymbol()));
         message.setField(new Price(order.getLimit()));
+        message.setField(new OrderQty(order.getQuantity()));
         orderTableModel.addID(order, newOrder.getID());
         send(populateCancelReplace(order, newOrder, message), order.getSessionID());
     }

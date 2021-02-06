@@ -19,7 +19,8 @@ public class MatchUtil {
     }
 
     public static String generateID() {
-        return Long.toString(System.currentTimeMillis());
+//        return Long.toString(System.currentTimeMillis());
+        return get32UUID();
     }
 
     public static void printMsg(Message msg) {

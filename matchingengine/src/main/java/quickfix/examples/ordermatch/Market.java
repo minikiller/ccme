@@ -123,7 +123,7 @@ public class Market {
 
     public void display(String symbol) {
         if (bidOrders.size() > 0 || askOrders.size() > 0) {
-            System.out.println("MARKET: " + symbol);
+            System.out.println(Constans.ANSI_RED + "MARKET: " + symbol + Constans.ANSI_RESET);
         }
         displaySide(bidOrders, "BIDS");
         displaySide(askOrders, "ASKS");
@@ -135,13 +135,27 @@ public class Market {
         }
         DecimalFormat priceFormat = new DecimalFormat("#.00");
         DecimalFormat qtyFormat = new DecimalFormat("######");
-        System.out.println(title + ":\n----");
+        System.out.println(Constans.ANSI_PURPLE + title + Constans.ANSI_RESET);
+        System.out.println("\n----");
+
         for (Order order : orders) {
-            System.out.println("股票代码: " + order.getSymbol() + " ｜ 价格: $" + priceFormat.format(order.getPrice())
-                    + " | 总量:" + qtyFormat.format(order.getOpenQuantity()) + " ｜ 待成交: " + order.getOpenQuantity() + " ｜ 拥有者: " + order.getOwner()
-                    + " | 编号:" + order.getClientOrderId());
-            System.out.println("\n");
+            if (order instanceof ImplyOrder) {
+                printMsg(priceFormat, qtyFormat, order, Constans.ANSI_BLUE + "隐含单" + Constans.ANSI_RESET);
+            } else {
+                printMsg(priceFormat, qtyFormat, order, Constans.ANSI_GREEN + "普通单" + Constans.ANSI_RESET);
+            }
+            System.out.println("\n----");
         }
+    }
+
+    private void printMsg(DecimalFormat priceFormat, DecimalFormat qtyFormat, Order order, String str) {
+        System.out.println("股票代码: " + order.getSymbol()
+                + " ｜ 类型: " + str
+                + " ｜ 价格: $" + priceFormat.format(order.getPrice())
+                + " ｜ 总量:" + qtyFormat.format(order.getOpenQuantity())
+                + " ｜ 待成交: " + order.getOpenQuantity()
+                + " ｜ 拥有者: " + order.getOwner()
+                + " ｜ 编号:" + order.getClientOrderId());
     }
 
     /**

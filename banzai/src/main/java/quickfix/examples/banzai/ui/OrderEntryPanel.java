@@ -42,6 +42,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import quickfix.InvalidMessage;
+import quickfix.Message;
 import quickfix.SessionID;
 import quickfix.examples.banzai.*;
 import quickfix.field.*;
@@ -71,7 +73,7 @@ public class OrderEntryPanel extends JPanel implements Observer {
     private final JComboBox tifComboBox = new JComboBox(OrderTIF.toArray());
 
     private final JTextField limitPriceTextField = new JTextField();
-//    private final DoubleNumberTextField limitPriceTextField = new DoubleNumberTextField();
+    //    private final DoubleNumberTextField limitPriceTextField = new DoubleNumberTextField();
     private final DoubleNumberTextField stopPriceTextField = new DoubleNumberTextField();
 
     private final JComboBox sessionComboBox = new JComboBox();
@@ -83,6 +85,7 @@ public class OrderEntryPanel extends JPanel implements Observer {
     private final JButton submitButton = new JButton("Submit");
     private final JButton subscribeButton = new JButton("Subscribe");
     private final JButton clearButton = new JButton("clear");
+    private final JButton sendButton = new JButton("send");
 
     private OrderTableModel orderTableModel = null;
     private transient BanzaiApplication application = null;
@@ -122,6 +125,7 @@ public class OrderEntryPanel extends JPanel implements Observer {
         submitButton.addActionListener(listener);
         subscribeButton.addActionListener(listener);
         clearButton.addActionListener(listener);
+        sendButton.addActionListener(listener);
 
     }
 
@@ -183,6 +187,8 @@ public class OrderEntryPanel extends JPanel implements Observer {
         add(subscribeButton, x, ++y);
         clearButton.setName("clearButton");
         add(clearButton, x, ++y);
+        sendButton.setName("sendButton");
+        add(sendButton, x, ++y);
         constraints.gridwidth = 0;
         add(messageLabel, 0, ++y);
 
@@ -198,6 +204,7 @@ public class OrderEntryPanel extends JPanel implements Observer {
         submitButton.addActionListener(new SubmitListener());
         subscribeButton.addActionListener(new SubscribeListener());
         clearButton.addActionListener(new ClearListener());
+        sendButton.addActionListener(new SendListener());
         symbolTextField.setEnabled(false);
         activateSubmit();
     }
@@ -279,6 +286,44 @@ public class OrderEntryPanel extends JPanel implements Observer {
         public void actionPerformed(ActionEvent e) {
             System.out.println("clear is running!");
             sendCancelDataRequest();
+        }
+    }
+
+    private class SendListener implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            System.out.println("send is running!");
+            String str1 = "8=FIX.4.4\u00019=142\u000135=D\u000134=69\u000149=N2N\u000152=20210206-02:12:04.215\u000156=FEME\u000111=1612577524199\u000121=1\u000138=1\u000140=2\u000144=111.25\u000154=1\u000155=FMG3-DEC20\u000159=0\u000160=20210206-02:12:04.212\u000110=073\u0001";
+            String str2="8=FIX.4.4\u00019=142\u000135=D\u000134=70\u000149=N2N\u000152=20210206-02:13:21.524\u000156=FEME\u000111=1612577601535\u000121=1\u000138=1\u000140=2\u000144=110.15\u000154=2\u000155=FMG3-MAR21\u000159=0\u000160=20210206-02:13:21.523\u000110=083\u0001";
+            String str3="8=FIX.4.4\u00019=145\u000135=D\u000134=71\u000149=N2N\u000152=20210206-02:14:03.572\u000156=FEME\u000111=1612577643586\u000121=1\u000138=1\u000140=2\u000144=1.5\u000154=2\u000155=FMG3-DEC20-MAR21\u000159=0\u000160=20210206-02:14:03.572\u000110=053\u0001";
+            String str4="8=FIX.4.4\u00019=142\u000135=D\u000134=72\u000149=N2N\u000152=20210206-02:17:14.602\u000156=FEME\u000111=1612577834617\u000121=1\u000138=1\u000140=2\u000144=109.95\u000154=1\u000155=FMG3-JUN21\u000159=0\u000160=20210206-02:17:14.602\u000110=129\u0001";
+            String str5="8=FIX.4.4\u00019=142\u000135=D\u000134=73\u000149=N2N\u000152=20210206-02:18:59.381\u000156=FEME\u000111=1612577939399\u000121=1\u000138=1\u000140=2\u000144=109.35\u000154=2\u000155=FMG3-MAR21\u000159=0\u000160=20210206-02:18:59.381\u000110=153\u0001";
+           String str6="8=FIX.4.4\u00019=197\u000135=8\u000134=40020\u000149=FEME\u000152=20210206-12:26:15.406\u000156=N2N\u00016=0\u000111=06a57e598c1643b4a805d5ae85892ba8\u000114=0\u000117=13\u000137=06a57e598c1643b4a805d5ae85892ba8\u000138=1\u000139=0\u000140=2\u000144=110.05\u000154=2\u000155=FMG3-JUN21\u0001150=0\u0001151=1\u000110=200";
+
+            Message msg = null;
+            try {
+                SessionID sessionID= (SessionID) sessionComboBox.getSelectedItem();
+                msg = new Message(str1);
+                application.sendMessage(msg,sessionID);
+                msg = new Message(str2);
+                application.sendMessage(msg,sessionID);
+
+//                msg = new Message(str3);
+//                application.sendMessage(msg,sessionID);
+//
+//                msg = new Message(str4);
+//                application.sendMessage(msg,sessionID);
+//
+//                msg = new Message(str5);
+//                application.sendMessage(msg,sessionID);
+//
+//                msg = new Message(str6);
+//                application.sendMessage(msg,sessionID);
+
+            } catch (InvalidMessage invalidMessage)
+            {
+                invalidMessage.printStackTrace();
+            }
+
         }
     }
 
