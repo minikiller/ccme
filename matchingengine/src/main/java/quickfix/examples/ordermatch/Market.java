@@ -23,10 +23,7 @@ import quickfix.field.OrdType;
 import quickfix.field.Side;
 
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Market {
@@ -135,27 +132,59 @@ public class Market {
         }
         DecimalFormat priceFormat = new DecimalFormat("#.00");
         DecimalFormat qtyFormat = new DecimalFormat("######");
-        System.out.println(Constans.ANSI_PURPLE + title + Constans.ANSI_RESET);
-        System.out.println("\n----");
+        System.out.println(Constans.ANSI_YELLOW + title + Constans.ANSI_RESET);
 
         for (Order order : orders) {
             if (order instanceof ImplyOrder) {
-                printMsg(priceFormat, qtyFormat, order, Constans.ANSI_BLUE + "隐含单" + Constans.ANSI_RESET);
+                printMsg(priceFormat, qtyFormat, order, Constans.ANSI_BLUE + "Outright" + Constans.ANSI_RESET);
             } else {
-                printMsg(priceFormat, qtyFormat, order, Constans.ANSI_GREEN + "普通单" + Constans.ANSI_RESET);
+                printMsg(priceFormat, qtyFormat, order, Constans.ANSI_GREEN + "Spread" + Constans.ANSI_RESET);
             }
-            System.out.println("\n----");
         }
     }
 
     private void printMsg(DecimalFormat priceFormat, DecimalFormat qtyFormat, Order order, String str) {
-        System.out.println("股票代码: " + order.getSymbol()
-                + " ｜ 类型: " + str
-                + " ｜ 价格: $" + priceFormat.format(order.getPrice())
-                + " ｜ 总量:" + qtyFormat.format(order.getOpenQuantity())
-                + " ｜ 待成交: " + order.getOpenQuantity()
-                + " ｜ 拥有者: " + order.getOwner()
-                + " ｜ 编号:" + order.getClientOrderId());
+        PrintTable tableGenerator = new PrintTable();
+        List<String> headersList = new ArrayList<>();
+        headersList.add("Code");
+        headersList.add(Constans.ANSI_PURPLE + "Type" + Constans.ANSI_RESET);
+        headersList.add("Side");
+        headersList.add("Price");
+        headersList.add("Quantity");
+        headersList.add("Open");
+        headersList.add("Owner");
+
+//        headersList.add("代码");
+//        headersList.add("类型");
+//        headersList.add("价格");
+//        headersList.add("总量");
+//        headersList.add("待成交");
+//        headersList.add("拥有者");
+        String side="";
+        if (order.getSide()==Side.SELL){
+            side="SELL";
+        }else{
+            side="BUY";
+        }
+        List<List<String>> rowsList = new ArrayList<>();
+        List<String> row = new ArrayList<>();
+        row.add(order.getSymbol());
+        row.add(str);
+        row.add(side);
+        row.add(priceFormat.format(order.getPrice()));
+        row.add(qtyFormat.format(order.getOpenQuantity()));
+        row.add(String.valueOf(order.getOpenQuantity()));
+        row.add(order.getOwner());
+        rowsList.add(row);
+
+        System.out.println(tableGenerator.generateTable(headersList, rowsList));
+//        System.out.println("股票代码: " + order.getSymbol()
+//                + " ｜ 类型: " + str
+//                + " ｜ 价格: $" + priceFormat.format(order.getPrice())
+//                + " ｜ 总量:" + qtyFormat.format(order.getOpenQuantity())
+//                + " ｜ 待成交: " + order.getOpenQuantity()
+//                + " ｜ 拥有者: " + order.getOwner());
+////                + " ｜ 编号:" + order.getClientOrderId());
     }
 
     /**
