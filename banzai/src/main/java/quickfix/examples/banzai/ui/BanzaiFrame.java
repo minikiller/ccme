@@ -19,7 +19,7 @@
 
 package quickfix.examples.banzai.ui;
 
-import java.awt.BorderLayout;
+import java.awt.*;
 
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFrame;
@@ -40,15 +40,24 @@ public class BanzaiFrame extends JFrame {
                        final BanzaiApplication application, MarketClientApplication marketClientApplication) {
         super();
         setTitle("Banzai!");
-        setSize(600, 400);
 
-        if (System.getProperties().containsKey("openfix")) {
+
+//        if (System.getProperties().containsKey("openfix")) {
             createMenuBar(application);
-        }
+//        }
         banzaiPanel =
                 new BanzaiPanel(orderTableModel, executionTableModel, application, marketClientApplication);
         getContentPane().add(banzaiPanel,
                 BorderLayout.CENTER);
+        int windowWidth = 1200;                     //获得窗口宽
+        int windowHeight = 500;
+        setSize(windowWidth,windowWidth);//获得窗口高
+        Toolkit kit = Toolkit.getDefaultToolkit();              //定义工具包
+        Dimension screenSize = kit.getScreenSize();             //获取屏幕的尺寸
+        int screenWidth = screenSize.width;                     //获取屏幕的宽
+        int screenHeight = screenSize.height;                   //获取屏幕的高
+        setLocation(screenWidth/2-windowWidth/2, screenHeight/2-windowHeight/2);//设置窗口居中显示
+
         setVisible(true);
     }
 

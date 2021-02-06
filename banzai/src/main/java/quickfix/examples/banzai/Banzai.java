@@ -19,6 +19,7 @@
 
 package quickfix.examples.banzai;
 
+import java.awt.*;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -88,7 +89,7 @@ public class Banzai {
 
         frame = new BanzaiFrame(orderTableModel, executionTableModel, application,marketClientApplication);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    }
+            }
 
     private static Initiator createMarketClientApp(MarketClientApplication application) {
         InputStream inputStream = null;

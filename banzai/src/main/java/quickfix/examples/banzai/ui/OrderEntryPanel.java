@@ -30,6 +30,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -69,7 +70,8 @@ public class OrderEntryPanel extends JPanel implements Observer {
     private final JComboBox typeComboBox = new JComboBox(OrderType.toArray());
     private final JComboBox tifComboBox = new JComboBox(OrderTIF.toArray());
 
-    private final DoubleNumberTextField limitPriceTextField = new DoubleNumberTextField();
+    private final JTextField limitPriceTextField = new JTextField();
+//    private final DoubleNumberTextField limitPriceTextField = new DoubleNumberTextField();
     private final DoubleNumberTextField stopPriceTextField = new DoubleNumberTextField();
 
     private final JComboBox sessionComboBox = new JComboBox();
@@ -80,6 +82,7 @@ public class OrderEntryPanel extends JPanel implements Observer {
     private final JLabel messageLabel = new JLabel(" ");
     private final JButton submitButton = new JButton("Submit");
     private final JButton subscribeButton = new JButton("Subscribe");
+    private final JButton clearButton = new JButton("clear");
 
     private OrderTableModel orderTableModel = null;
     private transient BanzaiApplication application = null;
@@ -118,6 +121,7 @@ public class OrderEntryPanel extends JPanel implements Observer {
     public void addActionListener(ActionListener listener) {
         submitButton.addActionListener(listener);
         subscribeButton.addActionListener(listener);
+        clearButton.addActionListener(listener);
 
     }
 
@@ -158,10 +162,10 @@ public class OrderEntryPanel extends JPanel implements Observer {
         sideComboBox.setName("SideComboBox");
         add(sideComboBox, ++x, y);
         typeComboBox.setName("TypeComboBox");
-        limitEntered=true;
+        limitEntered = true;
         add(typeComboBox, ++x, y);
         limitPriceTextField.setName("LimitPriceTextField");
-        limitPriceTextField.setText("10.0");
+        limitPriceTextField.setText("111.25");
         add(limitPriceTextField, ++x, y);
         stopPriceTextField.setName("StopPriceTextField");
         add(stopPriceTextField, ++x, y);
@@ -177,6 +181,8 @@ public class OrderEntryPanel extends JPanel implements Observer {
         add(submitButton, x, y);
         subscribeButton.setName("SubscribeButton");
         add(subscribeButton, x, ++y);
+        clearButton.setName("clearButton");
+        add(clearButton, x, ++y);
         constraints.gridwidth = 0;
         add(messageLabel, 0, ++y);
 
@@ -191,6 +197,7 @@ public class OrderEntryPanel extends JPanel implements Observer {
 //        submitButton.setEnabled(false);
         submitButton.addActionListener(new SubmitListener());
         subscribeButton.addActionListener(new SubscribeListener());
+        clearButton.addActionListener(new ClearListener());
         symbolTextField.setEnabled(false);
         activateSubmit();
     }
@@ -268,6 +275,13 @@ public class OrderEntryPanel extends JPanel implements Observer {
         }
     }
 
+    private class ClearListener implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            System.out.println("clear is running!");
+            sendCancelDataRequest();
+        }
+    }
+
     private void sendSecurityDefinitionRequest() {
 //        String session = "FIX.4.4:MD_BANZAI_CLIENT->FEMD";
         SessionID sessionId = new SessionID("FIX.4.4", "MD_BANZAI_CLIENT", "FEMD");
@@ -275,6 +289,19 @@ public class OrderEntryPanel extends JPanel implements Observer {
         SecurityRequestType requestType = new SecurityRequestType(SecurityRequestType.REQUEST_LIST_SECURITIES);
         SecurityDefinitionRequest message = new SecurityDefinitionRequest(securityReqID, requestType);
         marketClientApplication.sendSubscribe(message, sessionId);
+    }
+
+    private void sendCancelDataRequest() {
+//        orderTableModel.deleteData();
+        Map<Integer, Order> map = orderTableModel.getCancelData();
+        if (map != null) {
+            for (Map.Entry<Integer, Order> entry : map.entrySet()) {
+                Order order = entry.getValue();
+                orderTableModel.removeOneRow(entry.getKey());
+                application.cancel(order);
+            }
+        }
+
     }
 
     /**

@@ -20,7 +20,10 @@
 package quickfix.examples.banzai;
 
 import javax.swing.table.AbstractTableModel;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 public class OrderTableModel extends AbstractTableModel {
@@ -48,9 +51,9 @@ public class OrderTableModel extends AbstractTableModel {
         idToOrder = new HashMap<>();
 
         headers = new String[]
-                  {"Symbol", "Quantity", "Open", "Executed",
-                   "Side", "Type", "Limit", "Stop", "AvgPx",
-                   "Target"};
+                {"Symbol", "Quantity", "Open", "Executed",
+                        "Side", "Type", "Limit", "Stop", "AvgPx",
+                        "Target"};
     }
 
     public void deleteData() {
@@ -59,10 +62,37 @@ public class OrderTableModel extends AbstractTableModel {
             return;
         }
 //        cache.clear();
-        while(rows>0) {
+        while (rows > 0) {
+            rowToOrder.remove(rows);
             fireTableRowsDeleted(0, rows - 1);
             rows = getRowCount();
         }
+    }
+
+    public void removeOneRow(int rows){
+        rowToOrder.remove(rows);
+        fireTableRowsDeleted(rows - 1, rows - 1);
+    }
+
+    /**
+     * 获得需要cancel的列表以及在table中rowId
+     * @return
+     */
+    public Map<Integer,Order> getCancelData() {
+        int rows = getRowCount();
+        if (rows == 0) {
+            return null;
+        }
+        Map<Integer,Order> orderMap=new HashMap<>();
+        for (Map.Entry<Integer, Order> entry : rowToOrder.entrySet()) {
+            Order order=entry.getValue();
+            if (!(order.getSessionID().toString().indexOf("FEMD")>0)) {
+                rows=entry.getKey();
+                orderMap.put(rows,order);
+            }
+        }
+        return orderMap;
+
     }
 
     public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -115,11 +145,16 @@ public class OrderTableModel extends AbstractTableModel {
         return idToOrder.get(id);
     }
 
+    public Order removeOrder(String id) {
+        return idToOrder.get(id);
+    }
+
     public Order getOrder(int row) {
         return rowToOrder.get(row);
     }
 
-    public void setValueAt(Object value, int rowIndex, int columnIndex) { }
+    public void setValueAt(Object value, int rowIndex, int columnIndex) {
+    }
 
     public Class<String> getColumnClass(int columnIndex) {
         return String.class;
@@ -140,26 +175,26 @@ public class OrderTableModel extends AbstractTableModel {
     public Object getValueAt(int rowIndex, int columnIndex) {
         Order order = rowToOrder.get(rowIndex);
         switch (columnIndex) {
-        case SYMBOL:
-            return order.getSymbol();
-        case QUANTITY:
-            return order.getQuantity();
-        case OPEN:
-            return order.getOpen();
-        case EXECUTED:
-            return order.getExecuted();
-        case SIDE:
-            return order.getSide();
-        case TYPE:
-            return order.getType();
-        case LIMITPRICE:
-            return order.getLimit();
-        case STOPPRICE:
-            return order.getStop();
-        case AVGPX:
-            return order.getAvgPx();
-        case TARGET:
-            return order.getSessionID().getTargetCompID();
+            case SYMBOL:
+                return order.getSymbol();
+            case QUANTITY:
+                return order.getQuantity();
+            case OPEN:
+                return order.getOpen();
+            case EXECUTED:
+                return order.getExecuted();
+            case SIDE:
+                return order.getSide();
+            case TYPE:
+                return order.getType();
+            case LIMITPRICE:
+                return order.getLimit();
+            case STOPPRICE:
+                return order.getStop();
+            case AVGPX:
+                return order.getAvgPx();
+            case TARGET:
+                return order.getSessionID().getTargetCompID();
         }
         return "";
     }
