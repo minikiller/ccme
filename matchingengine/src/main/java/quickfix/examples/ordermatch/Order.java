@@ -21,6 +21,9 @@ package quickfix.examples.ordermatch;
 
 import quickfix.field.Side;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class Order {
     private final long entryTime;
     private final String clientOrderId;
@@ -36,8 +39,10 @@ public class Order {
     private double avgExecutedPrice;
     private double lastExecutedPrice;
     private long lastExecutedQuantity;
-    private boolean isSingle = true; //是否是单脚单，还是双脚单
-    private  Order implyOrder;// 指向隐含单
+    //是否是单脚单，还是双脚单
+    private boolean isSingle = true;
+    // 指向隐含单Map,String为orderId
+    private Map<String, ImplyOrder> implyOrderMap=new HashMap<>();
 
     public Order(String clientId, String symbol, String owner, String target, char side, char type,
                  double price, long quantity) {
@@ -119,12 +124,12 @@ public class Order {
         return quantity == executedQuantity;
     }
 
-    public Order getImplyOrder() {
-        return implyOrder;
+    public Map<String, ImplyOrder> getImplyOrderMap() {
+        return implyOrderMap;
     }
 
-    public void setImplyOrder(Order implyOrder) {
-        this.implyOrder = implyOrder;
+    public void setImplyOrderMap(Map<String, ImplyOrder> implyOrderMap) {
+        this.implyOrderMap = implyOrderMap;
     }
 
     /**

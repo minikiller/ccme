@@ -111,6 +111,7 @@ public class Market {
         return find(side == Side.BUY ? bidOrders : askOrders, id);
     }
 
+    //todo change to stream
     private Order find(List<Order> orders, String clientOrderId) {
         for (Order order : orders) {
             if (order.getClientOrderId().equals(clientOrderId)) {
@@ -162,7 +163,7 @@ public class Market {
             Order _order = getMaxOrder(order.getQuantity(), askOrders);
             if (_order == null)
                 return null;
-            if(MatchUtil.calculatePrice(order,_order)<=0)
+            if (MatchUtil.calculatePrice(order, _order) <= 0)
                 return null;
             String symbol = MatchUtil.getDoubleSymbol(order.getSymbol(), _order.getSymbol());
             implyOrder = ImplyOrder.createInstance(symbol, order, _order, _order.getSide());
@@ -171,7 +172,7 @@ public class Market {
             Order _order = getMinOrder(order.getQuantity(), bidOrders);
             if (_order == null)
                 return null;
-            if(MatchUtil.calculatePrice(order,_order)<=0)
+            if (MatchUtil.calculatePrice(order, _order) <= 0)
                 return null;
 
             String symbol = MatchUtil.getDoubleSymbol(order.getSymbol(), _order.getSymbol());
@@ -199,7 +200,7 @@ public class Market {
             Order _order = getMinOrder(order.getQuantity(), bidOrders);
             if (_order == null)
                 return null;
-            if(MatchUtil.calculatePrice(order,_order)<=0)
+            if (MatchUtil.calculatePrice(order, _order) <= 0)
                 return null;
             String symbol = MatchUtil.getSingleSymbol(order.getSymbol(), _order.getSymbol());
             implyOrder = ImplyOrder.createInstance(symbol, order, _order, Side.BUY);
@@ -211,7 +212,7 @@ public class Market {
             Order _order = getMaxOrder(order.getQuantity(), askOrders);
             if (_order == null)
                 return null;
-            if(MatchUtil.calculatePrice(order,_order)<=0)
+            if (MatchUtil.calculatePrice(order, _order) <= 0)
                 return null;
             String symbol = MatchUtil.getSingleSymbol(order.getSymbol(), _order.getSymbol());
             implyOrder = ImplyOrder.createInstance(symbol, order, _order, Side.SELL);
@@ -238,7 +239,7 @@ public class Market {
             Order _order = getMinOrder(order.getQuantity(), bidOrders);
             if (_order == null)
                 return null;
-            if(MatchUtil.calculatePrice(order,_order)<=0)
+            if (MatchUtil.calculatePrice(order, _order) <= 0)
                 return null;
             String symbol = MatchUtil.getSingleSymbol(order.getSymbol(), _order.getSymbol());
             implyOrder = ImplyOrder.createInstance(symbol, order, _order, Side.BUY);
@@ -250,7 +251,7 @@ public class Market {
             Order _order = getMinOrder(order.getQuantity(), askOrders);
             if (_order == null)
                 return null;
-            if(MatchUtil.calculatePrice(order,_order)<=0)
+            if (MatchUtil.calculatePrice(order, _order) <= 0)
                 return null;
 
             String symbol = MatchUtil.getSingleSymbol(order.getSymbol(), _order.getSymbol());
@@ -280,7 +281,7 @@ public class Market {
             Order _order = getMinOrder(order.getQuantity(), bidOrders);
             if (_order == null)
                 return null;
-            if(MatchUtil.calculatePrice(order,_order)<=0)
+            if (MatchUtil.calculatePrice(order, _order) <= 0)
                 return null;
             String symbol = MatchUtil.getSingleSymbol(order.getSymbol(), _order.getSymbol());
             implyOrder = ImplyOrder.createInstance(symbol, order, _order, Side.BUY);
@@ -292,7 +293,7 @@ public class Market {
             Order _order = getMaxOrder(order.getQuantity(), askOrders);
             if (_order == null)
                 return null;
-            if(MatchUtil.calculatePrice(order,_order)<=0)
+            if (MatchUtil.calculatePrice(order, _order) <= 0)
                 return null;
             String symbol = MatchUtil.getSingleSymbol(order.getSymbol(), _order.getSymbol());
             implyOrder = ImplyOrder.createInstance(symbol, order, _order, Side.BUY);
@@ -320,7 +321,7 @@ public class Market {
             Order _order = getMaxOrder(order.getQuantity(), askOrders);
             if (_order == null)
                 return null;
-            if(MatchUtil.calculatePrice(order,_order)<=0)
+            if (MatchUtil.calculatePrice(order, _order) <= 0)
                 return null;
             String symbol = MatchUtil.getSingleSymbol(order.getSymbol(), _order.getSymbol());
             implyOrder = ImplyOrder.createInstance(symbol, order, _order, Side.SELL);
@@ -332,7 +333,7 @@ public class Market {
             Order _order = getMinOrder(order.getQuantity(), bidOrders);
             if (_order == null)
                 return null;
-            if(MatchUtil.calculatePrice(order,_order)<=0)
+            if (MatchUtil.calculatePrice(order, _order) <= 0)
                 return null;
             String symbol = MatchUtil.getSingleSymbol(order.getSymbol(), _order.getSymbol());
             implyOrder = ImplyOrder.createInstance(symbol, order, _order, Side.SELL);
@@ -340,7 +341,6 @@ public class Market {
         //实现OUT第一行第一个规则：s_d1买单 + s_d1_d2卖单 +  ---》 s_d2买单
         return implyOrder;
     }
-
 
 
     /**
@@ -351,7 +351,7 @@ public class Market {
      * @return
      */
     public Order getMaxOrder(long quantity, List<Order> orders) {
-        List<Order> orderList=new ArrayList<>(orders);
+        List<Order> orderList = new ArrayList<>(orders);
         List<Order> result = orderList.stream()                // convert list to stream
                 .filter(order -> quantity == (order.getQuantity())) //数量一致
                 .filter(order -> !(order instanceof ImplyOrder)) //不能是隐含单
@@ -365,7 +365,7 @@ public class Market {
     }
 
     public Order getMinOrder(long quantity, List<Order> orders) {
-        List<Order> orderList=new ArrayList<>(orders);
+        List<Order> orderList = new ArrayList<>(orders);
         List<Order> result = orderList.stream()                // convert list to stream
                 .filter(order -> quantity == (order.getQuantity())) //数量一致
                 .filter(order -> !(order instanceof ImplyOrder)) //不能是隐含单

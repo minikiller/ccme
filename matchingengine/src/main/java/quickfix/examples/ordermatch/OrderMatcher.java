@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class OrderMatcher {
     private HashMap<String, Market> markets = new HashMap<>();
@@ -131,19 +132,21 @@ public class OrderMatcher {
         String id = message.getString(OrigClOrdID.FIELD);
         Order order = find(symbol, side, id);
         if (order != null) {
-            order.cancel();
             cancelOrder(order);
-            erase(order);
         } else {
-            OrderCancelReject fixOrderReject = new OrderCancelReject(new OrderID("NONE"), new ClOrdID(message.getString(ClOrdID.FIELD)),
-                    new OrigClOrdID(message.getString(OrigClOrdID.FIELD)), new OrdStatus(OrdStatus.REJECTED), new CxlRejResponseTo(CxlRejResponseTo.ORDER_CANCEL_REQUEST));
-
-            String senderCompId = message.getHeader().getString(SenderCompID.FIELD);
-            String targetCompId = message.getHeader().getString(TargetCompID.FIELD);
-            fixOrderReject.getHeader().setString(SenderCompID.FIELD, targetCompId);
-            fixOrderReject.getHeader().setString(TargetCompID.FIELD, senderCompId);
-            sendToTarget(fixOrderReject, senderCompId, targetCompId);
+            cancelRejectOrder(message);
         }
+    }
+
+    private void cancelRejectOrder(Message message) throws FieldNotFound {
+        OrderCancelReject fixOrderReject = new OrderCancelReject(new OrderID("NONE"), new ClOrdID(message.getString(ClOrdID.FIELD)),
+                new OrigClOrdID(message.getString(OrigClOrdID.FIELD)), new OrdStatus(OrdStatus.REJECTED), new CxlRejResponseTo(CxlRejResponseTo.ORDER_CANCEL_REQUEST));
+
+        String senderCompId = message.getHeader().getString(SenderCompID.FIELD);
+        String targetCompId = message.getHeader().getString(TargetCompID.FIELD);
+        fixOrderReject.getHeader().setString(SenderCompID.FIELD, targetCompId);
+        fixOrderReject.getHeader().setString(TargetCompID.FIELD, senderCompId);
+        sendToTarget(fixOrderReject, senderCompId, targetCompId);
     }
 
     public void processOrderCancelReplaceRequest(OrderCancelReplaceRequest message, SessionID sessionID) throws FieldNotFound {
@@ -154,15 +157,23 @@ public class OrderMatcher {
         char side = message.getChar(Side.FIELD);
         String id = message.getString(OrigClOrdID.FIELD);
         Order order = find(symbol, side, id);
-        char ordType = message.getChar(OrdType.FIELD);
-        double price = 0;
-        if (ordType == OrdType.LIMIT) {
-            price = message.getDouble(Price.FIELD);
-        }
-        double qty = message.getDouble(OrderQty.FIELD);
+
         try {
-            replace(order, price, qty);
-            replaceOrder(order);
+            if (order != null) {
+                cancelOrder(order);//取消原来的订单
+                char ordType = message.getChar(OrdType.FIELD);
+                double price = 0;
+                if (ordType == OrdType.LIMIT) {
+                    price = message.getDouble(Price.FIELD);
+                }
+                double qty = message.getDouble(OrderQty.FIELD);
+                 //创建新的订单
+                Order _order = new Order(MatchUtil.generateID(), symbol, senderCompId, targetCompId, side, ordType,
+                        price, (int) qty);
+                processOrder(_order);
+            } else {
+                cancelRejectOrder(message);
+            }
             //处理变化后的订单
         } catch (Exception e) {
             rejectOrder(targetCompId, senderCompId, clOrdId, symbol, side, e.getMessage());
@@ -195,7 +206,9 @@ public class OrderMatcher {
     }
 
     private void cancelOrder(Order order) {
+        order.cancel();
         updateOrder(order, OrdStatus.CANCELED);
+        erase(order);
     }
 
     private void updateOrder(Order order, char status) {
@@ -265,16 +278,10 @@ public class OrderMatcher {
                 Order _order = orders.remove(0);
                 if (_order instanceof ImplyOrder) { //判断如果是隐含单,则关联的单脚单视为撮合成功
                     ImplyOrder implyOrder = (ImplyOrder) _order;
-                    removeImplyOrder(implyOrder.getLeftOrder());
-                    removeImplyOrder(implyOrder.getRightOrder());
+                    clearTwoSideOrder(implyOrder);
+                } else { //如果是普通单，则取消关联的隐含单和普通单
+                    cancelImplyOrder(_order);
                 }
-                if(_order.getImplyOrder()!=null){
-                    //判断如果是已经建立关联的单普或双普，则取消单隐或双隐
-                    ImplyOrder implyOrder = (ImplyOrder) _order.getImplyOrder();
-                    //todo 应该记录隐含单为取消状态
-                    removeImplyOrder(implyOrder);
-                }
-                fillOrder(_order);
             }
             //orderMatcher.display(order.getSymbol());
         } else {
@@ -283,11 +290,46 @@ public class OrderMatcher {
     }
 
     /**
-     * 隐含单自动取消的清理工作
+     * 一个普通单成功交易或取消，则取消相关的隐含单
+     *
+     * @param _order
+     */
+    public void cancelImplyOrder(Order _order) {
+
+        Map<String, ImplyOrder> map = new ConcurrentHashMap();
+        map.putAll(_order.getImplyOrderMap());
+
+        if (map.size() > 0) {
+            //判断如果是已经建立关联的单普或双普，则取消单隐或双隐
+            for (Map.Entry<String, ImplyOrder> entry : map.entrySet()) {
+                ImplyOrder implyOrder = entry.getValue();
+                //如果隐含单是单脚的
+                implyOrder.getLeftOrder().getImplyOrderMap().remove(implyOrder.getClientOrderId());
+                implyOrder.getRightOrder().getImplyOrderMap().remove(implyOrder.getClientOrderId());
+                removeOrder(implyOrder);
+            }
+        }
+
+    }
+
+    /**
+     * 输入为隐含单，在该隐含单撮合成功的时候，自动取消2个相关的普通单
      *
      * @param order
      */
-    private void removeImplyOrder(Order order) {
+    public void clearTwoSideOrder(ImplyOrder order) {
+        Order lefOrder = order.getLeftOrder();
+        Order rightOrder = order.getLeftOrder();
+        removeOrder(lefOrder);
+        removeOrder(rightOrder);
+    }
+
+    /**
+     * 取消一个隐含单
+     *
+     * @param order
+     */
+    private void removeOrder(Order order) {
         order.setImplyFilled();
         getMarket(order.getSymbol()).erase(order);
         fillOrder(order);

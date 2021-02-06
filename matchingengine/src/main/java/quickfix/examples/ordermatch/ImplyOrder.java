@@ -8,8 +8,8 @@ public class ImplyOrder extends Order {
         super(clientId, symbol, owner, target, side, type, price, quantity);
     }
 
-    private Order leftOrder; //关联左单
-    private Order rightOrder; //关联右单
+    private Order leftOrder; //关联左普通单
+    private Order rightOrder; //关联右普通单
 
     public Order getLeftOrder() {
         return leftOrder;
@@ -38,8 +38,8 @@ public class ImplyOrder extends Order {
         ImplyOrder order = new ImplyOrder(clientId, symbol, owner, target, side, type, price, quantity);
         order.leftOrder = leftOrder;
         order.rightOrder = rightOrder;
-        leftOrder.setImplyOrder(order);
-        rightOrder.setImplyOrder(order);
+        leftOrder.getImplyOrderMap().put(order.getClientOrderId(),order);
+        rightOrder.getImplyOrderMap().put(order.getClientOrderId(),order);
         return order;
     }
 }
