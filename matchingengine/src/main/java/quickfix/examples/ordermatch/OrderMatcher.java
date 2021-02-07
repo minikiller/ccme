@@ -32,6 +32,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class OrderMatcher {
     private HashMap<String, Market> markets = new HashMap<>();
+
     private MarketClientApplication marketClientApplication = null;
 
     private final Map<String, List<String>> beforeDoubleMap = MatchUtil.getBeforeDoubleMap();
@@ -57,6 +58,10 @@ public class OrderMatcher {
 
     public boolean insert(Order order) {
         return getMarket(order.getSymbol()).insert(order);
+    }
+
+    public void insertTrade(Order leftOrder,Order rightOrder) {
+        getMarket(leftOrder.getSymbol()).insertTrade(leftOrder,rightOrder);
     }
 
     public void match(String symbol, ArrayList<Order> orders) {
@@ -167,7 +172,7 @@ public class OrderMatcher {
                     price = message.getDouble(Price.FIELD);
                 }
                 double qty = message.getDouble(OrderQty.FIELD);
-                 //创建新的订单
+                //创建新的订单
                 Order _order = new Order(MatchUtil.generateID(), symbol, senderCompId, targetCompId, side, ordType,
                         price, (int) qty);
                 processOrder(_order);
@@ -261,7 +266,7 @@ public class OrderMatcher {
         }
     }
 
-    private void processOrder(Order order) {
+    public void processOrder(Order order) {
         if (insert(order)) {
             acceptOrder(order);
 
@@ -283,6 +288,7 @@ public class OrderMatcher {
                     clearTwoSideOrder(implyOrder);
                 } else { //如果是普通单，则取消关联的隐含单和普通单
                     cancelImplyOrder(_order);
+                    fillOrder(_order);
                 }
             }
             //orderMatcher.display(order.getSymbol());

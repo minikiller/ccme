@@ -463,12 +463,11 @@ public class Application extends quickfix.MessageCracker implements quickfix.App
 //                ExecutionReport report1=(ExecutionReport)report.clone();
 //                report1.setString(SenderCompID.FIELD,"FEMD");
 //                report1.setString(TargetCompID.FIELD,targetId);
-                try {
-
-                    Session.sendToTarget(report,"FEMD",targetId);
-                } catch (SessionNotFound sessionNotFound) {
-                    sessionNotFound.printStackTrace();
-                }
+//                try {
+//                    Session.sendToTarget(report,"FEMD",targetId);
+//                } catch (SessionNotFound sessionNotFound) {
+//                    sessionNotFound.printStackTrace();
+//                }
             }
         }
     }

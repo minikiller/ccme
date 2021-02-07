@@ -30,7 +30,11 @@ public class Market {
 
     private final List<Order> bidOrders = new ArrayList<>();
     private final List<Order> askOrders = new ArrayList<>();
+    private final List<Trade> tradeOrders=new ArrayList<>();
 
+    public List<Trade> getTradeOrders() {
+        return tradeOrders;
+    }
 
     public boolean match(String symbol, List<Order> orders) {
         while (true) {
@@ -48,7 +52,8 @@ public class Market {
                 if (!orders.contains(askOrder)) {
                     orders.add(0, askOrder);
                 }
-
+                //saved to trade
+                insertTrade(bidOrder,askOrder);
                 if (bidOrder.isClosed()) {
                     bidOrders.remove(bidOrder);
                 }
@@ -136,9 +141,9 @@ public class Market {
 
         for (Order order : orders) {
             if (order instanceof ImplyOrder) {
-                printMsg(priceFormat, qtyFormat, order, Constans.ANSI_BLUE + "Outright" + Constans.ANSI_RESET);
+                printMsg(priceFormat, qtyFormat, order, Constans.ANSI_BLUE + "Spread" + Constans.ANSI_RESET);
             } else {
-                printMsg(priceFormat, qtyFormat, order, Constans.ANSI_GREEN + "Spread" + Constans.ANSI_RESET);
+                printMsg(priceFormat, qtyFormat, order, Constans.ANSI_GREEN + "Outright" + Constans.ANSI_RESET);
             }
         }
     }
@@ -418,5 +423,10 @@ public class Market {
             return order;
         } else
             return null;
+    }
+
+    public void insertTrade(Order leftOrder, Order rightOrder) {
+        Trade trade=new Trade(leftOrder,rightOrder);
+        tradeOrders.add(trade);
     }
 }

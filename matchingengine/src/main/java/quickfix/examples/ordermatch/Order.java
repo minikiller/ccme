@@ -21,10 +21,11 @@ package quickfix.examples.ordermatch;
 
 import quickfix.field.Side;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Order {
+public class Order implements Serializable {
     private final long entryTime;
     private final String clientOrderId;
     private final String symbol;
