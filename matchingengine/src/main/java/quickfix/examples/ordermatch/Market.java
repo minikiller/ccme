@@ -30,39 +30,47 @@ public class Market {
 
     private final List<Order> bidOrders = new ArrayList<>();
     private final List<Order> askOrders = new ArrayList<>();
-    private final List<Trade> tradeOrders=new ArrayList<>();
+    private final List<Trade> tradeOrders = new ArrayList<>();
 
     public List<Trade> getTradeOrders() {
         return tradeOrders;
     }
 
     public boolean match(String symbol, List<Order> orders) {
-        while (true) {
+//        while (true)
+        {
             if (bidOrders.size() == 0 || askOrders.size() == 0) {
                 return orders.size() != 0;
             }
-            Order bidOrder = bidOrders.get(0);
-            Order askOrder = askOrders.get(0);
-            if (bidOrder.getType() == OrdType.MARKET || askOrder.getType() == OrdType.MARKET
-                    || (bidOrder.getPrice() >= askOrder.getPrice())) {
-                match(bidOrder, askOrder);
-                if (!orders.contains(bidOrder)) {
-                    orders.add(0, bidOrder);
+            for (int i = 0; i < bidOrders.size(); i++) {
+                Order bidOrder = bidOrders.get(i);
+                for (int j = 0; j < askOrders.size(); j++) {
+                    Order askOrder = askOrders.get(j);
+                    if (bidOrder.getType() == OrdType.MARKET || askOrder.getType() == OrdType.MARKET
+                            || (bidOrder.getPrice() >= askOrder.getPrice())) {
+                        match(bidOrder, askOrder);
+                        if (!orders.contains(bidOrder)) {
+                            orders.add(0, bidOrder);
+                        }
+                        if (!orders.contains(askOrder)) {
+                            orders.add(0, askOrder);
+                        }
+                        //saved to trade
+                        insertTrade(bidOrder, askOrder);
+                        if (bidOrder.isClosed()) {
+                            bidOrders.remove(bidOrder);
+                        }
+                        if (askOrder.isClosed()) {
+                            askOrders.remove(askOrder);
+                        }
+                        return true;
+                    }
+//                    else
+//                        return orders.size() != 0;
                 }
-                if (!orders.contains(askOrder)) {
-                    orders.add(0, askOrder);
-                }
-                //saved to trade
-                insertTrade(bidOrder,askOrder);
-                if (bidOrder.isClosed()) {
-                    bidOrders.remove(bidOrder);
-                }
-                if (askOrder.isClosed()) {
-                    askOrders.remove(askOrder);
-                }
-            } else
-                return orders.size() != 0;
+            }
         }
+        return false;
     }
 
     private void match(Order bid, Order ask) {
@@ -165,11 +173,11 @@ public class Market {
 //        headersList.add("总量");
 //        headersList.add("待成交");
 //        headersList.add("拥有者");
-        String side="";
-        if (order.getSide()==Side.SELL){
-            side="SELL";
-        }else{
-            side="BUY";
+        String side = "";
+        if (order.getSide() == Side.SELL) {
+            side = "SELL";
+        } else {
+            side = "BUY";
         }
         List<List<String>> rowsList = new ArrayList<>();
         List<String> row = new ArrayList<>();
@@ -426,7 +434,7 @@ public class Market {
     }
 
     public void insertTrade(Order leftOrder, Order rightOrder) {
-        Trade trade=new Trade(leftOrder,rightOrder);
+        Trade trade = new Trade(leftOrder, rightOrder);
         tradeOrders.add(trade);
     }
 }
