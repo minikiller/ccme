@@ -257,6 +257,7 @@ public class OrderMatcher {
                 marketClientApplication.sendTradeToMarketData(fixOrder);
             }
         } catch (SessionNotFound e) {
+            e.printStackTrace();
         }
     }
 

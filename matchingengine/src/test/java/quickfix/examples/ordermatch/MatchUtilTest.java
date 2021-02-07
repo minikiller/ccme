@@ -33,7 +33,7 @@ class MatchUtilTest {
         Map<String, List<String>> map = MatchUtil.getBeforeDoubleMap();
         assert map.size() > 0;
         List<String> list = map.get("FMG3-JUN21");
-        assert list.size() == 1;
+        assert list.size() == 2;
     }
 
     @org.junit.jupiter.api.Test
@@ -41,7 +41,7 @@ class MatchUtilTest {
         Map<String, List<String>> map = MatchUtil.getBeforeSingleMap();
         assert map.size() > 0;
         List<String> list = map.get("FMG3-JUN21");
-        assert list.size() == 1;
+        assert list.size() == 2;
     }
 
     @org.junit.jupiter.api.Test

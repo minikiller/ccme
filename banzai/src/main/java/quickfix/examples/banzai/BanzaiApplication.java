@@ -83,7 +83,6 @@ public class BanzaiApplication implements Application {
     static private final TwoWayMap sideMap = new TwoWayMap();
     static private final TwoWayMap typeMap = new TwoWayMap();
     static private final TwoWayMap tifMap = new TwoWayMap();
-    static private final HashMap<SessionID, HashSet<ExecID>> execIDs = new HashMap<>();
 
     public BanzaiApplication(OrderTableModel orderTableModel,
                              ExecutionTableModel executionTableModel) {
@@ -191,10 +190,10 @@ public class BanzaiApplication implements Application {
                 message.getHeader().getString(SenderCompID.FIELD));
     }
 
-    private void executionReport(Message message, SessionID sessionID) throws FieldNotFound {
+    public void executionReport(Message message, SessionID sessionID) throws FieldNotFound {
 
         ExecID execID = (ExecID) message.getField(new ExecID());
-        if (alreadyProcessed(execID, sessionID))
+        if (Util.alreadyProcessed(execID, sessionID))
             return;
 
         Order order = orderTableModel.getOrder(message.getField(new ClOrdID()).getValue());
@@ -298,21 +297,7 @@ public class BanzaiApplication implements Application {
         }
         orderTableModel.updateOrder(order, message.getField(new OrigClOrdID()).getValue());
     }
-    //todo need to concern
-    private boolean alreadyProcessed(ExecID execID, SessionID sessionID) {
-        HashSet<ExecID> set = execIDs.get(sessionID);
-        if (set == null) {
-            set = new HashSet<>();
-            set.add(execID);
-            execIDs.put(sessionID, set);
-            return false;
-        } else {
-            if (set.contains(execID))
-                return true;
-            set.add(execID);
-            return false;
-        }
-    }
+
 
     /***
      * 发送订阅信息

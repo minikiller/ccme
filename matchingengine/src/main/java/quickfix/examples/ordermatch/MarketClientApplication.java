@@ -52,22 +52,17 @@ public class MarketClientApplication implements Application {
 
     /**
      * 给MarketData发送交易信息
+     *
      * @throws SessionNotFound
      */
-    public void sendTradeToMarketData(Message msg ) throws SessionNotFound {
-//        String clOrdId="123";
-//        IdGenerator generator = new IdGenerator();
-//        ExecutionReport fixOrder = new ExecutionReport(new OrderID(clOrdId), new ExecID(generator
-//                .genExecutionID()),  new ExecType(
-//                ExecType.REJECTED), new OrdStatus(ExecType.REJECTED), new Side(
-//                '1'), new LeavesQty(0), new CumQty(0), new AvgPx(0));
-//
-//        fixOrder.setString(ClOrdID.FIELD, clOrdId);
-//        fixOrder.setString(Text.FIELD, "this is a test message");
-//        fixOrder.setInt(OrdRejReason.FIELD, OrdRejReason.BROKER_EXCHANGE_OPTION);
-        //下面是固定写死的内容
-        //        Session.lookupSession(sessionId);
-        Session.sendToTarget(msg, SENDER_COMP_ID, TARGET_COMP_ID);
+    public void sendTradeToMarketData(Message msg) throws SessionNotFound {
+        try {
+            ExecID execID = (ExecID) msg.getField(new ExecID());
+            System.out.println("send execId to markerdata is " + execID);
+            Session.sendToTarget(msg, SENDER_COMP_ID, TARGET_COMP_ID);
+        } catch (FieldNotFound fieldNotFound) {
+            fieldNotFound.printStackTrace();
+        }
     }
 
     private static class ObservableLogon extends Observable {

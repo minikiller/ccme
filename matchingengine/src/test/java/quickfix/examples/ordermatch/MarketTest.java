@@ -77,7 +77,7 @@ class MarketTest {
         assert implyOrders.size() == 1;
         ImplyOrder iOrder=implyOrders.get(0);
         assert iOrder.getSymbol().equals("FMG3-MAR21-JUN21");
-        assert iOrder.getPrice()== -20.0;
+        assert iOrder.getPrice()== 20.0;
         assert iOrder.getSide()==Side.BUY;
     }
 
@@ -87,12 +87,12 @@ class MarketTest {
      * 输出s_d1_d2
      */
     void test_In_1_2() {
-        Order order = new Order("123", "FMG3-MAR21", "N2N", "FEME", Side.SELL, OrdType.LIMIT, 10.0, 1);
+        Order order = new Order("123", "FMG3-MAR21", "N2N", "FEME", Side.SELL, OrdType.LIMIT, 30.0, 1);
         Market market = new Market();
         market.insert(order);
         markets.put("FMG3-MAR21", market);
 
-        Order order1 = new Order("123", "FMG3-JUN21", "N2N", "FEME", Side.BUY, OrdType.LIMIT, 30.0, 1);
+        Order order1 = new Order("123", "FMG3-JUN21", "N2N", "FEME", Side.BUY, OrdType.LIMIT, 10.0, 1);
         Market market1 = new Market();
         market1.insert(order1);
         markets.put("FMG3-JUN21", market1);
@@ -103,7 +103,7 @@ class MarketTest {
         assert implyOrders.size() == 1;
         ImplyOrder iOrder=implyOrders.get(0);
         assert iOrder.getSymbol().equals("FMG3-MAR21-JUN21");
-        assert iOrder.getPrice()== -20.0;
+        assert iOrder.getPrice()== 20.0;
         assert iOrder.getSide()==Side.SELL;
     }
 
@@ -132,7 +132,7 @@ class MarketTest {
         assert implyOrders.size() == 1;
         ImplyOrder iOrder=implyOrders.get(0);
         assert iOrder.getSymbol().equals("FMG3-JUN21");
-        assert iOrder.getPrice()== -20.0;
+        assert iOrder.getPrice()== 20.0;
         assert iOrder.getSide()==Side.BUY;
     }
 
@@ -186,7 +186,7 @@ class MarketTest {
         assert implyOrders.size() == 1;
         ImplyOrder iOrder=implyOrders.get(0);
         assert iOrder.getSymbol().equals("FMG3-JUN21");
-        assert iOrder.getPrice()== -20.0;
+        assert iOrder.getPrice()== 20.0;
         assert iOrder.getSide()==Side.SELL;
     }
 
@@ -240,7 +240,7 @@ class MarketTest {
         assert implyOrders.size() == 1;
         ImplyOrder iOrder=implyOrders.get(0);
         assert iOrder.getSymbol().equals("FMG3-MAR21");
-        assert iOrder.getPrice()== -20.0;
+        assert iOrder.getPrice()== 40.0;
         assert iOrder.getSide()==Side.BUY;
     }
 
@@ -267,7 +267,7 @@ class MarketTest {
         assert implyOrders.size() == 1;
         ImplyOrder iOrder=implyOrders.get(0);
         assert iOrder.getSymbol().equals("FMG3-MAR21");
-        assert iOrder.getPrice()== 20.0;
+        assert iOrder.getPrice()== 40.0;
         assert iOrder.getSide()==Side.BUY;
     }
 
@@ -294,7 +294,7 @@ class MarketTest {
         assert implyOrders.size() == 1;
         ImplyOrder iOrder=implyOrders.get(0);
         assert iOrder.getSymbol().equals("FMG3-MAR21");
-        assert iOrder.getPrice()== -20.0;
+        assert iOrder.getPrice()== 40.0;
         assert iOrder.getSide()==Side.SELL;
     }
     @Test
@@ -320,7 +320,7 @@ class MarketTest {
         assert implyOrders.size() == 1;
         ImplyOrder iOrder=implyOrders.get(0);
         assert iOrder.getSymbol().equals("FMG3-MAR21");
-        assert iOrder.getPrice()== 20.0;
+        assert iOrder.getPrice()== 40.0;
         assert iOrder.getSide()==Side.SELL;
     }
 

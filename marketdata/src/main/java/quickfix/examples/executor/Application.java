@@ -444,9 +444,14 @@ public class Application extends quickfix.MessageCracker implements quickfix.App
             UnsupportedMessageType, IncorrectTagValue {
         String senderCompId = report.getHeader().getString(SenderCompID.FIELD);
         String targetCompId = report.getHeader().getString(TargetCompID.FIELD);
-        if (SENDER_COMP_ID.equals(senderCompId) & TARGET_COMP_ID.equals(targetCompId)) {
+        if (SENDER_COMP_ID.equals(targetCompId) & TARGET_COMP_ID.equals(senderCompId)) {
             System.out.println("get message from matching engine ...");
             Util.printMsg(report);
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 //            for (Map.Entry<String, List<String>> entry : subscribeMap.entrySet())
             for (Map.Entry<String, String> entry : subscribeMap.entrySet())
             {
@@ -455,10 +460,12 @@ public class Application extends quickfix.MessageCracker implements quickfix.App
 //                for (String symbol:symbolList){
 //
 //                }
-                report.setString(SenderCompID.FIELD,senderCompId);
-                report.setString(TargetCompID.FIELD,targetId);
+//                ExecutionReport report1=(ExecutionReport)report.clone();
+//                report1.setString(SenderCompID.FIELD,"FEMD");
+//                report1.setString(TargetCompID.FIELD,targetId);
                 try {
-                    Session.sendToTarget(report);
+
+                    Session.sendToTarget(report,"FEMD",targetId);
                 } catch (SessionNotFound sessionNotFound) {
                     sessionNotFound.printStackTrace();
                 }

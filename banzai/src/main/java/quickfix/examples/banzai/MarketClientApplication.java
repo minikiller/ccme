@@ -3,10 +3,7 @@ package quickfix.examples.banzai;
 import quickfix.*;
 import quickfix.Message;
 import quickfix.MessageCracker;
-import quickfix.field.NoRelatedSym;
-import quickfix.field.NoUnderlyings;
-import quickfix.field.Symbol;
-import quickfix.field.UnderlyingSymbol;
+import quickfix.field.*;
 import quickfix.fix44.*;
 
 import java.util.ArrayList;
@@ -21,6 +18,7 @@ public class MarketClientApplication extends MessageCracker implements Applicati
     public static final String SENDER_COMP_ID = "MD_BANZAI_CLIENT";
     public static final String TARGET_COMP_ID = "FEMD";
     private OrderTableModel orderTableModel;
+    private BanzaiApplication application;
 
     @Override
     public void onCreate(SessionID sessionId) {
@@ -105,6 +103,21 @@ public class MarketClientApplication extends MessageCracker implements Applicati
     public void onMessage(MarketDataIncrementalRefresh message, SessionID sessionID) throws FieldNotFound, IncorrectTagValue, UnsupportedMessageType {
     }
 
+    public void onMessage(ExecutionReport message, SessionID sessionID) throws FieldNotFound, IncorrectTagValue, UnsupportedMessageType {
+        ExecID execID = (ExecID) message.getField(new ExecID());
+        String targetId = message.getHeader().getString(TargetCompID.FIELD);
+        System.out.println(Constans.ANSI_RED + "get message from MD...." + Constans.ANSI_RESET);
+        Util.printMsg(message);
+        SessionID _sessionID = new SessionID("FIX.4.4:" + targetId + "->FEME");
+        if (Util.alreadyProcessed(execID, _sessionID)) {
+            System.out.println(Constans.ANSI_RED + "message already processed...." + Constans.ANSI_RESET);
+        } else {
+            application.executionReport(message,_sessionID);//处理消息
+            System.out.println(Constans.ANSI_GREEN + "message will be processed...." + Constans.ANSI_RESET);
+        }
+
+    }
+
     public void onMessage(MarketDataSnapshotFullRefresh message, SessionID sessionID) throws FieldNotFound, IncorrectTagValue, UnsupportedMessageType {
         System.out.println("get MarketDataSnapshotFullRefresh message ");
         orderTableModel.deleteData();
@@ -129,6 +142,10 @@ public class MarketClientApplication extends MessageCracker implements Applicati
 
     public void setOrderTableModel(OrderTableModel orderTableModel) {
         this.orderTableModel = orderTableModel;
+    }
+
+    public void setMain(BanzaiApplication application) {
+        this.application=application;
     }
 
     private static class ObservableLogon extends Observable {
