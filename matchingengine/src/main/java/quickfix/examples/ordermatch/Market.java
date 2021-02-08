@@ -417,8 +417,27 @@ public class Market {
             return order;
         } else
             return null;
-
     }
+
+    /**
+     * 获得最大的买单价格
+     * @return
+     */
+    public Order best_bid(){
+        Order order = Collections.max(bidOrders, Comparator.comparing(s -> s.getPrice()));
+        return order;
+    }
+
+    /**
+     * 获得最大的卖单价格
+     * @return
+     */
+    public Order best_ask(){
+        Order order = Collections.min(askOrders, Comparator.comparing(s -> s.getPrice()));
+        return order;
+    }
+
+
 
     public Order getMinOrder(long quantity, List<Order> orders) {
         List<Order> orderList = new ArrayList<>(orders);

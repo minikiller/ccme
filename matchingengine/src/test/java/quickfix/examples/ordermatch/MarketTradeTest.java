@@ -40,7 +40,7 @@ public class MarketTradeTest {
 
     @Test
     void test_order_buy(){
-        Order order = new Order("123", "FMG3-JUN21", "N2N", "FEME", Side.SELL, OrdType.LIMIT, 12.0, 1);
+        Order order = new Order("123", "FMG3-JUN21", "N2N", "FEME", Side.SELL, OrdType.LIMIT, 12.0, 2);
         Order order1 = new Order("123", "FMG3-JUN21", "N2N", "FEME", Side.SELL, OrdType.LIMIT, 14.0, 1);
         Order order2 = new Order("123", "FMG3-JUN21", "N2N", "FEME", Side.SELL, OrdType.LIMIT, 13.0, 1);
         Order order3 = new Order("123", "FMG3-JUN21", "N2N", "FEME", Side.SELL, OrdType.LIMIT, 18.0, 1);

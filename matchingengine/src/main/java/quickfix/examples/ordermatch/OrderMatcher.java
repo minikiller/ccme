@@ -288,10 +288,10 @@ public class OrderMatcher {
                     clearTwoSideOrder(implyOrder);
                 } else { //如果是普通单，则取消关联的隐含单和普通单
                     cancelImplyOrder(_order);
-                    fillOrder(_order);
                 }
+                fillOrder(_order);
             }
-            //orderMatcher.display(order.getSymbol());
+            display(order.getSymbol());
         } else {
             rejectOrder(order);
         }
@@ -327,7 +327,7 @@ public class OrderMatcher {
      */
     public void clearTwoSideOrder(ImplyOrder order) {
         Order lefOrder = order.getLeftOrder();
-        Order rightOrder = order.getLeftOrder();
+        Order rightOrder = order.getRightOrder();
         removeOrder(lefOrder);
         removeOrder(rightOrder);
     }

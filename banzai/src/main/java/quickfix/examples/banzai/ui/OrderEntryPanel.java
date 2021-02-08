@@ -310,7 +310,7 @@ public class OrderEntryPanel extends JPanel implements Observer {
                 msg = new Message(str2);
                 application.sendMessage(msg, sessionID);
 
-                msg = new Message(str3);
+                /*msg = new Message(str3);
                 application.sendMessage(msg,sessionID);
 
                 msg = new Message(str4);
@@ -320,7 +320,7 @@ public class OrderEntryPanel extends JPanel implements Observer {
                 application.sendMessage(msg,sessionID);
 
                 msg = new Message(str6);
-                application.sendMessage(msg,sessionID);
+                application.sendMessage(msg,sessionID);*/
 
             } catch (InvalidMessage invalidMessage) {
                 invalidMessage.printStackTrace();
