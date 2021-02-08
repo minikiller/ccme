@@ -36,41 +36,68 @@ public class Market {
         return tradeOrders;
     }
 
-    public boolean match(String symbol, List<Order> orders) {
-//        while (true)
-        {
-            if (bidOrders.size() == 0 || askOrders.size() == 0) {
-                return orders.size() != 0;
-            }
-            for (int i = 0; i < bidOrders.size(); i++) {
-                Order bidOrder = bidOrders.get(i);
-                for (int j = 0; j < askOrders.size(); j++) {
-                    Order askOrder = askOrders.get(j);
-                    if (bidOrder.getType() == OrdType.MARKET || askOrder.getType() == OrdType.MARKET
-                            || (bidOrder.getPrice() >= askOrder.getPrice())) {
-                        match(bidOrder, askOrder);
-                        if (!orders.contains(bidOrder)) {
-                            orders.add(0, bidOrder);
-                        }
-                        if (!orders.contains(askOrder)) {
-                            orders.add(0, askOrder);
-                        }
-                        //saved to trade
-                        insertTrade(bidOrder, askOrder);
-                        if (bidOrder.isClosed()) {
-                            bidOrders.remove(bidOrder);
-                        }
-                        if (askOrder.isClosed()) {
-                            askOrders.remove(askOrder);
-                        }
-                        return true;
+    public boolean match(Order order, List<Order> orders) {
+        List<Order> bidToRemove = new ArrayList<>();
+        List<Order> askToRemove = new ArrayList<>();
+        if (bidOrders.size() == 0 || askOrders.size() == 0) {
+            return orders.size() != 0;
+        }
+
+        if (order.getSide() == Side.BUY) {
+            for (int j = 0; j < askOrders.size(); j++) {
+                Order askOrder = askOrders.get(j);
+                Order bidOrder = order;
+                if (bidOrder.getType() == OrdType.MARKET || askOrder.getType() == OrdType.MARKET
+                        || (bidOrder.getPrice() >= askOrder.getPrice())) {
+                    match(bidOrder, askOrder);
+                    if (!orders.contains(bidOrder)) {
+                        orders.add(0, bidOrder);
                     }
-//                    else
-//                        return orders.size() != 0;
+                    if (!orders.contains(askOrder)) {
+                        orders.add(0, askOrder);
+                    }
+                    //saved to trade
+                    insertTrade(bidOrder, askOrder);
+                    if (bidOrder.isClosed()) {
+                        bidToRemove.add(bidOrder);
+                    }
+                    if (askOrder.isClosed()) {
+                        askToRemove.add(askOrder);
+                    }
+                }
+            }
+        } else {
+            for (int j = 0; j < bidOrders.size(); j++) {
+                Order bidOrder = bidOrders.get(j);
+                Order askOrder = order;
+                if (bidOrder.getType() == OrdType.MARKET || askOrder.getType() == OrdType.MARKET
+                        || (bidOrder.getPrice() >= askOrder.getPrice())) {
+                    match(bidOrder, askOrder);
+                    if (!orders.contains(bidOrder)) {
+                        orders.add(0, bidOrder);
+                    }
+                    if (!orders.contains(askOrder)) {
+                        orders.add(0, askOrder);
+                    }
+                    //saved to trade
+                    insertTrade(bidOrder, askOrder);
+                    if (bidOrder.isClosed()) {
+                        bidToRemove.add(bidOrder);
+                    }
+                    if (askOrder.isClosed()) {
+                        askToRemove.add(askOrder);
+                    }
                 }
             }
         }
+
+        removeData(bidToRemove, askToRemove);
         return false;
+    }
+
+    private void removeData(List<Order> bidToRemove, List<Order> askToRemove) {
+        bidOrders.removeAll(bidToRemove);
+        askOrders.removeAll(askToRemove);
     }
 
     private void match(Order bid, Order ask) {
@@ -86,23 +113,29 @@ public class Market {
     }
 
     private boolean insert(Order order, boolean descending, List<Order> orders) {
-
-        if (orders.size() == 0) {
-            orders.add(order);
-        } else if (order.getType() == OrdType.MARKET) {
-            orders.add(0, order);
+        orders.add(order);
+        if (descending) {
+            orders.sort(Order.compareByBid());
         } else {
-            for (int i = 0; i < orders.size(); i++) {
-                Order o = orders.get(i);
-                if ((descending ? order.getPrice() > o.getPrice() : order.getPrice() < o.getPrice())
-                        && order.getEntryTime() < o.getEntryTime()) {
-                    orders.add(i, order);
-                }
-            }
-            orders.add(order);
+            orders.sort(Order.compareByAsk());
         }
         return true;
     }
+//        if (orders.size() == 0) {
+//            orders.add(order);
+//        } else if (order.getType() == OrdType.MARKET) {
+//            orders.add(0, order);
+//        } else {
+//            for (int i = 0; i < orders.size(); i++) {
+//                Order o = orders.get(i);
+//                if ((descending ? order.getPrice() > o.getPrice() : order.getPrice() < o.getPrice())
+//                        && order.getEntryTime() < o.getEntryTime()) {
+//                    orders.add(i, order);
+//                }
+//            }
+//            orders.add(order);
+//        }
+
 
     public void erase(Order order) {
         if (order.getSide() == Side.BUY) {
@@ -421,22 +454,23 @@ public class Market {
 
     /**
      * 获得最大的买单价格
+     *
      * @return
      */
-    public Order best_bid(){
+    public Order best_bid() {
         Order order = Collections.max(bidOrders, Comparator.comparing(s -> s.getPrice()));
         return order;
     }
 
     /**
      * 获得最大的卖单价格
+     *
      * @return
      */
-    public Order best_ask(){
+    public Order best_ask() {
         Order order = Collections.min(askOrders, Comparator.comparing(s -> s.getPrice()));
         return order;
     }
-
 
 
     public Order getMinOrder(long quantity, List<Order> orders) {

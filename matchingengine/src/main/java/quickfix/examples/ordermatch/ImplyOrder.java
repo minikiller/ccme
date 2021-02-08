@@ -4,7 +4,7 @@ package quickfix.examples.ordermatch;
  * 隐含单
  */
 public class ImplyOrder extends Order {
-    private ImplyOrder(String clientId, String symbol, String owner, String target, char side, char type, double price, long quantity) {
+    public ImplyOrder(String clientId, String symbol, String owner, String target, char side, char type, double price, long quantity) {
         super(clientId, symbol, owner, target, side, type, price, quantity);
     }
 
@@ -41,5 +41,8 @@ public class ImplyOrder extends Order {
         leftOrder.getImplyOrderMap().put(order.getClientOrderId(),order);
         rightOrder.getImplyOrderMap().put(order.getClientOrderId(),order);
         return order;
+    }
+    public  int getSortCount(){
+        return 1;
     }
 }

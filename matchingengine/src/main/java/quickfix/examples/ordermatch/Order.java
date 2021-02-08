@@ -22,8 +22,11 @@ package quickfix.examples.ordermatch;
 import quickfix.field.Side;
 
 import java.io.Serializable;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+
+import static java.util.Collections.reverseOrder;
 
 public class Order implements Serializable {
     private final long entryTime;
@@ -43,7 +46,7 @@ public class Order implements Serializable {
     //是否是单脚单，还是双脚单
     private boolean isSingle = true;
     // 指向隐含单Map,String为orderId
-    private Map<String, ImplyOrder> implyOrderMap=new HashMap<>();
+    private Map<String, ImplyOrder> implyOrderMap = new HashMap<>();
 
     public Order(String clientId, String symbol, String owner, String target, char side, char type,
                  double price, long quantity) {
@@ -178,5 +181,23 @@ public class Order implements Serializable {
 
     public void setSingle(boolean single) {
         isSingle = single;
+    }
+
+    public static Comparator<Order>  compareByBid() {
+        Comparator<Order> bid_comparrator = Comparator.comparing(Order::getPrice, reverseOrder())
+                .thenComparingLong(Order::getSortCount)
+                .thenComparing(Order::getEntryTime);
+        return bid_comparrator;
+    }
+
+    public static Comparator<Order>  compareByAsk() {
+        Comparator<Order> ask_comparrator = Comparator.comparing(Order::getPrice)
+                .thenComparingLong(Order::getSortCount)
+                .thenComparing(Order::getEntryTime);
+        return ask_comparrator;
+    }
+
+    public int getSortCount() {
+        return 0;
     }
 }

@@ -64,8 +64,8 @@ public class OrderMatcher {
         getMarket(leftOrder.getSymbol()).insertTrade(leftOrder,rightOrder);
     }
 
-    public void match(String symbol, ArrayList<Order> orders) {
-        getMarket(symbol).match(symbol, orders);
+    public void match(Order order, ArrayList<Order> orders) {
+        getMarket(order.getSymbol()).match(order, orders);
     }
 
     public Order find(String symbol, char side, String id) {
@@ -272,7 +272,7 @@ public class OrderMatcher {
 
             ArrayList<Order> orders = new ArrayList<>();
             List<ImplyOrder> implyOrders = new ArrayList<>();
-            match(order.getSymbol(), orders);
+            match(order, orders);
             if (orders.size() == 0) {//说明未撮合成功，处理生成隐含单
                 implyOrders = createImplyOrder(order);
                 while (implyOrders.size() > 0) {
