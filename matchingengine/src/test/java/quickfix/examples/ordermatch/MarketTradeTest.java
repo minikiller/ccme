@@ -2,9 +2,14 @@ package quickfix.examples.ordermatch;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import quickfix.InvalidMessage;
+import quickfix.Message;
+import quickfix.MessageUtils;
+import quickfix.examples.executor.Util;
 import quickfix.field.OrdType;
 import quickfix.field.Side;
 
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.List;
 
@@ -60,5 +65,20 @@ public class MarketTradeTest {
         orderMatcher.processOrder(order5);
         List<Trade> trades=orderMatcher.getMarkets().get("FMG3-JUN21").getTradeOrders() ;
         assert trades.size()==1;
+    }
+
+    @Test
+    void test_im() throws UnsupportedEncodingException, InvalidMessage {
+        String str1 = "8=FIX.4.4\u00019=142\u000135=D\u000134=69\u000149=N2N\u000152=20210206-02:12:04.215\u000156=FEME\u000111="
+                + Util.get32UUID() + "\u000121=1\u000138=1\u000140=2\u000144=111.25\u000154=1\u000155=FMG3-DEC20\u000159=0\u000160=20210206-02:12:04.212\u0001";
+        System.out.println(str1.length());
+// Check encoded sizes
+        final byte[] utf8Bytes = str1.getBytes("UTF-8");
+        System.out.println(utf8Bytes.length); // prints "11"
+        int count=MessageUtils.checksum(str1);
+//        System.out.println(); // prints "11"
+        String str2=str1+"10="+count+"\u0001";
+        Message msg = new Message(str2);
+//        MessageUtils.checksum(msg)
     }
 }
