@@ -48,6 +48,9 @@ public class Order implements Serializable {
     // 指向隐含单Map,String为orderId
     private Map<String, ImplyOrder> implyOrderMap = new HashMap<>();
 
+    public void clearImply(ImplyOrder order){
+        implyOrderMap.remove(order.getClientOrderId());
+    }
     public Order(String clientId, String symbol, String owner, String target, char side, char type,
                  double price, long quantity) {
         super();

@@ -42,6 +42,7 @@ public class ImplyOrder extends Order {
         rightOrder.getImplyOrderMap().put(order.getClientOrderId(),order);
         return order;
     }
+
     public  int getSortCount(){
         return 1;
     }

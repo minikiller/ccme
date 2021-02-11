@@ -5,7 +5,16 @@ import quickfix.field.Side;
 import java.util.List;
 
 public class SimpleSpreadRule extends BaseSpreadRule {
-    public void singleSingleToDouble(Order order, List<ImplyOrder> orders, String symbol) {
+    public void singleSingleToDouble_before(Order order, List<ImplyOrder> orders, String symbol) {
+        Market market = orderMatcher.getMarkets().get(symbol);
+        ImplyOrder implyOrder = createImply(market, order);
+        if (implyOrder != null) {
+            orders.add(implyOrder);
+            orderMatcher.insert(implyOrder);
+        }
+    }
+
+    public void singleSingleToDouble_after(Order order, List<ImplyOrder> orders, String symbol) {
         Market market = orderMatcher.getMarkets().get(symbol);
         ImplyOrder implyOrder = createImply(market, order);
         if (implyOrder != null) {

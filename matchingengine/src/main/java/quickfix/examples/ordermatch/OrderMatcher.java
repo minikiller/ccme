@@ -365,11 +365,11 @@ public class OrderMatcher {
         //返回单脚单之前的单脚单列表
         List<String> beforeSingleSymbols = beforeSingleMap.get(order.getSymbol());
         //产生s_d1和s_d2=s_d1_d2
-        createSingle(order, orders, beforeSingleSymbols);
+        createBeforeSingle(order, orders, beforeSingleSymbols);
         //返回单脚单之后的单脚单列表
         List<String> afterSingleSymbols = afterSingleMap.get(order.getSymbol());
         //产生s_d1和s_d2=s_d1_d2
-        createSingle(order, orders, afterSingleSymbols);
+        createAfterSingle(order, orders, afterSingleSymbols);
         //返回单脚单之前的双脚单列表
         List<String> beforeDoubleSymbols = beforeDoubleMap.get(order.getSymbol());
         createBeforeDouble(order, orders, beforeDoubleSymbols);
@@ -443,9 +443,15 @@ public class OrderMatcher {
      * @param orders 保存新生成的隐含单列表
      * @param singleSymbols 需要查找的symbol列表
      */
-    private void createSingle(Order order, List<ImplyOrder> orders, List<String> singleSymbols) {
+    private void createBeforeSingle(Order order, List<ImplyOrder> orders, List<String> singleSymbols) {
         for (String str : singleSymbols) {
-            rule.singleSingleToDouble(order,orders,str);
+            rule.singleSingleToDouble_before(order,orders,str);
+        }
+    }
+
+    private void createAfterSingle(Order order, List<ImplyOrder> orders, List<String> singleSymbols) {
+        for (String str : singleSymbols) {
+            rule.singleSingleToDouble_after(order,orders,str);
         }
     }
 

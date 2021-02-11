@@ -20,7 +20,8 @@ public abstract class BaseSpreadRule {
         this.orderMatcher = orderMatcher;
     }
 
-    public abstract void singleSingleToDouble(Order order, List<ImplyOrder> orders, String symbol);
+    public abstract void singleSingleToDouble_before(Order order, List<ImplyOrder> orders, String symbol);
+    public abstract void singleSingleToDouble_after(Order order, List<ImplyOrder> orders, String symbol);
 
     public Order getMaxOrder(long quantity, List<Order> orders) {
         List<Order> orderList = new ArrayList<>(orders);
@@ -56,4 +57,6 @@ public abstract class BaseSpreadRule {
 
         return result;
     }
+
+
 }

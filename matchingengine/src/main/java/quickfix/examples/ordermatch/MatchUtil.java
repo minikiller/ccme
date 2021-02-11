@@ -4,6 +4,7 @@ import quickfix.ConfigError;
 import quickfix.Message;
 import quickfix.SessionSettings;
 import quickfix.examples.executor.Util;
+import quickfix.field.Side;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -208,6 +209,35 @@ public class MatchUtil {
             return str1[0] + "-" + str2[1] + "-" + str1[1];
         else
             return str1[0] + "-" + str1[1] + "-" + str2[1];
+    }
+
+    /**
+     * 根据订单的symbol来判断生成的隐含单的类型
+     *
+     * @param lorder
+     * @param rorder
+     * @return
+     */
+    public static char decideOrderSide(Order lorder, Order rorder) {
+        String lsymbol = lorder.getSymbol();
+        String rsymbol = rorder.getSymbol();
+        String[] lsymbol_array = lsymbol.split("-");
+        String[] rsymbol_array = rsymbol.split("-");
+        if (lsymbol_array.length == 3) //左边是双脚单 S_V1_V2
+        {
+            return rorder.getSide();// 以右边单脚单为准
+        } else if (rsymbol_array.length == 3) {//右边是双脚单
+            return lorder.getSide(); //以左边单脚单为准
+        } else if ((lsymbol_array.length == 2) && (rsymbol_array.length == 2)) {// 两个都是单脚单
+            Integer first = dateMap.get(lsymbol_array[1]);
+            Integer second = dateMap.get(rsymbol_array[1]);
+            if (first > second)
+                return rorder.getSide();
+            else
+                return lorder.getSide();
+        }else{
+            throw new RuntimeException("parameter error!");
+        }
     }
 
     public static void main(String[] param) {
