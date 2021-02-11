@@ -40,6 +40,8 @@ public class OrderMatcher {
     private final Map<String, List<String>> beforeSingleMap = MatchUtil.getBeforeSingleMap();
     private final Map<String, List<String>> afterSingleMap = MatchUtil.getAfterSingleMap();
 
+    private final BaseSpreadRule rule=MatchUtil.matchFactory();
+
     public HashMap<String, Market> getMarkets() {
         return markets;
     }
@@ -50,9 +52,10 @@ public class OrderMatcher {
 
     public OrderMatcher(MarketClientApplication app) {
         this.marketClientApplication = app;
+        this.rule.setOrderMatcher(this);
     }
 
-    private Market getMarket(String symbol) {
+    public Market getMarket(String symbol) {
         return markets.computeIfAbsent(symbol, k -> new Market());
     }
 
@@ -434,14 +437,15 @@ public class OrderMatcher {
         }
     }
 
+    /**
+     *
+     * @param order 需处理的订单
+     * @param orders 保存新生成的隐含单列表
+     * @param singleSymbols 需要查找的symbol列表
+     */
     private void createSingle(Order order, List<ImplyOrder> orders, List<String> singleSymbols) {
         for (String str : singleSymbols) {
-            Market market = getMarket(str);
-            ImplyOrder implyOrder = market.matchSingleImply(order);
-            if (implyOrder != null) {
-                orders.add(implyOrder);
-                insert(implyOrder);
-            }
+            rule.singleSingleToDouble(order,orders,str);
         }
     }
 

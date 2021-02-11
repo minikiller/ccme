@@ -1,8 +1,12 @@
 package quickfix.examples.ordermatch;
 
+import quickfix.ConfigError;
 import quickfix.Message;
+import quickfix.SessionSettings;
 import quickfix.examples.executor.Util;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -12,6 +16,25 @@ public class MatchUtil {
     private static final List<String> singleList = createSingleList();
     private static final Map<String, Integer> dateMap = getDateMap();
     private static final Map<Integer, String> indexMap = getIndexMap();
+    private static final String MATCH_RULE = getMatchRule();
+    private static final String Match_Rule = "MatchRule";
+
+
+    private static String getMatchRule() {
+        String str = null;
+        InputStream inputStream = MatchUtil.class.getResourceAsStream("ordermatch.cfg");
+        SessionSettings settings = null;
+        try {
+            settings = new SessionSettings(inputStream);
+            str = settings.getString(Match_Rule);
+            inputStream.close();
+        } catch (ConfigError configError) {
+            configError.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return str;
+    }
 
     public static String get32UUID() {
         String uuid = UUID.randomUUID().toString().trim().replaceAll("-", "");
@@ -286,10 +309,14 @@ public class MatchUtil {
             }
         }
         BigDecimal b = new BigDecimal(price);
-        price= b.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+        price = b.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
         return price;
     }
 
-
-
+    public static BaseSpreadRule matchFactory() {
+        if (MATCH_RULE.equals("simple")) {
+            return new SimpleSpreadRule();
+        } else
+            return new ComplicateSpreadRule();
+    }
 }

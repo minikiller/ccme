@@ -36,6 +36,14 @@ public class Market {
         return tradeOrders;
     }
 
+    public List<Order> getBidOrders() {
+        return bidOrders;
+    }
+
+    public List<Order> getAskOrders() {
+        return askOrders;
+    }
+
     public boolean match(Order order, List<Order> orders) {
         List<Order> bidToRemove = new ArrayList<>();
         List<Order> askToRemove = new ArrayList<>();
