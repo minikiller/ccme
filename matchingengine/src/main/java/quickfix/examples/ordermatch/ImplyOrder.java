@@ -1,5 +1,7 @@
 package quickfix.examples.ordermatch;
 
+import quickfix.field.Side;
+
 /**
  * 隐含单
  */
@@ -32,18 +34,23 @@ public class ImplyOrder extends Order {
         String target = leftOrder.getTarget();
         String clientId = MatchUtil.generateID();
         char type = leftOrder.getType();
-        double price = MatchUtil.calculatePrice(leftOrder,rightOrder) ;
+        double price = MatchUtil.calculatePrice(leftOrder, rightOrder);
         long quantity = leftOrder.getQuantity();
 
         ImplyOrder order = new ImplyOrder(clientId, symbol, owner, target, side, type, price, quantity);
-        order.leftOrder = leftOrder;
-        order.rightOrder = rightOrder;
-        leftOrder.getImplyOrderMap().put(order.getClientOrderId(),order);
-        rightOrder.getImplyOrderMap().put(order.getClientOrderId(),order);
+        if (leftOrder.getSide() == Side.BUY) {
+            order.leftOrder = leftOrder;
+            order.rightOrder = rightOrder;
+        } else {
+            order.leftOrder = rightOrder;
+            order.rightOrder = leftOrder;
+        }
+        leftOrder.getImplyOrderMap().put(order.getClientOrderId(), order);
+        rightOrder.getImplyOrderMap().put(order.getClientOrderId(), order);
         return order;
     }
 
-    public  int getSortCount(){
+    public int getSortCount() {
         return 1;
     }
 }

@@ -82,24 +82,19 @@ public class ComplicateSpreadRule extends BaseSpreadRule {
             orderMatcher.getMarket(order.getSymbol()).erase(order);
             ImplyOrder _order = (ImplyOrder) order;//拆掉左边的关联
             _order.getLeftOrder().clearImply(_order);
-            ImplyOrder _order1 = (ImplyOrder) order;//拆掉右边的关联
-            _order1.getRightOrder().clearImply(_order);
+//            ImplyOrder _order1 = (ImplyOrder) order;//拆掉右边的关联
+            _order.getRightOrder().clearImply(_order);
         }
     }
 
     private List<Order> getImplyOrders(String implySymbol, char side) {
         List<Order> result = null;
-        if (side == Side.BUY) {
-            List<Order> orderList = orderMatcher.getMarket(implySymbol).getBidOrders();
-            result = orderList.stream()                // convert list to stream
-                    .filter(order -> !(order instanceof ImplyOrder)) //不能是隐含单
-                    .collect(Collectors.toList());
-        } else {//if (side==Side.SELL)
-            List<Order> orderList = orderMatcher.getMarket(implySymbol).getAskOrders();
-            result = orderList.stream()                // convert list to stream
-                    .filter(order -> !(order instanceof ImplyOrder)) //不能是隐含单
-                    .collect(Collectors.toList());
-        }
+        List<Order> orderList = side == Side.BUY
+                ? orderMatcher.getMarket(implySymbol).getBidOrders()
+                : orderMatcher.getMarket(implySymbol).getAskOrders();
+        result = orderList.stream()                // convert list to stream
+                .filter(order -> (order instanceof ImplyOrder)) //只能是隐含单
+                .collect(Collectors.toList());
         return result;
     }
 
