@@ -1,5 +1,7 @@
 package quickfix.examples.ordermatch;
 
+import quickfix.field.Side;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -11,18 +13,21 @@ import java.util.stream.Collectors;
  */
 public abstract class BaseSpreadRule {
     protected OrderMatcher orderMatcher;
-
-    public OrderMatcher getOrderMatcher() {
-        return orderMatcher;
-    }
-
     public void setOrderMatcher(OrderMatcher orderMatcher) {
         this.orderMatcher = orderMatcher;
     }
 
-    public abstract void singleSingleToDouble_before(Order order, List<ImplyOrder> orders, String symbol);
-    public abstract void singleSingleToDouble_after(Order order, List<ImplyOrder> orders, String symbol);
+    public abstract void singleToDouble_before(Order order, List<ImplyOrder> orders, String symbol);
+    public abstract void singleToDouble_after(Order order, List<ImplyOrder> orders, String symbol);
+    public abstract void doubleToSingle_before(Order order, List<ImplyOrder> orders, String symbol);
+    public abstract void doubleToSingle_after(Order order, List<ImplyOrder> orders, String symbol);
 
+    /**
+     * 获得最大的bid买单
+     * @param quantity
+     * @param orders
+     * @return
+     */
     public Order getMaxOrder(long quantity, List<Order> orders) {
         List<Order> orderList = new ArrayList<>(orders);
         List<Order> result = orderList.stream()                // convert list to stream
@@ -35,6 +40,13 @@ public abstract class BaseSpreadRule {
         } else
             return null;
     }
+
+    /**
+     * 获得最小的ask卖单
+     * @param quantity
+     * @param orders
+     * @return
+     */
 
     public Order getMinOrder(long quantity, List<Order> orders) {
         List<Order> orderList = new ArrayList<>(orders);
@@ -58,5 +70,45 @@ public abstract class BaseSpreadRule {
         return result;
     }
 
+    /**
+     * 解除隐含单的对应关系
+     *
+     * @param implySymbol
+     * @param side
+     */
+    protected void clearImplyOrders(String implySymbol, char side) {
+        List<Order> implyOrders = getImplyOrders(implySymbol, side);
+        for (Order order : implyOrders) {
+            orderMatcher.getMarket(order.getSymbol()).erase(order);
+            ImplyOrder _order = (ImplyOrder) order;//拆掉左边的关联
+            _order.getLeftOrder().clearImply(_order);
+            _order.getRightOrder().clearImply(_order);
+        }
+    }
 
+    /**
+     * 查询获得market的隐含单列表
+     *
+     * @param implySymbol
+     * @param side
+     * @return
+     */
+    protected List<Order> getImplyOrders(String implySymbol, char side) {
+        List<Order> result = null;
+        List<Order> orderList = side == Side.BUY
+                ? orderMatcher.getMarket(implySymbol).getBidOrders()
+                : orderMatcher.getMarket(implySymbol).getAskOrders();
+        result = orderList.stream()                // convert list to stream
+                .filter(order -> (order instanceof ImplyOrder)) //只能是隐含单
+                .collect(Collectors.toList());
+        return result;
+    }
+
+    /**
+     * 根据双脚单生成对应的单脚单
+     * @param order
+     * @param orders
+     * @return
+     */
+    public abstract void createFullDouble(Order order, List<ImplyOrder> orders);
 }

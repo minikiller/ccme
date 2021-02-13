@@ -347,7 +347,7 @@ public class OrderMatcher {
     }
 
     //创建隐含订单
-    private List<ImplyOrder> createImplyOrder(Order order) {
+    public List<ImplyOrder> createImplyOrder(Order order) {
         if (order.isSingle() == true) {
             return createSingleImplyOrder(order);//处理单脚单
         } else {
@@ -371,11 +371,24 @@ public class OrderMatcher {
         //产生s_d1和s_d2=s_d1_d2
         createAfterSingle(order, orders, afterSingleSymbols);
         //返回单脚单之前的双脚单列表
+        //输入：s_d2,返回：s_d1_d2,例如：FMG3-MAR21,返回:FMG3-DEC20-MAR21
         List<String> beforeDoubleSymbols = beforeDoubleMap.get(order.getSymbol());
         createBeforeDouble(order, orders, beforeDoubleSymbols);
         //返回单脚单之后的双脚单列表
+        //输入：s_d2,返回：s_d2_d3,s_d2_d4
         List<String> afterDoubleSymbols = afterDoubleMap.get(order.getSymbol());
         createAfterDouble(order, orders, afterDoubleSymbols);
+        return orders;
+    }
+
+    /**
+     * 根据双脚单创建隐含单
+     *
+     * @param order
+     */
+    public List<ImplyOrder> createDoubleImplyOrder(Order order) {
+        List<ImplyOrder> orders = new ArrayList<>();
+        rule.createFullDouble(order,orders);
         return orders;
     }
 
@@ -389,22 +402,7 @@ public class OrderMatcher {
      */
     private void createBeforeDouble(Order order, List<ImplyOrder> orders, List<String> doubleSymbols) {
         for (String str : doubleSymbols) {
-            Market market = getMarket(str);
-            ImplyOrder implyOrder = null;
-            if (order.getSide() == Side.BUY) {
-                implyOrder = market.matchSingleBuy(order, Side.BUY);
-                if (implyOrder != null) {
-                    orders.add(implyOrder);
-                    insert(implyOrder);
-                }
-            }
-            if (order.getSide() == Side.SELL) {
-                implyOrder = market.matchSingleSell(order, Side.SELL);
-                if (implyOrder != null) {
-                    orders.add(implyOrder);
-                    insert(implyOrder);
-                }
-            }
+            rule.doubleToSingle_before(order,orders,str);
         }
     }
 
@@ -418,22 +416,7 @@ public class OrderMatcher {
      */
     private void createAfterDouble(Order order, List<ImplyOrder> orders, List<String> doubleSymbols) {
         for (String str : doubleSymbols) {
-            Market market = getMarket(str);
-            ImplyOrder implyOrder = null;
-            if (order.getSide() == Side.BUY) {
-                implyOrder = market.matchSingleBuy(order, Side.SELL);
-                if (implyOrder != null) {
-                    orders.add(implyOrder);
-                    insert(implyOrder);
-                }
-            }
-            if (order.getSide() == Side.SELL) {
-                implyOrder = market.matchSingleSell(order, Side.BUY);
-                if (implyOrder != null) {
-                    orders.add(implyOrder);
-                    insert(implyOrder);
-                }
-            }
+            rule.doubleToSingle_after(order,orders,str);
         }
     }
 
@@ -445,56 +428,17 @@ public class OrderMatcher {
      */
     private void createBeforeSingle(Order order, List<ImplyOrder> orders, List<String> singleSymbols) {
         for (String str : singleSymbols) {
-            rule.singleSingleToDouble_before(order,orders,str);
+            rule.singleToDouble_before(order,orders,str);
         }
     }
 
     private void createAfterSingle(Order order, List<ImplyOrder> orders, List<String> singleSymbols) {
         for (String str : singleSymbols) {
-            rule.singleSingleToDouble_after(order,orders,str);
+            rule.singleToDouble_after(order,orders,str);
         }
     }
 
-    /**
-     * 根据双脚单创建隐含单
-     *
-     * @param order
-     */
-    public List<ImplyOrder> createDoubleImplyOrder(Order order) {
-        //拆分双脚单为两个单脚单，即s-d1-d2,分成s-d1,s-d2
-        List<ImplyOrder> implyOrders = new ArrayList<>();
-        String[] str = order.getSymbol().split("-");
-        String symbol_d1 = str[0] + "-" + str[1];
-        String symbol_d2 = str[0] + "-" + str[2];
-        Market market_d1 = getMarket(symbol_d1);
-        Market market_d2 = getMarket(symbol_d2);
-        ImplyOrder implyOrder = null;
-        if (order.getSide() == Side.BUY) {
-            implyOrder = market_d2.matchDoubleBuy(order, Side.BUY);
-            if (implyOrder != null) {
-                implyOrders.add(implyOrder);
-                insert(implyOrder);
-            }
-            implyOrder = market_d1.matchDoubleBuy(order, Side.SELL);
-            if (implyOrder != null) {
-                implyOrders.add(implyOrder);
-                insert(implyOrder);
-            }
-        }
-        if (order.getSide() == Side.SELL) {
-            implyOrder = market_d1.matchDoubleSell(order, Side.BUY);
-            if (implyOrder != null) {
-                implyOrders.add(implyOrder);
-                insert(implyOrder);
-            }
-            implyOrder = market_d2.matchDoubleSell(order, Side.SELL);
-            if (implyOrder != null) {
-                implyOrders.add(implyOrder);
-                insert(implyOrder);
-            }
-        }
-        return implyOrders;
-    }
+
 
     private void rejectOrder(Order order) {
         updateOrder(order, OrdStatus.REJECTED);

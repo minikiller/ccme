@@ -78,7 +78,7 @@ class MarketTest {
         ImplyOrder iOrder=implyOrders.get(0);
         assert iOrder.getSymbol().equals("FMG3-MAR21-JUN21");
         assert iOrder.getPrice()== 20.0;
-        assert iOrder.getSide()==Side.BUY;
+        assert iOrder.getSide()==Side.SELL;
     }
 
     @Test
