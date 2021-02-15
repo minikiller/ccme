@@ -19,6 +19,7 @@
 
 package quickfix.examples.ordermatch;
 
+import quickfix.field.OrdStatus;
 import quickfix.field.Side;
 
 import java.io.Serializable;
@@ -36,6 +37,7 @@ public class Order implements Serializable {
     private final String target;
     private final char side;
     private final char type;
+    private char status; //OrdStatus field 订单类型
     private double price;
     private long quantity;
     private long openQuantity;
@@ -62,7 +64,9 @@ public class Order implements Serializable {
         this.type = type;
         this.price = price;
         this.quantity = quantity;
+        this.status= OrdStatus.NEW;
         openQuantity = quantity;
+
         entryTime = System.currentTimeMillis();
         //判断单脚单还是双脚单
         if (symbol.split("-").length == 3) this.isSingle = false;
@@ -202,5 +206,13 @@ public class Order implements Serializable {
 
     public int getSortCount() {
         return 0;
+    }
+
+    public char getStatus() {
+        return status;
+    }
+
+    public void setStatus(char status) {
+        this.status = status;
     }
 }

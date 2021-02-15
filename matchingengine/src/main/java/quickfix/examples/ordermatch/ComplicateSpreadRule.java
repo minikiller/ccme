@@ -1,5 +1,8 @@
 package quickfix.examples.ordermatch;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import quickfix.field.OrdStatus;
 import quickfix.field.Side;
 
 import java.util.List;
@@ -10,6 +13,7 @@ import static java.lang.Math.min;
  * FEME v1.0.1实现的算法
  */
 public class ComplicateSpreadRule extends BaseSpreadRule {
+
     public void singleToDouble_before(Order order, List<ImplyOrder> orders, String symbol) {
         Market target_market = orderMatcher.getMarket(symbol);
         Market source_market = orderMatcher.getMarket(order.getSymbol());

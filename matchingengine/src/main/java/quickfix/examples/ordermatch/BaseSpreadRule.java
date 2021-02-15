@@ -1,5 +1,7 @@
 package quickfix.examples.ordermatch;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import quickfix.field.Side;
 
 import java.util.ArrayList;
@@ -12,6 +14,8 @@ import java.util.stream.Collectors;
  * 基础匹配规则的基类
  */
 public abstract class BaseSpreadRule {
+    private static final Logger logger = LoggerFactory.getLogger(BaseSpreadRule.class);
+
     protected OrderMatcher orderMatcher;
     public void setOrderMatcher(OrderMatcher orderMatcher) {
         this.orderMatcher = orderMatcher;
@@ -79,6 +83,7 @@ public abstract class BaseSpreadRule {
     protected void clearImplyOrders(String implySymbol, char side) {
         List<Order> implyOrders = getImplyOrders(implySymbol, side);
         for (Order order : implyOrders) {
+            logger.info("clear ImplyOrder is "+order.toString());
             orderMatcher.getMarket(order.getSymbol()).erase(order);
             ImplyOrder _order = (ImplyOrder) order;//拆掉左边的关联
             _order.getLeftOrder().clearImply(_order);

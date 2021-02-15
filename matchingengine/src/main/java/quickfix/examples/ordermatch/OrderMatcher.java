@@ -368,7 +368,7 @@ public class OrderMatcher {
         createBeforeSingle(order, orders, beforeSingleSymbols);
         //返回单脚单之后的单脚单列表
         List<String> afterSingleSymbols = afterSingleMap.get(order.getSymbol());
-        //产生s_d1和s_d2=s_d1_d2
+               //产生s_d1和s_d2=s_d1_d2
         createAfterSingle(order, orders, afterSingleSymbols);
         //返回单脚单之前的双脚单列表
         //输入：s_d2,返回：s_d1_d2,例如：FMG3-MAR21,返回:FMG3-DEC20-MAR21
@@ -437,8 +437,6 @@ public class OrderMatcher {
             rule.singleToDouble_after(order,orders,str);
         }
     }
-
-
 
     private void rejectOrder(Order order) {
         updateOrder(order, OrdStatus.REJECTED);

@@ -125,7 +125,6 @@ public class OrderBook {
             List<Order> orders = bids.get(order.getPrice());
             orders.add(order);
         }
-
     }
 
     private void __process_execution(Order order) {
@@ -159,12 +158,10 @@ public class OrderBook {
                     List<Order> lists = levels.get(entry.getKey());
                     lists.removeIf(e -> resting_order.getQuantity() == 0);
                 }
-
             }
             if ((levels.get(entry.getKey()).size()) == 0)
                 levels.remove(entry.getKey());
         }
-
     }
 
     private boolean __match(char side, double order_price, double book_price) {
@@ -228,8 +225,6 @@ public class OrderBook {
             this.exec_id = exec_id;
             this.order_id = order_id;
         }
-
-
     }
 
 }

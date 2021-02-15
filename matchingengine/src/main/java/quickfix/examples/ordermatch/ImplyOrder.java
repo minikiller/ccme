@@ -1,11 +1,14 @@
 package quickfix.examples.ordermatch;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import quickfix.field.Side;
 
 /**
  * 隐含单
  */
 public class ImplyOrder extends Order {
+    private static final Logger logger = LoggerFactory.getLogger(ImplyOrder.class);
     public ImplyOrder(String clientId, String symbol, String owner, String target, char side, char type, double price, long quantity) {
         super(clientId, symbol, owner, target, side, type, price, quantity);
     }
@@ -47,6 +50,8 @@ public class ImplyOrder extends Order {
         }
         leftOrder.getImplyOrderMap().put(order.getClientOrderId(), order);
         rightOrder.getImplyOrderMap().put(order.getClientOrderId(), order);
+        logger.info("create imply class, left is "+leftOrder+", right is "+rightOrder);
+        logger.info("new implyOrder is "+order.toString());
         return order;
     }
 
