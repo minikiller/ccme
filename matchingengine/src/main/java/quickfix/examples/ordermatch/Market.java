@@ -55,6 +55,7 @@ public class Market {
             for (int j = 0; j < askOrders.size(); j++) {
                 Order askOrder = askOrders.get(j);
                 Order bidOrder = order;
+                if (bidOrder.getOpenQuantity()==0) break;
                 if (bidOrder.getType() == OrdType.MARKET || askOrder.getType() == OrdType.MARKET
                         || (bidOrder.getPrice() >= askOrder.getPrice())) {
                     match(bidOrder, askOrder);
@@ -78,6 +79,7 @@ public class Market {
             for (int j = 0; j < bidOrders.size(); j++) {
                 Order bidOrder = bidOrders.get(j);
                 Order askOrder = order;
+                if (askOrder.getOpenQuantity()==0) break;
                 if (bidOrder.getType() == OrdType.MARKET || askOrder.getType() == OrdType.MARKET
                         || (bidOrder.getPrice() >= askOrder.getPrice())) {
                     match(bidOrder, askOrder);

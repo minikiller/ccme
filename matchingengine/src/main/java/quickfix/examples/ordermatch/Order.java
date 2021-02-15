@@ -50,9 +50,10 @@ public class Order implements Serializable {
     // 指向隐含单Map,String为orderId
     private Map<String, ImplyOrder> implyOrderMap = new HashMap<>();
 
-    public void clearImply(ImplyOrder order){
+    public void clearImply(ImplyOrder order) {
         implyOrderMap.remove(order.getClientOrderId());
     }
+
     public Order(String clientId, String symbol, String owner, String target, char side, char type,
                  double price, long quantity) {
         super();
@@ -64,7 +65,7 @@ public class Order implements Serializable {
         this.type = type;
         this.price = price;
         this.quantity = quantity;
-        this.status= OrdStatus.NEW;
+        this.status = OrdStatus.NEW;
         openQuantity = quantity;
 
         entryTime = System.currentTimeMillis();
@@ -168,6 +169,7 @@ public class Order implements Serializable {
         executedQuantity += quantity;
         lastExecutedPrice = price;
         lastExecutedQuantity = quantity;
+        this.status = openQuantity == 0 ? OrdStatus.FILLED : OrdStatus.PARTIALLY_FILLED;
     }
 
     public String toString() {
@@ -190,14 +192,14 @@ public class Order implements Serializable {
         isSingle = single;
     }
 
-    public static Comparator<Order>  compareByBid() {
+    public static Comparator<Order> compareByBid() {
         Comparator<Order> bid_comparrator = Comparator.comparing(Order::getPrice, reverseOrder())
                 .thenComparingLong(Order::getSortCount)
                 .thenComparing(Order::getEntryTime);
         return bid_comparrator;
     }
 
-    public static Comparator<Order>  compareByAsk() {
+    public static Comparator<Order> compareByAsk() {
         Comparator<Order> ask_comparrator = Comparator.comparing(Order::getPrice)
                 .thenComparingLong(Order::getSortCount)
                 .thenComparing(Order::getEntryTime);
