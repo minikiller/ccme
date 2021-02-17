@@ -373,7 +373,7 @@ public class OrderEntryPanel extends JPanel implements Observer {
         noRelatedSym.setString(Symbol.FIELD, "All");//设置默认symbols
         request.addGroup(noRelatedSym);
 
-        SessionID sessionId = new SessionID("FIX.4.4", "MD_BANZAI_CLIENT", "FEMD");
+        SessionID sessionId = new SessionID(Util.BEGIN_STRING_MARKET_DATA, "MD_BANZAI_CLIENT", "FEMD");
         marketClientApplication.sendSubscribe(request, sessionId);
     }
 

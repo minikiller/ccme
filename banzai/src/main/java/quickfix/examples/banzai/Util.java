@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.UUID;
 
 public class Util {
+    static public final String BEGIN_STRING_MARKET_DATA="FIXT.1.1";
     static private final HashMap<SessionID, HashSet<ExecID>> execIDs = new HashMap<>();
 
     public static String get32UUID() {

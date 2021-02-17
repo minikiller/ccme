@@ -29,7 +29,7 @@ import java.util.Map;
 
 import static java.util.Collections.reverseOrder;
 
-public class Order implements Serializable {
+public class Order implements Serializable,Cloneable {
     private final long entryTime;
     private final String clientOrderId;
     private final String symbol;
@@ -217,4 +217,9 @@ public class Order implements Serializable {
     public void setStatus(char status) {
         this.status = status;
     }
-}
+
+    @Override
+    protected Order clone() throws CloneNotSupportedException {
+        return (Order) super.clone();
+    }
+    }

@@ -8,10 +8,22 @@ import java.io.Serializable;
 public class Trade implements Serializable {
     private Order leftOrder;
     private Order rightOrder;
+    private final long entryTime;
 
     public Trade(Order leftOrder, Order rightOrder) {
-        this.leftOrder=leftOrder;
-        this.rightOrder=rightOrder;
+        entryTime = System.currentTimeMillis();
+        try {
+            Order _leftOrder= leftOrder.clone();
+            Order _rightOrder=rightOrder.clone();
+            this.leftOrder=_leftOrder;
+            this.rightOrder=_rightOrder;
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public long getEntryTime() {
+        return entryTime;
     }
 
     public Order getLeftOrder() {
