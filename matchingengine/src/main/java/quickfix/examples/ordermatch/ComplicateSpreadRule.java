@@ -33,7 +33,7 @@ public class ComplicateSpreadRule extends BaseSpreadRule {
         //清除原来的隐含单对应关系
         char side = MatchUtil.decideOrderSide(bidList.get(0), askList.get(0));
         String _symbol = MatchUtil.getDoubleSymbol(bidList.get(0).getSymbol(), askList.get(0).getSymbol());
-        clearImplyOrders(_symbol, side);
+        clearImplyOrders(_symbol, side, orders);
 
         int size = min(bidList.size(), askList.size());
         for (int i = 0; i < size; i++) {
@@ -135,11 +135,12 @@ public class ComplicateSpreadRule extends BaseSpreadRule {
 //    }
 
     /**
-     *  生成out——1，第一行规则
-     * @param orders 保存生成的隐含单列表
+     * 生成out——1，第一行规则
+     *
+     * @param orders    保存生成的隐含单列表
      * @param askMarket 获得ask的market
      * @param bidMarket 获得bid的market
-     * @param quantity 数量
+     * @param quantity  数量
      * @return
      */
     private boolean applyOutRule_1_1(List<ImplyOrder> orders, Market askMarket, Market bidMarket, long quantity) {
@@ -161,7 +162,7 @@ public class ComplicateSpreadRule extends BaseSpreadRule {
     private boolean createImplyInstance(List<ImplyOrder> orders, List<Order> bidList, List<Order> askList, char side) {
         ImplyOrder implyOrder;
         String _symbol = MatchUtil.getSingleSymbol(bidList.get(0).getSymbol(), askList.get(0).getSymbol());
-        clearImplyOrders(_symbol, side);
+        clearImplyOrders(_symbol, side, orders);
 
         int size = min(bidList.size(), askList.size());
         for (int i = 0; i < size; i++) {

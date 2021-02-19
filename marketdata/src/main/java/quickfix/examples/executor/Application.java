@@ -233,8 +233,9 @@ public class Application extends quickfix.MessageCracker implements quickfix.App
             DataDictionaryProvider dataDictionaryProvider = session.getDataDictionaryProvider();
             if (dataDictionaryProvider != null) {
                 try {
-                    dataDictionaryProvider.getApplicationDataDictionary(
-                            getApplVerID(session, message)).validate(message, true);
+                    DataDictionary dataDictionary= dataDictionaryProvider.getApplicationDataDictionary(
+                            getApplVerID(session, message));
+                    dataDictionary.validate(message, true);
                 } catch (Exception e) {
                     LogUtil.logThrowable(sessionID, "Outgoing message failed validation: "
                             + e.getMessage(), e);
@@ -462,24 +463,18 @@ public class Application extends quickfix.MessageCracker implements quickfix.App
 //        securityDefinition.setString(UnderlyingSymbol.FIELD,"FMG3-DEC20111");
 
 
-//        securityDefinition.setDouble(LowLimitPrice.FIELD,new Double("23.12"));
-//        securityDefinition.setDouble(HighLimitPrice.FIELD,new Double("25.12"));
-//        securityDefinition.setDouble(TradingReferencePrice.FIELD,new Double("22.12"));
-//        securityDefinition.setString(SecurityID.FIELD,"456");
-//        securityDefinition.setString(CFICode.FIELD,"hello");
+        securityDefinition.setDouble(LowLimitPrice.FIELD,new Double("23.12"));
+        securityDefinition.setDouble(HighLimitPrice.FIELD,new Double("25.12"));
+        securityDefinition.setDouble(TradingReferencePrice.FIELD,new Double("22.12"));
+        securityDefinition.setString(SecurityID.FIELD,"456");
+        securityDefinition.setString(CFICode.FIELD,"hello");
         quickfix.fix50sp2.SecurityDefinition.NoUnderlyings  noUnderlyings = new quickfix.fix50sp2.SecurityDefinition.NoUnderlyings();
-//        UnderlyingInstrument underlyingInstrument=new UnderlyingInstrument();
         for (String symbol : instrumentList) {
             noUnderlyings.set(new UnderlyingSymbol(symbol));
             noUnderlyings.set(new UnderlyingCountryOfIssue("CHN"));
             noUnderlyings.set(new UnderlyingSecurityType(SecurityType.FUTURE));
             securityDefinition.addGroup(noUnderlyings);
         }
-
-//        String senderCompId = message.getHeader().getString(SenderCompID.FIELD);
-//        String targetCompId = message.getHeader().getString(TargetCompID.FIELD);
-//        securityDefinition.getHeader().setString(SenderCompID.FIELD, targetCompId);
-//        securityDefinition.getHeader().setString(TargetCompID.FIELD, senderCompId);
 
         try {
             sendMessage(sessionID,securityDefinition);

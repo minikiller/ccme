@@ -278,9 +278,8 @@ public class OrderMatcher {
             match(order, orders);
             if (orders.size() == 0) {//说明未撮合成功，处理生成隐含单
                 implyOrders = createImplyOrder(order);
-                while (implyOrders.size() > 0) {
-                    //发送报告给客户端
-                    updateOrder(implyOrders.remove(0), OrdStatus.NEW);
+                for(ImplyOrder implyOrder:implyOrders){//发送报告给客户端
+                    updateOrder(implyOrder, implyOrder.getStatus());
                 }
             }
             //orders里面存储的是撮合成功的订单列表

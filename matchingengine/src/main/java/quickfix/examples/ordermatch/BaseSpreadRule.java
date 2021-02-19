@@ -2,6 +2,7 @@ package quickfix.examples.ordermatch;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import quickfix.field.OrdStatus;
 import quickfix.field.Side;
 
 import java.util.ArrayList;
@@ -17,17 +18,22 @@ public abstract class BaseSpreadRule {
     private static final Logger logger = LoggerFactory.getLogger(BaseSpreadRule.class);
 
     protected OrderMatcher orderMatcher;
+
     public void setOrderMatcher(OrderMatcher orderMatcher) {
         this.orderMatcher = orderMatcher;
     }
 
     public abstract void singleToDouble_before(Order order, List<ImplyOrder> orders, String symbol);
+
     public abstract void singleToDouble_after(Order order, List<ImplyOrder> orders, String symbol);
+
     public abstract void doubleToSingle_before(Order order, List<ImplyOrder> orders, String symbol);
+
     public abstract void doubleToSingle_after(Order order, List<ImplyOrder> orders, String symbol);
 
     /**
      * 获得最大的bid买单
+     *
      * @param quantity
      * @param orders
      * @return
@@ -47,6 +53,7 @@ public abstract class BaseSpreadRule {
 
     /**
      * 获得最小的ask卖单
+     *
      * @param quantity
      * @param orders
      * @return
@@ -80,10 +87,12 @@ public abstract class BaseSpreadRule {
      * @param implySymbol
      * @param side
      */
-    protected void clearImplyOrders(String implySymbol, char side) {
+    protected void clearImplyOrders(String implySymbol, char side, List<ImplyOrder> orders) {
         List<Order> implyOrders = getImplyOrders(implySymbol, side);
         for (Order order : implyOrders) {
-            logger.info("clear ImplyOrder is "+order.toString());
+            logger.info("clear ImplyOrder is " + order.toString());
+            order.setStatus(OrdStatus.CANCELED);
+            orders.add((ImplyOrder) order);
             orderMatcher.getMarket(order.getSymbol()).erase(order);
             ImplyOrder _order = (ImplyOrder) order;//拆掉左边的关联
             _order.getLeftOrder().clearImply(_order);
@@ -111,6 +120,7 @@ public abstract class BaseSpreadRule {
 
     /**
      * 根据双脚单生成对应的单脚单
+     *
      * @param order
      * @param orders
      * @return
