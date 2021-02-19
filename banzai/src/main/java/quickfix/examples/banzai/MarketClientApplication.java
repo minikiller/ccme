@@ -68,6 +68,10 @@ public class MarketClientApplication extends MessageCracker implements Applicati
         }
     }
 
+    public void onMessage(quickfix.fix50sp2.BusinessMessageReject message, SessionID sessionID) throws FieldNotFound, IncorrectTagValue, UnsupportedMessageType {
+        System.out.println("receive a message is reject: " + sessionID+"; msg is "+message);
+    }
+
     /**
      * 获得大盘数据
      *
@@ -100,6 +104,28 @@ public class MarketClientApplication extends MessageCracker implements Applicati
 
     }
 
+    public void onMessage(quickfix.fix50sp2.SecurityDefinition message, SessionID sessionID) throws FieldNotFound, IncorrectTagValue, UnsupportedMessageType {
+        System.out.println("get message ");
+        orderTableModel.deleteData();
+        List<Order> orderList = new ArrayList<>();
+        int relatedSymbolCount = message.getInt(NoUnderlyings.FIELD);
+        quickfix.fix50sp2.SecurityDefinition.NoUnderlyings noUnderlyings = new quickfix.fix50sp2.SecurityDefinition.NoUnderlyings();
+        for (int i = 1; i <= relatedSymbolCount; ++i) {
+            message.getGroup(i, noUnderlyings);
+            String symbol = noUnderlyings.getString(UnderlyingSymbol.FIELD);
+            ;
+            Order order = new Order();
+            order.setSymbol(symbol);
+            SessionID sessionId = new SessionID("FIX.4.4", "MD_BANZAI_CLIENT", "FEMD");
+            order.setSessionID(sessionId);
+            orderTableModel.addOrder(order);
+            orderList.add(order);
+        }
+//        UnderlyingSymbol symbol=new UnderlyingSymbol();
+
+        System.out.println("get message " + orderList);
+    }
+
     public void onMessage(MarketDataIncrementalRefresh message, SessionID sessionID) throws FieldNotFound, IncorrectTagValue, UnsupportedMessageType {
     }
 
@@ -112,7 +138,7 @@ public class MarketClientApplication extends MessageCracker implements Applicati
         if (Util.alreadyProcessed(execID, _sessionID)) {
             System.out.println(Constans.ANSI_RED + "message already processed...." + Constans.ANSI_RESET);
         } else {
-            application.executionReport(message,_sessionID);//处理消息
+            application.executionReport(message, _sessionID);//处理消息
             System.out.println(Constans.ANSI_GREEN + "message will be processed...." + Constans.ANSI_RESET);
         }
 
@@ -145,7 +171,7 @@ public class MarketClientApplication extends MessageCracker implements Applicati
     }
 
     public void setMain(BanzaiApplication application) {
-        this.application=application;
+        this.application = application;
     }
 
     private static class ObservableLogon extends Observable {

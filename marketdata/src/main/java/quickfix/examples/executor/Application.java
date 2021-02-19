@@ -28,6 +28,8 @@ import quickfix.field.*;
 import quickfix.fix44.*;
 import quickfix.fix44.component.Instrument;
 import quickfix.fix44.component.UnderlyingInstrument;
+import quickfix.fix50sp2.MarketDefinitionRequest;
+import quickfix.fix50sp2.component.BaseTradingRules;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -249,12 +251,15 @@ public class Application extends quickfix.MessageCracker implements quickfix.App
     private ApplVerID getApplVerID(Session session, Message message) {
         String beginString = session.getSessionID().getBeginString();
         if (FixVersions.BEGINSTRING_FIXT11.equals(beginString)) {
-            return new ApplVerID(ApplVerID.FIX50);
+            return new ApplVerID(ApplVerID.FIX50SP2);
         } else {
             return MessageUtils.toApplVerID(beginString);
         }
     }
 
+    public void onMessage(quickfix.fix50sp2.BusinessMessageReject message, SessionID sessionID) throws FieldNotFound, IncorrectTagValue, UnsupportedMessageType {
+        System.out.println("receive a message is reject: " + sessionID+"; msg is "+message);
+    }
 
     private void validateOrder(Message order) throws IncorrectTagValue, FieldNotFound {
         OrdType ordType = new OrdType(order.getChar(OrdType.FIELD));
@@ -399,7 +404,93 @@ public class Application extends quickfix.MessageCracker implements quickfix.App
         return Long.toString(System.currentTimeMillis());
     }
 
-    public void onMessage(SecurityDefinitionRequest message, SessionID sessionID) throws FieldNotFound,
+    public void onMessage(MarketDefinitionRequest message, SessionID sessionID) throws FieldNotFound,
+            UnsupportedMessageType, IncorrectTagValue {
+        //check value is 3
+//        BaseTradingRules
+
+        int securityRequestType = message.getInt(SecurityRequestType.FIELD);
+        if (securityRequestType != SecurityRequestType.REQUEST_LIST_SECURITIES)
+            throw new IncorrectTagValue(SecurityRequestType.FIELD);
+//        SecurityReqID securityReqID = new SecurityReqID(message.getString(SecurityReqID.FIELD));
+//        SecurityResponseID securityResponseID = new SecurityResponseID(generateID());
+//        SecurityResponseType securityResponseType = new SecurityResponseType(SecurityResponseType.ACCEPT_SECURITY_PROPOSAL_AS_IS);
+        quickfix.fix50sp2.SecurityDefinition securityDefinition = new quickfix.fix50sp2.SecurityDefinition();
+        securityDefinition.setString(Symbol.FIELD,"FMG3-DEC20");
+        securityDefinition.setDouble(StrikePrice.FIELD,new Double("12.12"));
+        securityDefinition.setDouble(LowLimitPrice.FIELD,new Double("23.12"));
+        securityDefinition.setDouble(HighLimitPrice.FIELD,new Double("25.12"));
+        securityDefinition.setDouble(TradingReferencePrice.FIELD,new Double("22.12"));
+        securityDefinition.setString(SecurityID.FIELD,"456");
+        securityDefinition.setString(CFICode.FIELD,"hello");
+        /*SecurityDefinition.NoUnderlyings noUnderlyings = new SecurityDefinition.NoUnderlyings();
+//        UnderlyingInstrument underlyingInstrument=new UnderlyingInstrument();
+        for (String symbol : instrumentList) {
+            noUnderlyings.set(new UnderlyingSymbol(symbol));
+            noUnderlyings.set(new UnderlyingCountryOfIssue("CHN"));
+            noUnderlyings.set(new UnderlyingSecurityType(SecurityType.FUTURE));
+            securityDefinition.addGroup(noUnderlyings);
+        }*/
+
+        String senderCompId = message.getHeader().getString(SenderCompID.FIELD);
+        String targetCompId = message.getHeader().getString(TargetCompID.FIELD);
+        securityDefinition.getHeader().setString(SenderCompID.FIELD, targetCompId);
+        securityDefinition.getHeader().setString(TargetCompID.FIELD, senderCompId);
+
+        try {
+            sendMessage(sessionID,securityDefinition);
+//            Session.sendToTarget(securityDefinition, targetCompId, senderCompId);
+        } catch (Exception e) {
+        }
+
+    }
+
+    public void onMessage(quickfix.fix50sp2.SecurityDefinitionRequest message, SessionID sessionID) throws FieldNotFound,
+            UnsupportedMessageType, IncorrectTagValue {
+        //check value is 3
+//        BaseTradingRules
+
+        int securityRequestType = message.getInt(SecurityRequestType.FIELD);
+        if (securityRequestType != SecurityRequestType.REQUEST_LIST_SECURITIES)
+            throw new IncorrectTagValue(SecurityRequestType.FIELD);
+//        SecurityReqID securityReqID = new SecurityReqID(message.getString(SecurityReqID.FIELD));
+//        SecurityResponseID securityResponseID = new SecurityResponseID(generateID());
+//        SecurityResponseType securityResponseType = new SecurityResponseType(SecurityResponseType.ACCEPT_SECURITY_PROPOSAL_AS_IS);
+        quickfix.fix50sp2.SecurityDefinition securityDefinition = new quickfix.fix50sp2.SecurityDefinition();
+        securityDefinition.setString(Symbol.FIELD,"FMG3-DEC20");
+        securityDefinition.setDouble(StrikePrice.FIELD,new Double("12.12"));
+//        securityDefinition.setString(UnderlyingSymbol.FIELD,"FMG3-DEC20111");
+
+
+//        securityDefinition.setDouble(LowLimitPrice.FIELD,new Double("23.12"));
+//        securityDefinition.setDouble(HighLimitPrice.FIELD,new Double("25.12"));
+//        securityDefinition.setDouble(TradingReferencePrice.FIELD,new Double("22.12"));
+//        securityDefinition.setString(SecurityID.FIELD,"456");
+//        securityDefinition.setString(CFICode.FIELD,"hello");
+        quickfix.fix50sp2.SecurityDefinition.NoUnderlyings  noUnderlyings = new quickfix.fix50sp2.SecurityDefinition.NoUnderlyings();
+//        UnderlyingInstrument underlyingInstrument=new UnderlyingInstrument();
+        for (String symbol : instrumentList) {
+            noUnderlyings.set(new UnderlyingSymbol(symbol));
+            noUnderlyings.set(new UnderlyingCountryOfIssue("CHN"));
+            noUnderlyings.set(new UnderlyingSecurityType(SecurityType.FUTURE));
+            securityDefinition.addGroup(noUnderlyings);
+        }
+
+//        String senderCompId = message.getHeader().getString(SenderCompID.FIELD);
+//        String targetCompId = message.getHeader().getString(TargetCompID.FIELD);
+//        securityDefinition.getHeader().setString(SenderCompID.FIELD, targetCompId);
+//        securityDefinition.getHeader().setString(TargetCompID.FIELD, senderCompId);
+
+        try {
+            sendMessage(sessionID,securityDefinition);
+//            Session.sendToTarget(securityDefinition, targetCompId, senderCompId);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public void onMessage(quickfix.fix44.SecurityDefinitionRequest message, SessionID sessionID) throws FieldNotFound,
             UnsupportedMessageType, IncorrectTagValue {
         //check value is 3
         int securityRequestType = message.getInt(SecurityRequestType.FIELD);

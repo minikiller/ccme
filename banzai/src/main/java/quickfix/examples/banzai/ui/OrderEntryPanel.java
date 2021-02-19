@@ -30,6 +30,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.security.Security;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
@@ -49,6 +50,7 @@ import quickfix.examples.banzai.*;
 import quickfix.field.*;
 import quickfix.fix44.MarketDataRequest;
 import quickfix.fix44.SecurityDefinitionRequest;
+import quickfix.fix50sp2.MarketDefinitionRequest;
 
 @SuppressWarnings("unchecked")
 public class OrderEntryPanel extends JPanel implements Observer {
@@ -279,7 +281,8 @@ public class OrderEntryPanel extends JPanel implements Observer {
     private class SubscribeListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             System.out.println("subscribe is running!");
-            sendMarketDataRequest();
+//            sendMarketDataRequest();
+            sendMarketDataRequestFix5SP2();
 //            subscribeButton.setEnabled(false);
         }
     }
@@ -354,6 +357,17 @@ public class OrderEntryPanel extends JPanel implements Observer {
             }
         }
 
+    }
+
+    private void sendMarketDataRequestFix5SP2() {
+        SecurityReqID reqID=new SecurityReqID(Util.generateID());
+        SecurityRequestType requestType=new SecurityRequestType(SecurityRequestType.REQUEST_LIST_SECURITIES);
+//        MarketReqID reqID = new MarketReqID(Util.get32UUID());
+//        SubscriptionRequestType requestType = new SubscriptionRequestType(SubscriptionRequestType.SNAPSHOT_UPDATES);
+//        MarketDefinitionRequest request=new MarketDefinitionRequest(reqID,requestType);
+        SecurityDefinitionRequest request=new SecurityDefinitionRequest(reqID,requestType);
+        SessionID sessionId = new SessionID(Util.BEGIN_STRING_MARKET_DATA, "MD_BANZAI_CLIENT", "FEMD");
+        marketClientApplication.sendSubscribe(request, sessionId);
     }
 
     /**
