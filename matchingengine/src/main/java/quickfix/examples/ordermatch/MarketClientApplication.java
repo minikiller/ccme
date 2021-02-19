@@ -59,7 +59,9 @@ public class MarketClientApplication implements Application {
         try {
             ExecID execID = (ExecID) msg.getField(new ExecID());
             System.out.println("send execId to markerdata is " + execID);
-            Session.sendToTarget(msg, SENDER_COMP_ID, TARGET_COMP_ID);
+            SessionID sessionID=new SessionID("FIXT.1.1",SENDER_COMP_ID,TARGET_COMP_ID);
+//            Session session = Session.lookupSession(sessionID);
+            Session.sendToTarget(msg, sessionID);
         } catch (FieldNotFound fieldNotFound) {
             fieldNotFound.printStackTrace();
         }
