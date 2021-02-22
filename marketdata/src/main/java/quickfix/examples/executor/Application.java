@@ -448,20 +448,12 @@ public class Application extends quickfix.MessageCracker implements quickfix.App
 
     public void onMessage(quickfix.fix50sp2.SecurityDefinitionRequest message, SessionID sessionID) throws FieldNotFound,
             UnsupportedMessageType, IncorrectTagValue {
-        //check value is 3
-//        BaseTradingRules
-
         int securityRequestType = message.getInt(SecurityRequestType.FIELD);
         if (securityRequestType != SecurityRequestType.REQUEST_LIST_SECURITIES)
             throw new IncorrectTagValue(SecurityRequestType.FIELD);
-//        SecurityReqID securityReqID = new SecurityReqID(message.getString(SecurityReqID.FIELD));
-//        SecurityResponseID securityResponseID = new SecurityResponseID(generateID());
-//        SecurityResponseType securityResponseType = new SecurityResponseType(SecurityResponseType.ACCEPT_SECURITY_PROPOSAL_AS_IS);
         quickfix.fix50sp2.SecurityDefinition securityDefinition = new quickfix.fix50sp2.SecurityDefinition();
         securityDefinition.setString(Symbol.FIELD,"FMG3-DEC20");
         securityDefinition.setDouble(StrikePrice.FIELD,new Double("12.12"));
-//        securityDefinition.setString(UnderlyingSymbol.FIELD,"FMG3-DEC20111");
-
 
         securityDefinition.setDouble(LowLimitPrice.FIELD,new Double("23.12"));
         securityDefinition.setDouble(HighLimitPrice.FIELD,new Double("25.12"));

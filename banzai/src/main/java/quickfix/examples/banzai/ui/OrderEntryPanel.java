@@ -187,12 +187,17 @@ public class OrderEntryPanel extends JPanel implements Observer {
         constraints.gridwidth = GridBagConstraints.REMAINDER;
         submitButton.setName("SubmitButton");
         add(submitButton, x, y);
+//        constraints.insets = new Insets(4, 0, 0, 0);
+//        constraints.weightx = 0.0;
+        constraints.gridwidth = 1;                      //reset to the default
+        constraints.gridheight = 1;
+        constraints.weighty = 1.0;
         subscribeButton.setName("SubscribeButton");
-        add(subscribeButton, x, ++y);
+        add(subscribeButton, 0, ++y);
         clearButton.setName("clearButton");
-        add(clearButton, x, ++y);
+        add(clearButton, 1, y);
         sendButton.setName("sendButton");
-        add(sendButton, x, ++y);
+        add(sendButton, 2, y);
         constraints.gridwidth = 0;
         add(messageLabel, 0, ++y);
 
