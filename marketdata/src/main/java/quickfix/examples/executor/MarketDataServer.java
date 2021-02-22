@@ -113,7 +113,7 @@ public class MarketDataServer {
 
     private InetSocketAddress getAcceptorSocketAddress(SessionSettings settings, SessionID sessionID)
             throws ConfigError, FieldConvertError {
-        String acceptorHost = "0.0.0.0";
+        String acceptorHost = "localhost";
         if (settings.isSetting(sessionID, SETTING_SOCKET_ACCEPT_ADDRESS)) {
             acceptorHost = settings.getString(sessionID, SETTING_SOCKET_ACCEPT_ADDRESS);
         }
