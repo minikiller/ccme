@@ -15,7 +15,7 @@
 	<url>http://www.quickfixj.org</url>
 
 	<properties>
-		<mainClass>quickfix.examples.marketDataServer.MarketDataServer</mainClass>
+		<mainClass>quickfix.examples.executor.MarketDataServer</mainClass>
 	</properties>
 
 	<build>
