@@ -446,6 +446,14 @@ public class Application extends quickfix.MessageCracker implements quickfix.App
 
     }
 
+    /**
+     * 返回35=d
+     * @param message
+     * @param sessionID
+     * @throws FieldNotFound
+     * @throws UnsupportedMessageType
+     * @throws IncorrectTagValue
+     */
     public void onMessage(quickfix.fix50sp2.SecurityDefinitionRequest message, SessionID sessionID) throws FieldNotFound,
             UnsupportedMessageType, IncorrectTagValue {
         int securityRequestType = message.getInt(SecurityRequestType.FIELD);
