@@ -19,6 +19,8 @@
 
 package quickfix.examples.executor;
 
+import org.ini4j.InvalidFileFormatException;
+import org.ini4j.Wini;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickfix.*;
@@ -30,7 +32,10 @@ import quickfix.fix44.component.Instrument;
 import quickfix.fix44.component.UnderlyingInstrument;
 import quickfix.fix50sp2.MarketDefinitionRequest;
 import quickfix.fix50sp2.component.BaseTradingRules;
+import quickfix.fix50sp2.component.EvntGrp;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -57,14 +62,17 @@ public class Application extends quickfix.MessageCracker implements quickfix.App
     private final HashSet<String> validOrderTypes = new HashSet<>();
     private MarketDataProvider marketDataProvider;
     private List<String> instrumentList;
-
-    public Application(SessionSettings settings) throws ConfigError, FieldConvertError {
+    private Wini ini;
+    public Application(SessionSettings settings) throws ConfigError, FieldConvertError, IOException , InvalidFileFormatException {
 
         initializeMarketDataProvider(settings);
         instrumentList = initializeInstrument(settings);
         System.out.println(instrumentList);
 
         alwaysFillLimitOrders = settings.isSetting(ALWAYS_FILL_LIMIT_KEY) && settings.getBool(ALWAYS_FILL_LIMIT_KEY);
+        InputStream inputStream = MarketDataServer.class.getResourceAsStream("marketdata.cfg");
+        ini = new Wini(inputStream);
+        inputStream.close();
     }
 
     private void initializeMarketDataProvider(SessionSettings settings) throws ConfigError, FieldConvertError {
@@ -233,7 +241,7 @@ public class Application extends quickfix.MessageCracker implements quickfix.App
             DataDictionaryProvider dataDictionaryProvider = session.getDataDictionaryProvider();
             if (dataDictionaryProvider != null) {
                 try {
-                    DataDictionary dataDictionary= dataDictionaryProvider.getApplicationDataDictionary(
+                    DataDictionary dataDictionary = dataDictionaryProvider.getApplicationDataDictionary(
                             getApplVerID(session, message));
                     dataDictionary.validate(message, true);
                 } catch (Exception e) {
@@ -259,7 +267,7 @@ public class Application extends quickfix.MessageCracker implements quickfix.App
     }
 
     public void onMessage(quickfix.fix50sp2.BusinessMessageReject message, SessionID sessionID) throws FieldNotFound, IncorrectTagValue, UnsupportedMessageType {
-        System.out.println("receive a message is reject: " + sessionID+"; msg is "+message);
+        System.out.println("receive a message is reject: " + sessionID + "; msg is " + message);
     }
 
     private void validateOrder(Message order) throws IncorrectTagValue, FieldNotFound {
@@ -376,10 +384,10 @@ public class Application extends quickfix.MessageCracker implements quickfix.App
 //        noMDEntries1.setDouble(MDEntryPx.FIELD, 123.45);
 //        noMDEntries1.setDouble(MDEntrySize.FIELD,1.0);
 //        fixMD.addGroup(noMDEntries1);
-        fixMD.setString(Symbol.FIELD,"All");
+        fixMD.setString(Symbol.FIELD, "All");
 
-        MarketDataSnapshotFullRefresh.NoMDEntries group=new MarketDataSnapshotFullRefresh.NoMDEntries ();
-        group.setChar(MDEntryType.FIELD,MDEntryType.BID);
+        MarketDataSnapshotFullRefresh.NoMDEntries group = new MarketDataSnapshotFullRefresh.NoMDEntries();
+        group.setChar(MDEntryType.FIELD, MDEntryType.BID);
         fixMD.addGroup(group);
 
         SecurityDefinition.NoUnderlyings noUnderlyings = new SecurityDefinition.NoUnderlyings();
@@ -417,13 +425,13 @@ public class Application extends quickfix.MessageCracker implements quickfix.App
 //        SecurityResponseID securityResponseID = new SecurityResponseID(generateID());
 //        SecurityResponseType securityResponseType = new SecurityResponseType(SecurityResponseType.ACCEPT_SECURITY_PROPOSAL_AS_IS);
         quickfix.fix50sp2.SecurityDefinition securityDefinition = new quickfix.fix50sp2.SecurityDefinition();
-        securityDefinition.setString(Symbol.FIELD,"FMG3-DEC20");
-        securityDefinition.setDouble(StrikePrice.FIELD,new Double("12.12"));
-        securityDefinition.setDouble(LowLimitPrice.FIELD,new Double("23.12"));
-        securityDefinition.setDouble(HighLimitPrice.FIELD,new Double("25.12"));
-        securityDefinition.setDouble(TradingReferencePrice.FIELD,new Double("22.12"));
-        securityDefinition.setString(SecurityID.FIELD,"456");
-        securityDefinition.setString(CFICode.FIELD,"hello");
+        securityDefinition.setString(Symbol.FIELD, "FMG3-DEC20");
+        securityDefinition.setDouble(StrikePrice.FIELD, new Double("12.12"));
+        securityDefinition.setDouble(LowLimitPrice.FIELD, new Double("23.12"));
+        securityDefinition.setDouble(HighLimitPrice.FIELD, new Double("25.12"));
+        securityDefinition.setDouble(TradingReferencePrice.FIELD, new Double("22.12"));
+        securityDefinition.setString(SecurityID.FIELD, "456");
+        securityDefinition.setString(CFICode.FIELD, "hello");
         /*SecurityDefinition.NoUnderlyings noUnderlyings = new SecurityDefinition.NoUnderlyings();
 //        UnderlyingInstrument underlyingInstrument=new UnderlyingInstrument();
         for (String symbol : instrumentList) {
@@ -439,7 +447,7 @@ public class Application extends quickfix.MessageCracker implements quickfix.App
         securityDefinition.getHeader().setString(TargetCompID.FIELD, senderCompId);
 
         try {
-            sendMessage(sessionID,securityDefinition);
+            sendMessage(sessionID, securityDefinition);
 //            Session.sendToTarget(securityDefinition, targetCompId, senderCompId);
         } catch (Exception e) {
         }
@@ -448,6 +456,7 @@ public class Application extends quickfix.MessageCracker implements quickfix.App
 
     /**
      * 返回35=d
+     *
      * @param message
      * @param sessionID
      * @throws FieldNotFound
@@ -455,33 +464,52 @@ public class Application extends quickfix.MessageCracker implements quickfix.App
      * @throws IncorrectTagValue
      */
     public void onMessage(quickfix.fix50sp2.SecurityDefinitionRequest message, SessionID sessionID) throws FieldNotFound,
-            UnsupportedMessageType, IncorrectTagValue {
-        int securityRequestType = message.getInt(SecurityRequestType.FIELD);
-        if (securityRequestType != SecurityRequestType.REQUEST_LIST_SECURITIES)
-            throw new IncorrectTagValue(SecurityRequestType.FIELD);
-        quickfix.fix50sp2.SecurityDefinition securityDefinition = new quickfix.fix50sp2.SecurityDefinition();
-        securityDefinition.setString(Symbol.FIELD,"FMG3-DEC20");
-        securityDefinition.setDouble(StrikePrice.FIELD,new Double("12.12"));
+            UnsupportedMessageType, IncorrectTagValue, ConfigError, IOException {
+        //read config files
+        String symbol="FMG3-DEC20";
+//        for (String symbol : instrumentList)
+        {
+            int securityRequestType = message.getInt(SecurityRequestType.FIELD);
+            if (securityRequestType != SecurityRequestType.REQUEST_LIST_SECURITIES)
+                throw new IncorrectTagValue(SecurityRequestType.FIELD);
+            quickfix.fix50sp2.SecurityDefinition securityDefinition = new quickfix.fix50sp2.SecurityDefinition();
+            securityDefinition.setString(Symbol.FIELD, symbol);
+            securityDefinition.setDouble(StrikePrice.FIELD, new Double(ini.fetch(symbol,"StrikePrice")));
 
-        securityDefinition.setDouble(LowLimitPrice.FIELD,new Double("23.12"));
-        securityDefinition.setDouble(HighLimitPrice.FIELD,new Double("25.12"));
-        securityDefinition.setDouble(TradingReferencePrice.FIELD,new Double("22.12"));
-        securityDefinition.setString(SecurityID.FIELD,"456");
-        securityDefinition.setString(CFICode.FIELD,"hello");
-        quickfix.fix50sp2.SecurityDefinition.NoUnderlyings  noUnderlyings = new quickfix.fix50sp2.SecurityDefinition.NoUnderlyings();
-        for (String symbol : instrumentList) {
+            securityDefinition.setDouble(LowLimitPrice.FIELD, new Double(ini.fetch(symbol,"LowLimitPrice")));
+            securityDefinition.setDouble(HighLimitPrice.FIELD, new Double(ini.fetch(symbol,"HighLimitPrice")));
+            securityDefinition.setDouble(TradingReferencePrice.FIELD, new Double(ini.fetch(symbol,"TradingReferencePrice")));
+            securityDefinition.setString(SecurityID.FIELD, ini.fetch(symbol,"SecurityID"));
+            securityDefinition.setString(CFICode.FIELD, ini.fetch(symbol,"CFICode"));
+
+            quickfix.fix50sp2.SecurityDefinition.NoUnderlyings noUnderlyings = new quickfix.fix50sp2.SecurityDefinition.NoUnderlyings();
             noUnderlyings.set(new UnderlyingSymbol(symbol));
-            noUnderlyings.set(new UnderlyingCountryOfIssue("CHN"));
-            noUnderlyings.set(new UnderlyingSecurityType(SecurityType.FUTURE));
+//            noUnderlyings.set(new UnderlyingCountryOfIssue("CHN"));
+//            noUnderlyings.set(new UnderlyingSecurityType(SecurityType.FUTURE));
             securityDefinition.addGroup(noUnderlyings);
+//            EvntGrp evntGrp=new EvntGrp();
+            quickfix.fix50sp2.component.EvntGrp.NoEvents noEvents=new EvntGrp.NoEvents();
+            EventType eventType=new EventType(EventType.ACTIVATION);
+            EventDate eventDate=new EventDate(ini.fetch(symbol,"ActivationDate"));
+            noEvents.set(eventType);
+            noEvents.set(eventDate);
+            securityDefinition.addGroup(noEvents);
+
+            EventType eventType1=new EventType(EventType.LAST_ELIGIBLE_TRADE_DATE);
+            EventDate eventDate1=new EventDate(ini.fetch(symbol,"LastEligibleTradeDate"));
+            noEvents.set(eventType1);
+            noEvents.set(eventDate1);
+
+            securityDefinition.addGroup(noEvents);
+
+            try {
+                sendMessage(sessionID, securityDefinition);
+//            Session.sendToTarget(securityDefinition, targetCompId, senderCompId);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
-        try {
-            sendMessage(sessionID,securityDefinition);
-//            Session.sendToTarget(securityDefinition, targetCompId, senderCompId);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
 
     }
 
@@ -539,10 +567,9 @@ public class Application extends quickfix.MessageCracker implements quickfix.App
                 e.printStackTrace();
             }
 //            for (Map.Entry<String, List<String>> entry : subscribeMap.entrySet())
-            for (Map.Entry<String, String> entry : subscribeMap.entrySet())
-            {
-                String symbolList=entry.getValue();
-                String targetId=entry.getKey();
+            for (Map.Entry<String, String> entry : subscribeMap.entrySet()) {
+                String symbolList = entry.getValue();
+                String targetId = entry.getKey();
 //                for (String symbol:symbolList){
 //
 //                }

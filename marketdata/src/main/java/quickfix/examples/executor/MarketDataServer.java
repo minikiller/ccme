@@ -41,6 +41,7 @@ import javax.management.JMException;
 import javax.management.ObjectName;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -65,7 +66,7 @@ public class MarketDataServer {
     private final JmxExporter jmxExporter;
     private final ObjectName connectorObjectName;
 
-    public MarketDataServer(SessionSettings settings) throws ConfigError, FieldConvertError, JMException {
+    public MarketDataServer(SessionSettings settings) throws ConfigError, FieldConvertError, JMException, IOException {
         Application application = new Application(settings);
         MessageStoreFactory messageStoreFactory = new FileStoreFactory(settings);
         LogFactory logFactory = new ScreenLogFactory(true, true, true);

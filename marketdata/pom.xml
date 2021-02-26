@@ -1,31 +1,39 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>org.quickfixj</groupId>
-		<artifactId>ccme-project</artifactId>
-		<version>2.2.0</version>
-	</parent>
+    <parent>
+        <groupId>org.quickfixj</groupId>
+        <artifactId>ccme-project</artifactId>
+        <version>2.2.0</version>
+    </parent>
 
-	<artifactId>ccme-marketdata</artifactId>
-	<packaging>bundle</packaging>
+    <artifactId>ccme-marketdata</artifactId>
+    <packaging>bundle</packaging>
 
-	<name>QuickFIX/J Examples - Market Data</name>
-	<description>QuickFIX/J example application - Market Data</description>
-	<url>http://www.quickfixj.org</url>
+    <name>QuickFIX/J Examples - Market Data</name>
+    <description>QuickFIX/J example application - Market Data</description>
+    <url>http://www.quickfixj.org</url>
 
-	<properties>
-		<mainClass>quickfix.examples.executor.MarketDataServer</mainClass>
-	</properties>
+    <properties>
+        <mainClass>quickfix.examples.executor.MarketDataServer</mainClass>
+    </properties>
 
-	<build>
-		<plugins>
-			<plugin>
-				<artifactId>maven-shade-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<artifactId>maven-source-plugin</artifactId>
-			</plugin>
-		</plugins>
-	</build>
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-shade-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <artifactId>maven-source-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+    <dependencies>
+        <dependency>
+            <groupId>org.ini4j</groupId>
+            <artifactId>ini4j</artifactId>
+            <version>0.5.4</version>
+        </dependency>
+    </dependencies>
 </project>
