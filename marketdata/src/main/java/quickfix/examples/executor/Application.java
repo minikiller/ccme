@@ -466,8 +466,8 @@ public class Application extends quickfix.MessageCracker implements quickfix.App
     public void onMessage(quickfix.fix50sp2.SecurityDefinitionRequest message, SessionID sessionID) throws FieldNotFound,
             UnsupportedMessageType, IncorrectTagValue, ConfigError, IOException {
         //read config files
-        String symbol="FMG3-DEC20";
-//        for (String symbol : instrumentList)
+//        String symbol="FMG3-DEC20";
+        for (String symbol : instrumentList)
         {
             int securityRequestType = message.getInt(SecurityRequestType.FIELD);
             if (securityRequestType != SecurityRequestType.REQUEST_LIST_SECURITIES)

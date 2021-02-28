@@ -87,10 +87,10 @@ public class MarketClientApplication extends MessageCracker implements Applicati
         List<Order> orderList = new ArrayList<>();
         int relatedSymbolCount = message.getInt(NoUnderlyings.FIELD);
         SecurityDefinition.NoUnderlyings noUnderlyings = new SecurityDefinition.NoUnderlyings();
-        for (int i = 1; i <= relatedSymbolCount; ++i) {
+        for (int i = 0; i <= relatedSymbolCount; i++) {
             message.getGroup(i, noUnderlyings);
             String symbol = noUnderlyings.getString(UnderlyingSymbol.FIELD);
-            ;
+            System.out.println("get message if "+symbol);
             Order order = new Order();
             order.setSymbol(symbol);
             SessionID sessionId = new SessionID("FIX.4.4", "MD_BANZAI_CLIENT", "FEMD");
@@ -106,7 +106,7 @@ public class MarketClientApplication extends MessageCracker implements Applicati
 
     public void onMessage(quickfix.fix50sp2.SecurityDefinition message, SessionID sessionID) throws FieldNotFound, IncorrectTagValue, UnsupportedMessageType {
         System.out.println("get message ");
-        orderTableModel.deleteData();
+//        orderTableModel.deleteData();
         List<Order> orderList = new ArrayList<>();
         int relatedSymbolCount = message.getInt(NoUnderlyings.FIELD);
         quickfix.fix50sp2.SecurityDefinition.NoUnderlyings noUnderlyings = new quickfix.fix50sp2.SecurityDefinition.NoUnderlyings();
