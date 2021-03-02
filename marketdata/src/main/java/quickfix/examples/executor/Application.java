@@ -481,6 +481,8 @@ public class Application extends quickfix.MessageCracker implements quickfix.App
             securityDefinition.setDouble(TradingReferencePrice.FIELD, new Double(ini.fetch(symbol,"TradingReferencePrice")));
             securityDefinition.setString(SecurityID.FIELD, ini.fetch(symbol,"SecurityID"));
             securityDefinition.setString(CFICode.FIELD, ini.fetch(symbol,"CFICode"));
+            securityDefinition.setString(SecurityGroup.FIELD,new String("BI"));
+
 
             quickfix.fix50sp2.SecurityDefinition.NoUnderlyings noUnderlyings = new quickfix.fix50sp2.SecurityDefinition.NoUnderlyings();
             noUnderlyings.set(new UnderlyingSymbol(symbol));
