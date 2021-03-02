@@ -126,7 +126,9 @@ public class MarketClientApplication extends MessageCracker implements Applicati
         System.out.println("get message " + orderList);
     }
 
-    public void onMessage(MarketDataIncrementalRefresh message, SessionID sessionID) throws FieldNotFound, IncorrectTagValue, UnsupportedMessageType {
+    public void onMessage(quickfix.fix50sp2.MarketDataIncrementalRefresh message, SessionID sessionID) throws FieldNotFound, IncorrectTagValue, UnsupportedMessageType {
+        System.out.println("get 35=X message from MD" );
+        Util.printMsg(message);
     }
 
     public void onMessage(ExecutionReport message, SessionID sessionID) throws FieldNotFound, IncorrectTagValue, UnsupportedMessageType {

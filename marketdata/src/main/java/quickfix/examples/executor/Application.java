@@ -33,6 +33,7 @@ import quickfix.fix44.component.UnderlyingInstrument;
 import quickfix.fix50sp2.MarketDefinitionRequest;
 import quickfix.fix50sp2.component.BaseTradingRules;
 import quickfix.fix50sp2.component.EvntGrp;
+import quickfix.fix50sp2.component.MDIncGrp;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -467,6 +468,8 @@ public class Application extends quickfix.MessageCracker implements quickfix.App
             UnsupportedMessageType, IncorrectTagValue, ConfigError, IOException {
         //read config files
 //        String symbol="FMG3-DEC20";
+
+        subscribeMap.put(sessionID.getTargetCompID(), "all");
         for (String symbol : instrumentList)
         {
             int securityRequestType = message.getInt(SecurityRequestType.FIELD);
@@ -482,7 +485,7 @@ public class Application extends quickfix.MessageCracker implements quickfix.App
             securityDefinition.setString(SecurityID.FIELD, ini.fetch(symbol,"SecurityID"));
             securityDefinition.setString(CFICode.FIELD, ini.fetch(symbol,"CFICode"));
             securityDefinition.setString(SecurityGroup.FIELD,new String("BI"));
-
+            securityDefinition.setString(6937,new String("FMG3"));
 
             quickfix.fix50sp2.SecurityDefinition.NoUnderlyings noUnderlyings = new quickfix.fix50sp2.SecurityDefinition.NoUnderlyings();
             noUnderlyings.set(new UnderlyingSymbol(symbol));
@@ -556,7 +559,7 @@ public class Application extends quickfix.MessageCracker implements quickfix.App
      * @throws UnsupportedMessageType
      * @throws IncorrectTagValue
      */
-    public void onMessage(ExecutionReport report, SessionID sessionID) throws FieldNotFound,
+    public void onMessage(quickfix.fix50sp2.ExecutionReport report, SessionID sessionID) throws FieldNotFound,
             UnsupportedMessageType, IncorrectTagValue {
         String senderCompId = report.getHeader().getString(SenderCompID.FIELD);
         String targetCompId = report.getHeader().getString(TargetCompID.FIELD);
@@ -568,21 +571,47 @@ public class Application extends quickfix.MessageCracker implements quickfix.App
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-//            for (Map.Entry<String, List<String>> entry : subscribeMap.entrySet())
             for (Map.Entry<String, String> entry : subscribeMap.entrySet()) {
-                String symbolList = entry.getValue();
+                String symbolList = entry.getValue(); ///default value is all
                 String targetId = entry.getKey();
-//                for (String symbol:symbolList){
-//
-//                }
+
 //                ExecutionReport report1=(ExecutionReport)report.clone();
-//                report1.setString(SenderCompID.FIELD,"FEMD");
-//                report1.setString(TargetCompID.FIELD,targetId);
-//                try {
-//                    Session.sendToTarget(report,"FEMD",targetId);
-//                } catch (SessionNotFound sessionNotFound) {
-//                    sessionNotFound.printStackTrace();
-//                }
+                quickfix.fix50sp2.MarketDataIncrementalRefresh marketDataIncrementalRefresh=new quickfix.fix50sp2.MarketDataIncrementalRefresh();
+//                SecurityID securityID=new SecurityID("002"); //todo need to change
+                marketDataIncrementalRefresh.setString(SecurityID.FIELD, "002");
+
+
+                MDIncGrp.NoMDEntries mdIncGrp=new MDIncGrp.NoMDEntries();
+
+                Side side = (Side) report.getField(new Side());
+                if (side.valueEquals(Side.BUY)){
+                    mdIncGrp.setChar(MDEntryType.FIELD, '0');  //bid
+                }else if (side.valueEquals(Side.SELL)){
+                    mdIncGrp.setChar(MDEntryType.FIELD, '1'); //offer
+                }else{
+                    mdIncGrp.setChar(MDEntryType.FIELD, '2'); //trade
+                }
+
+                MDEntryPx mdEntryPx=new MDEntryPx(Double.parseDouble(report.getString(Price.FIELD)));
+                MDEntrySize mdEntrySize=new MDEntrySize(report.getInt(LeavesQty.FIELD));
+                OrdStatus ordStatus = (OrdStatus) report.getField(new OrdStatus());
+                if(ordStatus.valueEquals(OrdStatus.NEW))
+                {
+                    mdIncGrp.setChar(MDUpdateAction.FIELD, '0'); //0 = New
+                }else if(ordStatus.valueEquals(OrdStatus.CANCELED)){
+                    mdIncGrp.setChar(MDUpdateAction.FIELD, '1'); //1 = Change
+                }else {
+                    mdIncGrp.setChar(MDUpdateAction.FIELD, '2'); //1 = delete
+                }
+                mdIncGrp.setDouble(LastPx.FIELD, Double.parseDouble(report.getString(Price.FIELD))); //0 = New
+                mdIncGrp.set(mdEntryPx);
+                mdIncGrp.set(mdEntrySize);
+                marketDataIncrementalRefresh.addGroup(mdIncGrp);
+                try {
+                    Session.sendToTarget(marketDataIncrementalRefresh,"FEMD",targetId);
+                } catch (SessionNotFound sessionNotFound) {
+                    sessionNotFound.printStackTrace();
+                }
             }
         }
     }
