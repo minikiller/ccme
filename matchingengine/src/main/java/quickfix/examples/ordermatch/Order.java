@@ -206,6 +206,18 @@ public class Order implements Serializable,Cloneable {
         return ask_comparrator;
     }
 
+    public static Comparator<Order> simpleCompareByBid() {
+        Comparator<Order> bid_comparrator = Comparator.comparing(Order::getPrice, reverseOrder()).thenComparing(Order::getEntryTime);
+        return bid_comparrator;
+    }
+
+    public static Comparator<Order> simpleCompareByAsk() {
+        Comparator<Order> ask_comparrator = Comparator.comparing(Order::getPrice).thenComparing(Order::getEntryTime);
+        return ask_comparrator;
+    }
+
+
+
     public int getSortCount() {
         return 0;
     }

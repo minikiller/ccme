@@ -324,5 +324,45 @@ class MarketTest {
         assert iOrder.getSide()==Side.SELL;
     }
 
+    /**
+     * 测试 https://www.onixs.biz/fix-dictionary/5.0.sp2/tagNum_1023.html
+     */
+    @Test
+    void test_order_index() {
+        Order order = new Order("123", "FMG3-JUN21", "N2N", "FEME", Side.BUY, OrdType.LIMIT, 10.0, 1);
+        Market market = new Market();
+        market.insert(order);
+        markets.put("FMG3-JUN21", market);
+
+        Order order1 = new Order("124", "FMG3-JUN21", "N2N", "FEME", Side.BUY, OrdType.LIMIT, 30.0, 1);
+        market.insert(order1);
+
+        Order order2 = new Order("125", "FMG3-JUN21", "N2N", "FEME", Side.BUY, OrdType.LIMIT, 50.0, 1);
+        market.insert(order2);
+
+        assert market.getIndexOrder(order)==3;
+        assert market.getIndexOrder(order1)==2;
+        assert market.getIndexOrder(order2)==1;
+    }
+    /**
+     * 测试 https://www.onixs.biz/fix-dictionary/5.0.sp2/tagNum_1023.html
+     */
+    @Test
+    void test_sell_order_index() {
+        Order order = new Order("123", "FMG3-JUN21", "N2N", "FEME", Side.SELL, OrdType.LIMIT, 10.0, 1);
+        Market market = new Market();
+        market.insert(order);
+        markets.put("FMG3-JUN21", market);
+
+        Order order1 = new Order("124", "FMG3-JUN21", "N2N", "FEME", Side.SELL, OrdType.LIMIT, 30.0, 1);
+        market.insert(order1);
+
+        Order order2 = new Order("125", "FMG3-JUN21", "N2N", "FEME", Side.SELL, OrdType.LIMIT, 50.0, 1);
+        market.insert(order2);
+
+        assert market.getIndexOrder(order)==1;
+        assert market.getIndexOrder(order1)==2;
+        assert market.getIndexOrder(order2)==3;
+    }
 
 }

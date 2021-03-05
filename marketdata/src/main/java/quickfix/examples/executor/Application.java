@@ -593,6 +593,8 @@ public class Application extends quickfix.MessageCracker implements quickfix.App
                 marketDataIncrementalRefresh.setString(SecurityID.FIELD, instrumentMap.get(symbol));
                 marketDataIncrementalRefresh.setString(Symbol.FIELD, symbol);
 
+                marketDataIncrementalRefresh.setInt(MDPriceLevel.FIELD,report.getInt(8888));
+
                 MDIncGrp.NoMDEntries mdIncGrp=new MDIncGrp.NoMDEntries();
 
                 Side side = (Side) report.getField(new Side());

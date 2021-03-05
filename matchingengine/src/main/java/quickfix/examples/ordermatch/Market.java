@@ -55,7 +55,7 @@ public class Market {
             for (int j = 0; j < askOrders.size(); j++) {
                 Order askOrder = askOrders.get(j);
                 Order bidOrder = order;
-                if (bidOrder.getOpenQuantity()==0) break;
+                if (bidOrder.getOpenQuantity() == 0) break;
                 if (bidOrder.getType() == OrdType.MARKET || askOrder.getType() == OrdType.MARKET
                         || (bidOrder.getPrice() >= askOrder.getPrice())) {
                     match(bidOrder, askOrder);
@@ -79,7 +79,7 @@ public class Market {
             for (int j = 0; j < bidOrders.size(); j++) {
                 Order bidOrder = bidOrders.get(j);
                 Order askOrder = order;
-                if (askOrder.getOpenQuantity()==0) break;
+                if (askOrder.getOpenQuantity() == 0) break;
                 if (bidOrder.getType() == OrdType.MARKET || askOrder.getType() == OrdType.MARKET
                         || (bidOrder.getPrice() >= askOrder.getPrice())) {
                     match(bidOrder, askOrder);
@@ -196,6 +196,22 @@ public class Market {
             } else {
                 printMsg(priceFormat, qtyFormat, order, Constans.ANSI_GREEN + "Outright" + Constans.ANSI_RESET);
             }
+        }
+    }
+
+    /**
+     * 测试 https://www.onixs.biz/fix-dictionary/5.0.sp2/tagNum_1023.html
+     *
+     * @param order
+     * @return
+     */
+    public int getIndexOrder(Order order) {
+        if (order.getSide() == Side.BUY) {
+            bidOrders.sort(Order.simpleCompareByBid());
+            return bidOrders.indexOf(order) + 1;
+        } else {
+            askOrders.sort(Order.simpleCompareByAsk());
+            return askOrders.indexOf(order) + 1;
         }
     }
 

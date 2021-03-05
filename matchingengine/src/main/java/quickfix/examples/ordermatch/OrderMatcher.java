@@ -40,7 +40,7 @@ public class OrderMatcher {
     private final Map<String, List<String>> beforeSingleMap = MatchUtil.getBeforeSingleMap();
     private final Map<String, List<String>> afterSingleMap = MatchUtil.getAfterSingleMap();
 
-    private final BaseSpreadRule rule=MatchUtil.matchFactory();
+    private final BaseSpreadRule rule = MatchUtil.matchFactory();
 
     public HashMap<String, Market> getMarkets() {
         return markets;
@@ -63,8 +63,8 @@ public class OrderMatcher {
         return getMarket(order.getSymbol()).insert(order);
     }
 
-    public void insertTrade(Order leftOrder,Order rightOrder) {
-        getMarket(leftOrder.getSymbol()).insertTrade(leftOrder,rightOrder);
+    public void insertTrade(Order leftOrder, Order rightOrder) {
+        getMarket(leftOrder.getSymbol()).insertTrade(leftOrder, rightOrder);
     }
 
     public void match(Order order, ArrayList<Order> orders) {
@@ -241,6 +241,10 @@ public class OrderMatcher {
         if (status == OrdStatus.FILLED || status == OrdStatus.PARTIALLY_FILLED) {
             fixOrder.setDouble(LastShares.FIELD, order.getLastExecutedQuantity());
             fixOrder.setDouble(LastPx.FIELD, order.getPrice());
+        } else {
+            //计算 https://www.onixs.biz/fix-dictionary/5.0.sp2/tagNum_1023.html
+            int priceLevel = this.getMarket(order.getSymbol()).getIndexOrder(order);
+            fixOrder.setInt(8888, priceLevel);
         }
         if (status == OrdStatus.NEW) {//新订单，肯定是隐藏订单
             fixOrder.setChar(OrdType.FIELD, OrdType.LIMIT);
@@ -278,7 +282,7 @@ public class OrderMatcher {
             match(order, orders);
             if (orders.size() == 0) {//说明未撮合成功，处理生成隐含单
                 implyOrders = createImplyOrder(order);
-                for(ImplyOrder implyOrder:implyOrders){//发送报告给客户端
+                for (ImplyOrder implyOrder : implyOrders) {//发送报告给客户端
                     updateOrder(implyOrder, implyOrder.getStatus());
                 }
             }
@@ -367,7 +371,7 @@ public class OrderMatcher {
         createBeforeSingle(order, orders, beforeSingleSymbols);
         //返回单脚单之后的单脚单列表
         List<String> afterSingleSymbols = afterSingleMap.get(order.getSymbol());
-               //产生s_d1和s_d2=s_d1_d2
+        //产生s_d1和s_d2=s_d1_d2
         createAfterSingle(order, orders, afterSingleSymbols);
         //返回单脚单之前的双脚单列表
         //输入：s_d2,返回：s_d1_d2,例如：FMG3-MAR21,返回:FMG3-DEC20-MAR21
@@ -387,7 +391,7 @@ public class OrderMatcher {
      */
     public List<ImplyOrder> createDoubleImplyOrder(Order order) {
         List<ImplyOrder> orders = new ArrayList<>();
-        rule.createFullDouble(order,orders);
+        rule.createFullDouble(order, orders);
         return orders;
     }
 
@@ -401,7 +405,7 @@ public class OrderMatcher {
      */
     private void createBeforeDouble(Order order, List<ImplyOrder> orders, List<String> doubleSymbols) {
         for (String str : doubleSymbols) {
-            rule.doubleToSingle_before(order,orders,str);
+            rule.doubleToSingle_before(order, orders, str);
         }
     }
 
@@ -415,25 +419,24 @@ public class OrderMatcher {
      */
     private void createAfterDouble(Order order, List<ImplyOrder> orders, List<String> doubleSymbols) {
         for (String str : doubleSymbols) {
-            rule.doubleToSingle_after(order,orders,str);
+            rule.doubleToSingle_after(order, orders, str);
         }
     }
 
     /**
-     *
-     * @param order 需处理的订单
-     * @param orders 保存新生成的隐含单列表
+     * @param order         需处理的订单
+     * @param orders        保存新生成的隐含单列表
      * @param singleSymbols 需要查找的symbol列表
      */
     private void createBeforeSingle(Order order, List<ImplyOrder> orders, List<String> singleSymbols) {
         for (String str : singleSymbols) {
-            rule.singleToDouble_before(order,orders,str);
+            rule.singleToDouble_before(order, orders, str);
         }
     }
 
     private void createAfterSingle(Order order, List<ImplyOrder> orders, List<String> singleSymbols) {
         for (String str : singleSymbols) {
-            rule.singleToDouble_after(order,orders,str);
+            rule.singleToDouble_after(order, orders, str);
         }
     }
 
