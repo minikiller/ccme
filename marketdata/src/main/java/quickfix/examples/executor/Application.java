@@ -73,10 +73,10 @@ public class Application extends quickfix.MessageCracker implements quickfix.App
 
         alwaysFillLimitOrders = settings.isSetting(ALWAYS_FILL_LIMIT_KEY) && settings.getBool(ALWAYS_FILL_LIMIT_KEY);
         InputStream inputStream = MarketDataServer.class.getResourceAsStream("marketdata.cfg");
-        inputStream.close();
-
         ini = new Wini(inputStream);
         initInstrumentMap();
+        inputStream.close();
+
     }
 
     private void initInstrumentMap(){
