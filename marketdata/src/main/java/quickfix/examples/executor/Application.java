@@ -63,6 +63,7 @@ public class Application extends quickfix.MessageCracker implements quickfix.App
     private final HashSet<String> validOrderTypes = new HashSet<>();
     private MarketDataProvider marketDataProvider;
     private List<String> instrumentList;
+    private Map<String,String> instrumentMap=new HashMap<>();
     private Wini ini;
     public Application(SessionSettings settings) throws ConfigError, FieldConvertError, IOException , InvalidFileFormatException {
 
@@ -72,8 +73,16 @@ public class Application extends quickfix.MessageCracker implements quickfix.App
 
         alwaysFillLimitOrders = settings.isSetting(ALWAYS_FILL_LIMIT_KEY) && settings.getBool(ALWAYS_FILL_LIMIT_KEY);
         InputStream inputStream = MarketDataServer.class.getResourceAsStream("marketdata.cfg");
-        ini = new Wini(inputStream);
         inputStream.close();
+
+        ini = new Wini(inputStream);
+        initInstrumentMap();
+    }
+
+    private void initInstrumentMap(){
+        for (String str:instrumentList){
+            instrumentMap.put(str,ini.fetch(str,"SecurityID"));
+        }
     }
 
     private void initializeMarketDataProvider(SessionSettings settings) throws ConfigError, FieldConvertError {
@@ -576,10 +585,11 @@ public class Application extends quickfix.MessageCracker implements quickfix.App
                 String targetId = entry.getKey();
 
 //                ExecutionReport report1=(ExecutionReport)report.clone();
+                String symbol=report.getString(Symbol.FIELD);
                 quickfix.fix50sp2.MarketDataIncrementalRefresh marketDataIncrementalRefresh=new quickfix.fix50sp2.MarketDataIncrementalRefresh();
-//                SecurityID securityID=new SecurityID("002"); //todo need to change
-                marketDataIncrementalRefresh.setString(SecurityID.FIELD, "002");
-
+//                SecurityID securityID=new SecurityID("002");
+                marketDataIncrementalRefresh.setString(SecurityID.FIELD, instrumentMap.get(symbol));
+                marketDataIncrementalRefresh.setString(Symbol.FIELD, symbol);
 
                 MDIncGrp.NoMDEntries mdIncGrp=new MDIncGrp.NoMDEntries();
 

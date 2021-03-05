@@ -1,6 +1,7 @@
 package quickfix.examples.executor;
 
 import com.google.gson.Gson;
+import com.google.gson.internal.LinkedTreeMap;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
@@ -8,21 +9,17 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Unmarshaller;
-import java.io.StringReader;
-import java.util.Arrays;
 import java.util.List;
 
 public class HttpClient {
-    public void demoGetRESTAPI() throws Exception {
+    public static List<LinkedTreeMap> demoGetRESTAPI() throws Exception {
         DefaultHttpClient httpClient = new DefaultHttpClient();
         try {
             //Define a HttpGet request; You can choose between HttpPost, HttpDelete or HttpPut also.
             //Choice depends on type of method you will be invoking.
-            HttpGet getRequest = new HttpGet("http://127.0.0.1:5000/api/v1/trades");
-            getRequest.addHeader("custom-key", "mkyong");
-            getRequest.addHeader(HttpHeaders.USER_AGENT, "Googlebot");
+            HttpGet getRequest = new HttpGet("http://127.0.0.1:5000/dev-api/v1/trades");
+//            getRequest.addHeader("custom-key", "mkyong");
+//            getRequest.addHeader(HttpHeaders.USER_AGENT, "Googlebot");
 
 //            CloseableHttpResponse response = httpClient.execute(request);
             //Set the API media type in http accept header
@@ -45,9 +42,27 @@ public class HttpClient {
             System.out.println(apiOutput);
             Gson gson = new Gson();
 
-            Trade[] mcArray = gson.fromJson(apiOutput, Trade[].class);
-            List<Trade> mcList = Arrays.asList(mcArray);
-            System.out.println(mcList);
+            LinkedTreeMap result = gson.fromJson(apiOutput , LinkedTreeMap.class);
+            List<LinkedTreeMap> list= (List<LinkedTreeMap>) result.get("trades");
+            return  list;
+//            for(LinkedTreeMap tree:list){
+//                System.out.println(tree.get("id"));
+//                System.out.println(tree.get("symbol"));
+//                System.out.println(tree.get("strikePrice"));
+//                System.out.println(tree.get("lowLimitPrice"));
+//                System.out.println(tree.get("highLimitPrice"));
+//                System.out.println(tree.get("tradingReferencePrice"));
+//                System.out.println(tree.get("securityID"));
+//                System.out.println(tree.get("cfiCode"));
+//                System.out.println(tree.get("activationDate"));
+//                System.out.println(tree.get("lastEligibleTradeDate"));
+//            }
+////            HashMap<String, Trade> fields = gson.fromJson(apiOutput, HashMap.class);
+//            System.out.println(list);
+
+//            Trade[] mcArray = gson.fromJson(apiOutput, Trade[].class);
+//            List<Trade> mcList = Arrays.asList(mcArray);
+//            System.out.println(mcList);
 
         } finally {
             //Important: Close the connect
@@ -56,16 +71,31 @@ public class HttpClient {
     }
 
     public class Trade {
-        private String type;
         private Integer id;
-        private Attributes attributes;
+        private String symbol ;
+        private Float strikePrice ;
+        private Float lowLimitPrice ;
+        private Float highLimitPrice ;
+        private Float tradingReferencePrice;
+        private String securityID;
+        private String cfiCode ;
+        private String activationDate;
+        private String lastEligibleTradeDate;
 
-        public String getType() {
-            return type;
-        }
-
-        public void setType(String type) {
-            this.type = type;
+        @Override
+        public String toString() {
+            return "Trade{" +
+                    ", id=" + id +
+                    ", symbol='" + symbol + '\'' +
+                    ", strikePrice=" + strikePrice +
+                    ", lowLimitPrice=" + lowLimitPrice +
+                    ", highLimitPrice=" + highLimitPrice +
+                    ", tradingReferencePrice=" + tradingReferencePrice +
+                    ", securityID='" + securityID + '\'' +
+                    ", cfiCode='" + cfiCode + '\'' +
+                    ", activationDate='" + activationDate + '\'' +
+                    ", lastEligibleTradeDate='" + lastEligibleTradeDate + '\'' +
+                    '}';
         }
 
         public Integer getId() {
@@ -76,29 +106,6 @@ public class HttpClient {
             this.id = id;
         }
 
-        public Attributes getAttributes() {
-            return attributes;
-        }
-
-        public void setAttributes(Attributes attributes) {
-            this.attributes = attributes;
-        }
-
-        @Override
-        public String toString() {
-            return "Trade{" +
-                    "type='" + type + '\'' +
-                    ", id=" + id +
-                    ", attributes=" + attributes +
-                    '}';
-        }
-    }
-
-    class Attributes{
-        private String symbol;
-        private String created_at;
-        private Integer roster_id;
-
         public String getSymbol() {
             return symbol;
         }
@@ -107,31 +114,72 @@ public class HttpClient {
             this.symbol = symbol;
         }
 
-        public String getCreated_at() {
-            return created_at;
+        public Float getStrikePrice() {
+            return strikePrice;
         }
 
-        public void setCreated_at(String created_at) {
-            this.created_at = created_at;
+        public void setStrikePrice(Float strikePrice) {
+            this.strikePrice = strikePrice;
         }
 
-        public Integer getRoster_id() {
-            return roster_id;
+        public Float getLowLimitPrice() {
+            return lowLimitPrice;
         }
 
-        public void setRoster_id(Integer roster_id) {
-            this.roster_id = roster_id;
+        public void setLowLimitPrice(Float lowLimitPrice) {
+            this.lowLimitPrice = lowLimitPrice;
         }
 
-        @Override
-        public String toString() {
-            return "Attributes{" +
-                    "symbol='" + symbol + '\'' +
-                    ", created_at='" + created_at + '\'' +
-                    ", roster_id=" + roster_id +
-                    '}';
+        public Float getHighLimitPrice() {
+            return highLimitPrice;
+        }
+
+        public void setHighLimitPrice(Float highLimitPrice) {
+            this.highLimitPrice = highLimitPrice;
+        }
+
+        public Float getTradingReferencePrice() {
+            return tradingReferencePrice;
+        }
+
+        public void setTradingReferencePrice(Float tradingReferencePrice) {
+            this.tradingReferencePrice = tradingReferencePrice;
+        }
+
+        public String getSecurityID() {
+            return securityID;
+        }
+
+        public void setSecurityID(String securityID) {
+            this.securityID = securityID;
+        }
+
+        public String getCfiCode() {
+            return cfiCode;
+        }
+
+        public void setCfiCode(String cfiCode) {
+            this.cfiCode = cfiCode;
+        }
+
+        public String getActivationDate() {
+            return activationDate;
+        }
+
+        public void setActivationDate(String activationDate) {
+            this.activationDate = activationDate;
+        }
+
+        public String getLastEligibleTradeDate() {
+            return lastEligibleTradeDate;
+        }
+
+        public void setLastEligibleTradeDate(String lastEligibleTradeDate) {
+            this.lastEligibleTradeDate = lastEligibleTradeDate;
         }
     }
+
+
 
     public static void main(String[] args) throws Exception {
         HttpClient client = new HttpClient();
