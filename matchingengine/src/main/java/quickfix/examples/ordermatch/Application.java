@@ -40,6 +40,7 @@ public class Application extends MessageCracker implements quickfix.Application 
     }
 
     public void fromApp(Message message, SessionID sessionId) throws FieldNotFound, IncorrectTagValue, UnsupportedMessageType {
+        System.out.println("Receive Matching Engineer: ");
         MatchUtil.printMsg(message);
         crack(message, sessionId);
     }

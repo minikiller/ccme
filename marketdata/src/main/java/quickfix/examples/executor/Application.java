@@ -175,6 +175,8 @@ public class Application extends quickfix.MessageCracker implements quickfix.App
 
     public void fromApp(quickfix.Message message, SessionID sessionID) throws FieldNotFound, IncorrectDataFormat,
             IncorrectTagValue, UnsupportedMessageType {
+        System.out.println("Receive Market Data: ");
+        Util.printMsg(message);
         crack(message, sessionID);
     }
 
