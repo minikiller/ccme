@@ -32,6 +32,7 @@ import static java.util.Collections.reverseOrder;
 public class Order implements Serializable,Cloneable {
     private final long entryTime;
     private final String clientOrderId;
+    private String origClOrdID; //replace used it
     private final String symbol;
     private final String owner;
     private final String target;
@@ -73,6 +74,13 @@ public class Order implements Serializable,Cloneable {
         if (symbol.split("-").length == 3) this.isSingle = false;
     }
 
+    public String getOrigClOrdID() {
+        return origClOrdID;
+    }
+
+    public void setOrigClOrdID(String origClOrdID) {
+        this.origClOrdID = origClOrdID;
+    }
 
     public double getAvgExecutedPrice() {
         return avgExecutedPrice;

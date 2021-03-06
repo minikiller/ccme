@@ -365,4 +365,22 @@ class MarketTest {
         assert market.getIndexOrder(order2)==3;
     }
 
+    @Test
+    void test_getMDEntrySize() {
+        Order order = new Order("123", "FMG3-JUN21", "N2N", "FEME", Side.SELL, OrdType.LIMIT, 10.0, 1);
+        Market market = new Market();
+        market.insert(order);
+        markets.put("FMG3-JUN21", market);
+
+        Order order1 = new Order("124", "FMG3-JUN21", "N2N", "FEME", Side.SELL, OrdType.LIMIT, 30.0, 1);
+        market.insert(order1);
+
+        Order order2 = new Order("125", "FMG3-JUN21", "N2N", "FEME", Side.SELL, OrdType.LIMIT, 50.0, 1);
+        market.insert(order2);
+
+        assert market.getMDEntrySize(order)==3;
+        assert market.getMDEntrySize(order1)==3;
+        assert market.getMDEntrySize(order2)==3;
+    }
+
 }

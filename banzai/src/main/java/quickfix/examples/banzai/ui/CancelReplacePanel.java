@@ -95,7 +95,7 @@ public class CancelReplacePanel extends JPanel {
             return;
         this.order = order;
         quantityTextField.setText
-        (Integer.toString(order.getOpen()));
+                (Integer.toString(order.getOpen()));
 
         Double limit = order.getLimit();
         if (limit != null)
@@ -119,8 +119,7 @@ public class CancelReplacePanel extends JPanel {
     private class ReplaceListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             Order newOrder = (Order) order.clone();
-            newOrder.setQuantity
-            (Integer.parseInt(quantityTextField.getText()));
+            newOrder.setQuantity(Integer.parseInt(quantityTextField.getText()));
             newOrder.setLimit(Double.parseDouble(limitPriceTextField.getText()));
             newOrder.setRejected(false);
             newOrder.setCanceled(false);

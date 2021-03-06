@@ -236,17 +236,28 @@ public class BanzaiApplication implements Application {
                 order.setNew(false);
             }
         }
-        else if (ordStatus.valueEquals(OrdStatus.REPLACED)) {
-             //todo process replaced change value
-        }
+
 
         try {
             order.setMessage(message.getField(new Text()).getValue());
         } catch (FieldNotFound e) {
         }
 
-        orderTableModel.updateOrder(order, message.getField(new ClOrdID()).getValue());
-        observableOrder.update(order);
+
+
+        if (ordStatus.valueEquals(OrdStatus.REPLACED)) {
+            //todo process replaced change value
+            Order _order = orderTableModel.getOrder(message.getField(new OrigClOrdID()).getValue());
+            _order.setCanceled(true);
+            _order.setOpen(0);
+//            orderTableModel.updateOrder(_order, order);
+//            observableOrder.update(_order);
+            orderTableModel.addOrder(order);
+            order.setOpen(order.getQuantity());
+        }else{
+            orderTableModel.updateOrder(order, message.getField(new ClOrdID()).getValue());
+            observableOrder.update(order);
+        }
 
         if (fillSize.compareTo(BigDecimal.ZERO) > 0) {
             Execution execution = new Execution();
@@ -543,7 +554,7 @@ public class BanzaiApplication implements Application {
         message.setField(new Symbol(order.getSymbol()));
         message.setField(new Price(order.getLimit()));
         message.setField(new OrderQty(order.getQuantity()));
-        orderTableModel.addID(order, newOrder.getID());
+        orderTableModel.addID(newOrder, newOrder.getID());
         send(populateCancelReplace(order, newOrder, message), order.getSessionID());
     }
 

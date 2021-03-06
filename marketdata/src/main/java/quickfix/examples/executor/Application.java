@@ -562,7 +562,7 @@ public class Application extends quickfix.MessageCracker implements quickfix.App
     }
 
     /**
-     * 接受marketdata发送的运行报告消息
+     * 接受marketdata发送的运行报告消息，发送35=X给订阅的其他客户端
      *
      * @param report
      * @param sessionID
@@ -601,6 +601,7 @@ public class Application extends quickfix.MessageCracker implements quickfix.App
                 mdIncGrp.setString(SecurityID.FIELD, instrumentMap.get(symbol));
                 mdIncGrp.setString(Symbol.FIELD, symbol);
                 mdIncGrp.setInt(MDPriceLevel.FIELD,report.getInt(8888));
+                mdIncGrp.setInt(MDEntrySize.FIELD,report.getInt(8889));
 
                 MDEntryPx mdEntryPx=new MDEntryPx(Double.parseDouble(report.getString(Price.FIELD)));
                 MDEntrySize mdEntrySize=new MDEntrySize(report.getInt(LeavesQty.FIELD));
@@ -609,9 +610,11 @@ public class Application extends quickfix.MessageCracker implements quickfix.App
                 {
                     mdIncGrp.setChar(MDUpdateAction.FIELD, '0'); //0 = New
                 }else if(ordStatus.valueEquals(OrdStatus.CANCELED)){
+                    mdIncGrp.setChar(MDUpdateAction.FIELD, '2'); //1 = Change
+                }else if(ordStatus.valueEquals(OrdStatus.REPLACED)){
                     mdIncGrp.setChar(MDUpdateAction.FIELD, '1'); //1 = Change
                 }else {
-                    mdIncGrp.setChar(MDUpdateAction.FIELD, '2'); //1 = delete
+                    mdIncGrp.setChar(MDUpdateAction.FIELD, '5'); //1 = delete
                 }
                 mdIncGrp.setDouble(LastPx.FIELD, Double.parseDouble(report.getString(Price.FIELD))); //0 = New
                 mdIncGrp.set(mdEntryPx);

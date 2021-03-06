@@ -168,12 +168,12 @@ public class OrderMatcher {
         String clOrdId = message.getString(ClOrdID.FIELD);
         String symbol = message.getString(Symbol.FIELD);
         char side = message.getChar(Side.FIELD);
-        String id = message.getString(OrigClOrdID.FIELD);
-        Order order = find(symbol, side, id);
-
+        String origClOrdID = message.getString(OrigClOrdID.FIELD);
+        Order order = find(symbol, side, origClOrdID);
+//        String origClOrdID = message.getString(ClOrdID.FIELD);
         try {
             if (order != null) {
-                cancelOrder(order);//取消原来的订单
+                cancelOrder(order, false);//取消原来的订单
                 char ordType = message.getChar(OrdType.FIELD);
                 double price = 0;
                 if (ordType == OrdType.LIMIT) {
@@ -181,8 +181,10 @@ public class OrderMatcher {
                 }
                 double qty = message.getDouble(OrderQty.FIELD);
                 //创建新的订单
-                Order _order = new Order(MatchUtil.generateID(), symbol, senderCompId, targetCompId, side, ordType,
+                Order _order = new Order(clOrdId, symbol, senderCompId, targetCompId, side, ordType,
                         price, (int) qty);
+                _order.setStatus(OrdStatus.REPLACED);
+                _order.setOrigClOrdID(origClOrdID);
                 processOrder(_order);
             } else {
                 cancelRejectOrder(message);
@@ -218,11 +220,16 @@ public class OrderMatcher {
         updateOrder(order, OrdStatus.REPLACED);
     }
 
-    private void cancelOrder(Order order) {
+    private void cancelOrder(Order order, boolean sendReport) {
         order.cancel();
         cancelImplyOrder(order);
-        updateOrder(order, OrdStatus.CANCELED);
+        if (sendReport)
+            updateOrder(order, OrdStatus.CANCELED);
         erase(order);
+    }
+
+    private void cancelOrder(Order order) {
+        cancelOrder(order, true);
     }
 
     private void updateOrder(Order order, char status) {
@@ -250,10 +257,18 @@ public class OrderMatcher {
             //计算 https://www.onixs.biz/fix-dictionary/5.0.sp2/tagNum_1023.html
             int priceLevel = this.getMarket(order.getSymbol()).getIndexOrder(order);
             fixOrder.setInt(8888, priceLevel);
+            int mdEntrySize = this.getMarket(order.getSymbol()).getMDEntrySize(order);
+            fixOrder.setInt(8889, mdEntrySize);
         }
-        if (status == OrdStatus.NEW) {//新订单，肯定是隐藏订单
+        if (status == OrdStatus.NEW ) {//新订单，肯定是隐藏订单
             fixOrder.setChar(OrdType.FIELD, OrdType.LIMIT);
             fixOrder.setDouble(Price.FIELD, order.getPrice());
+        }
+
+        if (status == OrdStatus.REPLACED) {//replace订单
+            fixOrder.setChar(OrdType.FIELD, OrdType.LIMIT);
+            fixOrder.setDouble(Price.FIELD, order.getPrice());
+            fixOrder.setString(OrigClOrdID.FIELD,order.getOrigClOrdID());
         }
 //        fixOrder.setDouble(LastShares.FIELD, order.getLastExecutedQuantity());
 //        fixOrder.setDouble(LastPx.FIELD, order.getPrice());
@@ -280,7 +295,11 @@ public class OrderMatcher {
 
     public void processOrder(Order order) {
         if (insert(order)) {
-            acceptOrder(order);
+
+            if (order.getStatus() == OrdStatus.NEW)
+                acceptOrder(order);
+            else //OrdStatus.REPLACED
+                replaceOrder(order);
 
             ArrayList<Order> orders = new ArrayList<>();
             List<ImplyOrder> implyOrders = new ArrayList<>();

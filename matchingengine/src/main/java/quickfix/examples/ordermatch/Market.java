@@ -215,6 +215,26 @@ public class Market {
         }
     }
 
+    /**
+     * 测试 https://www.onixs.biz/fix-dictionary/5.0.sp2/tagNum_271.html
+     * 获得bid和ask的getMDEntrySize
+     * @param order
+     * @return
+     */
+    public int getMDEntrySize(Order order) {
+        if (order.getSide() == Side.BUY) {
+            Long sum=bidOrders.stream()
+                    .map(x -> (x.getQuantity()))    // map
+                    .reduce(Long.valueOf(0), Long::sum);
+            return Math.toIntExact(sum);
+        } else {
+            Long sum=askOrders.stream()
+                    .map(x -> (x.getQuantity()))    // map
+                    .reduce(Long.valueOf(0), Long::sum);
+            return Math.toIntExact(sum);
+        }
+    }
+
     private void printMsg(DecimalFormat priceFormat, DecimalFormat qtyFormat, Order order, String str) {
         PrintTable tableGenerator = new PrintTable();
         List<String> headersList = new ArrayList<>();

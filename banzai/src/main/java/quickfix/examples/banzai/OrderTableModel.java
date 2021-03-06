@@ -124,6 +124,8 @@ public class OrderTableModel extends AbstractTableModel {
         fireTableRowsUpdated(row, row);
     }
 
+
+
     public void replaceOrder(Order order, String originalID) {
 
         Integer row = idToRow.get(originalID);
