@@ -63,9 +63,10 @@ public class Application extends quickfix.MessageCracker implements quickfix.App
     private final HashSet<String> validOrderTypes = new HashSet<>();
     private MarketDataProvider marketDataProvider;
     private List<String> instrumentList;
-    private Map<String,String> instrumentMap=new HashMap<>();
+    private Map<String, String> instrumentMap = new HashMap<>();
     private Wini ini;
-    public Application(SessionSettings settings) throws ConfigError, FieldConvertError, IOException , InvalidFileFormatException {
+
+    public Application(SessionSettings settings) throws ConfigError, FieldConvertError, IOException, InvalidFileFormatException {
 
         initializeMarketDataProvider(settings);
         instrumentList = initializeInstrument(settings);
@@ -79,9 +80,9 @@ public class Application extends quickfix.MessageCracker implements quickfix.App
 
     }
 
-    private void initInstrumentMap(){
-        for (String str:instrumentList){
-            instrumentMap.put(str,ini.fetch(str,"SecurityID"));
+    private void initInstrumentMap() {
+        for (String str : instrumentList) {
+            instrumentMap.put(str, ini.fetch(str, "SecurityID"));
         }
     }
 
@@ -481,22 +482,21 @@ public class Application extends quickfix.MessageCracker implements quickfix.App
 //        String symbol="FMG3-DEC20";
 
         subscribeMap.put(sessionID.getTargetCompID(), "all");
-        for (String symbol : instrumentList)
-        {
+        for (String symbol : instrumentList) {
             int securityRequestType = message.getInt(SecurityRequestType.FIELD);
             if (securityRequestType != SecurityRequestType.REQUEST_LIST_SECURITIES)
                 throw new IncorrectTagValue(SecurityRequestType.FIELD);
             quickfix.fix50sp2.SecurityDefinition securityDefinition = new quickfix.fix50sp2.SecurityDefinition();
             securityDefinition.setString(Symbol.FIELD, symbol);
-            securityDefinition.setDouble(StrikePrice.FIELD, new Double(ini.fetch(symbol,"StrikePrice")));
+            securityDefinition.setDouble(StrikePrice.FIELD, new Double(ini.fetch(symbol, "StrikePrice")));
 
-            securityDefinition.setDouble(LowLimitPrice.FIELD, new Double(ini.fetch(symbol,"LowLimitPrice")));
-            securityDefinition.setDouble(HighLimitPrice.FIELD, new Double(ini.fetch(symbol,"HighLimitPrice")));
-            securityDefinition.setDouble(TradingReferencePrice.FIELD, new Double(ini.fetch(symbol,"TradingReferencePrice")));
-            securityDefinition.setString(SecurityID.FIELD, ini.fetch(symbol,"SecurityID"));
-            securityDefinition.setString(CFICode.FIELD, ini.fetch(symbol,"CFICode"));
-            securityDefinition.setString(SecurityGroup.FIELD,new String("BI"));
-            securityDefinition.setString(6937,new String("FMG3"));
+            securityDefinition.setDouble(LowLimitPrice.FIELD, new Double(ini.fetch(symbol, "LowLimitPrice")));
+            securityDefinition.setDouble(HighLimitPrice.FIELD, new Double(ini.fetch(symbol, "HighLimitPrice")));
+            securityDefinition.setDouble(TradingReferencePrice.FIELD, new Double(ini.fetch(symbol, "TradingReferencePrice")));
+            securityDefinition.setString(SecurityID.FIELD, ini.fetch(symbol, "SecurityID"));
+            securityDefinition.setString(CFICode.FIELD, ini.fetch(symbol, "CFICode"));
+            securityDefinition.setString(SecurityGroup.FIELD, new String("BI"));
+            securityDefinition.setString(6937, new String("FMG3"));
 
             quickfix.fix50sp2.SecurityDefinition.NoUnderlyings noUnderlyings = new quickfix.fix50sp2.SecurityDefinition.NoUnderlyings();
             noUnderlyings.set(new UnderlyingSymbol(symbol));
@@ -504,15 +504,15 @@ public class Application extends quickfix.MessageCracker implements quickfix.App
 //            noUnderlyings.set(new UnderlyingSecurityType(SecurityType.FUTURE));
             securityDefinition.addGroup(noUnderlyings);
 //            EvntGrp evntGrp=new EvntGrp();
-            quickfix.fix50sp2.component.EvntGrp.NoEvents noEvents=new EvntGrp.NoEvents();
-            EventType eventType=new EventType(EventType.ACTIVATION);
-            EventDate eventDate=new EventDate(ini.fetch(symbol,"ActivationDate"));
+            quickfix.fix50sp2.component.EvntGrp.NoEvents noEvents = new EvntGrp.NoEvents();
+            EventType eventType = new EventType(EventType.ACTIVATION);
+            EventDate eventDate = new EventDate(ini.fetch(symbol, "ActivationDate"));
             noEvents.set(eventType);
             noEvents.set(eventDate);
             securityDefinition.addGroup(noEvents);
 
-            EventType eventType1=new EventType(EventType.LAST_ELIGIBLE_TRADE_DATE);
-            EventDate eventDate1=new EventDate(ini.fetch(symbol,"LastEligibleTradeDate"));
+            EventType eventType1 = new EventType(EventType.LAST_ELIGIBLE_TRADE_DATE);
+            EventDate eventDate1 = new EventDate(ini.fetch(symbol, "LastEligibleTradeDate"));
             noEvents.set(eventType1);
             noEvents.set(eventDate1);
 
@@ -570,7 +570,7 @@ public class Application extends quickfix.MessageCracker implements quickfix.App
      * @throws UnsupportedMessageType
      * @throws IncorrectTagValue
      */
-    public void onMessage(quickfix.fix50sp2.ExecutionReport report, SessionID sessionID) throws FieldNotFound,
+    public void onMessage(quickfix.fix50sp2.MarketDataIncrementalRefresh report, SessionID sessionID) throws FieldNotFound,
             UnsupportedMessageType, IncorrectTagValue {
         String senderCompId = report.getHeader().getString(SenderCompID.FIELD);
         String targetCompId = report.getHeader().getString(TargetCompID.FIELD);
@@ -581,48 +581,10 @@ public class Application extends quickfix.MessageCracker implements quickfix.App
             for (Map.Entry<String, String> entry : subscribeMap.entrySet()) {
                 String symbolList = entry.getValue(); ///default value is all
                 String targetId = entry.getKey();
-
-//                ExecutionReport report1=(ExecutionReport)report.clone();
-                String symbol=report.getString(Symbol.FIELD);
-                quickfix.fix50sp2.MarketDataIncrementalRefresh marketDataIncrementalRefresh=new quickfix.fix50sp2.MarketDataIncrementalRefresh();
-//                SecurityID securityID=new SecurityID("002");
-
-                MDIncGrp.NoMDEntries mdIncGrp=new MDIncGrp.NoMDEntries();
-
-                Side side = (Side) report.getField(new Side());
-                if (side.valueEquals(Side.BUY)){
-                    mdIncGrp.setChar(MDEntryType.FIELD, '0');  //bid
-                }else if (side.valueEquals(Side.SELL)){
-                    mdIncGrp.setChar(MDEntryType.FIELD, '1'); //offer
-                }else{
-                    mdIncGrp.setChar(MDEntryType.FIELD, '2'); //trade
-                }
-
-                mdIncGrp.setString(SecurityID.FIELD, instrumentMap.get(symbol));
-                mdIncGrp.setString(Symbol.FIELD, symbol);
-                mdIncGrp.setInt(MDPriceLevel.FIELD,report.getInt(8888));
-                mdIncGrp.setInt(MDEntrySize.FIELD,report.getInt(8889));
-                mdIncGrp.setInt(NumberOfOrders.FIELD,report.getInt(8887));
-
-                MDEntryPx mdEntryPx=new MDEntryPx(Double.parseDouble(report.getString(Price.FIELD)));
-//                MDEntrySize mdEntrySize=new MDEntrySize(report.getInt(LeavesQty.FIELD));
-                OrdStatus ordStatus = (OrdStatus) report.getField(new OrdStatus());
-                if(ordStatus.valueEquals(OrdStatus.NEW))
-                {
-                    mdIncGrp.setChar(MDUpdateAction.FIELD, '0'); //0 = New
-                }else if(ordStatus.valueEquals(OrdStatus.CANCELED)){
-                    mdIncGrp.setChar(MDUpdateAction.FIELD, '2'); //1 = Change
-                }else if(ordStatus.valueEquals(OrdStatus.REPLACED)){
-                    mdIncGrp.setChar(MDUpdateAction.FIELD, '1'); //1 = Change
-                }else {
-                    mdIncGrp.setChar(MDUpdateAction.FIELD, '5'); //1 = delete
-                }
-                mdIncGrp.setDouble(LastPx.FIELD, Double.parseDouble(report.getString(Price.FIELD))); //0 = New
-                mdIncGrp.set(mdEntryPx);
-//                mdIncGrp.set(mdEntrySize);
-                marketDataIncrementalRefresh.addGroup(mdIncGrp);
+                if (targetId.equals("MD_CLIENT")) //大盘更新的数据不发送给FEME
+                    continue;
                 try {
-                    Session.sendToTarget(marketDataIncrementalRefresh,"FEMD",targetId);
+                    Session.sendToTarget(report, "FEMD", targetId);
                 } catch (SessionNotFound sessionNotFound) {
                     sessionNotFound.printStackTrace();
                 }

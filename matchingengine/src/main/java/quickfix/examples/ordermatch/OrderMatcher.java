@@ -159,7 +159,7 @@ public class OrderMatcher {
         String targetCompId = message.getHeader().getString(TargetCompID.FIELD);
         fixOrderReject.getHeader().setString(SenderCompID.FIELD, targetCompId);
         fixOrderReject.getHeader().setString(TargetCompID.FIELD, senderCompId);
-        sendToTarget(fixOrderReject, senderCompId, targetCompId);
+        sendToTarget(fixOrderReject, senderCompId, targetCompId, null);
     }
 
     public void processOrderCancelReplaceRequest(OrderCancelReplaceRequest message, SessionID sessionID) throws FieldNotFound {
@@ -213,7 +213,7 @@ public class OrderMatcher {
         fixOrder.setString(ClOrdID.FIELD, clOrdId);
         fixOrder.setString(Text.FIELD, message);
         fixOrder.setInt(OrdRejReason.FIELD, OrdRejReason.BROKER_EXCHANGE_OPTION);
-        sendToTarget(fixOrder, senderCompId, targetCompId);
+        sendToTarget(fixOrder, senderCompId, targetCompId, null);
     }
 
     private void replaceOrder(Order order) {
@@ -223,9 +223,9 @@ public class OrderMatcher {
     private void cancelOrder(Order order, boolean sendReport) {
         order.cancel();
         cancelImplyOrder(order);
+        erase(order);
         if (sendReport)
             updateOrder(order, OrdStatus.CANCELED);
-        erase(order);
     }
 
     private void cancelOrder(Order order) {
@@ -236,7 +236,7 @@ public class OrderMatcher {
         String targetCompId = order.getOwner();
         String senderCompId = order.getTarget();
 
-        ExecutionReport fixOrder = new ExecutionReport(
+        ExecutionReport executionReport = new ExecutionReport(
                 new OrderID(order.getClientOrderId()),
                 new ExecID(generator.genExecutionID()),
                 //new ExecTransType(ExecTransType.NEW),
@@ -247,34 +247,34 @@ public class OrderMatcher {
                 new LeavesQty(order.getOpenQuantity()),
                 new CumQty(order.getExecutedQuantity()),
                 new AvgPx(order.getAvgExecutedPrice()));
-        fixOrder.setString(Symbol.FIELD, order.getSymbol());
-        fixOrder.setString(ClOrdID.FIELD, order.getClientOrderId());
-        fixOrder.setDouble(OrderQty.FIELD, order.getQuantity());
+        executionReport.setString(Symbol.FIELD, order.getSymbol());
+        executionReport.setString(ClOrdID.FIELD, order.getClientOrderId());
+        executionReport.setDouble(OrderQty.FIELD, order.getQuantity());
         if (status == OrdStatus.FILLED || status == OrdStatus.PARTIALLY_FILLED) {
-            fixOrder.setDouble(LastShares.FIELD, order.getLastExecutedQuantity());
-            fixOrder.setDouble(LastPx.FIELD, order.getPrice());
+            executionReport.setDouble(LastShares.FIELD, order.getLastExecutedQuantity());
+            executionReport.setDouble(LastPx.FIELD, order.getPrice());
         } else {
-            //计算 https://www.onixs.biz/fix-dictionary/5.0.sp2/tagNum_1023.html
-            int priceLevel = this.getMarket(order.getSymbol()).getIndexOrder(order);
-            fixOrder.setInt(8888, priceLevel);
-            int mdEntrySize = this.getMarket(order.getSymbol()).getMDEntrySize(order);
-            fixOrder.setInt(8889, mdEntrySize);
-            int ordersize = this.getMarket(order.getSymbol()).getOrderSize(order);
-            fixOrder.setInt(8887, ordersize);
+//            //计算 https://www.onixs.biz/fix-dictionary/5.0.sp2/tagNum_1023.html
+//            int priceLevel = this.getMarket(order.getSymbol()).getIndexOrder(order);
+//            fixOrder.setInt(8888, priceLevel);
+//            int mdEntrySize = this.getMarket(order.getSymbol()).getMDEntrySize(order);
+//            fixOrder.setInt(8889, mdEntrySize);
+//            int ordersize = this.getMarket(order.getSymbol()).getOrderSize(order);
+//            fixOrder.setInt(8887, ordersize);
         }
-        if (status == OrdStatus.NEW ||status == OrdStatus.CANCELED ) {//新订单，肯定是隐藏订单
-            fixOrder.setChar(OrdType.FIELD, OrdType.LIMIT);
-            fixOrder.setDouble(Price.FIELD, order.getPrice());
+        if (status == OrdStatus.NEW || status == OrdStatus.CANCELED) {//新订单，肯定是隐藏订单
+            executionReport.setChar(OrdType.FIELD, OrdType.LIMIT);
+            executionReport.setDouble(Price.FIELD, order.getPrice());
         }
 
         if (status == OrdStatus.REPLACED) {//replace订单
-            fixOrder.setChar(OrdType.FIELD, OrdType.LIMIT);
-            fixOrder.setDouble(Price.FIELD, order.getPrice());
-            fixOrder.setString(OrigClOrdID.FIELD,order.getOrigClOrdID());
+            executionReport.setChar(OrdType.FIELD, OrdType.LIMIT);
+            executionReport.setDouble(Price.FIELD, order.getPrice());
+            executionReport.setString(OrigClOrdID.FIELD, order.getOrigClOrdID());
         }
 //        fixOrder.setDouble(LastShares.FIELD, order.getLastExecutedQuantity());
 //        fixOrder.setDouble(LastPx.FIELD, order.getPrice());
-        sendToTarget(fixOrder, senderCompId, targetCompId);
+        sendToTarget(executionReport, senderCompId, targetCompId, order);
     }
 
     /**
@@ -284,11 +284,11 @@ public class OrderMatcher {
      * @param senderCompId
      * @param targetCompId
      */
-    private void sendToTarget(Message fixOrder, String senderCompId, String targetCompId) {
+    private void sendToTarget(Message fixOrder, String senderCompId, String targetCompId, Order order) {
         try {
             Session.sendToTarget(fixOrder, senderCompId, targetCompId);
-            if (marketClientApplication != null) { //是否发送给大盘
-                marketClientApplication.sendTradeToMarketData(fixOrder);
+            if (marketClientApplication != null && order != null) { //是否发送给大盘,order 为空不发送给MD
+                marketClientApplication.sendTradeToMarketData(fixOrder, order);
             }
         } catch (SessionNotFound e) {
             e.printStackTrace();

@@ -59,6 +59,8 @@ public class MatchingEngine {
                 initiator = createMarketClientApp(marketClientApplication);
             }
             Application application = new Application(marketClientApplication);
+
+            marketClientApplication.setOrderMatcher(application.getOrderMatcher());
             FileStoreFactory storeFactory = new FileStoreFactory(settings);
 //            JdbcStoreFactory storeFactory = new JdbcStoreFactory(settings);
 
