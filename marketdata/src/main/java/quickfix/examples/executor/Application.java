@@ -617,7 +617,6 @@ public class Application extends quickfix.MessageCracker implements quickfix.App
                 }else {
                     mdIncGrp.setChar(MDUpdateAction.FIELD, '5'); //1 = delete
                 }
-                mdIncGrp.setDouble(Price.FIELD, Double.parseDouble(report.getString(Price.FIELD)));
                 mdIncGrp.setDouble(LastPx.FIELD, Double.parseDouble(report.getString(Price.FIELD))); //0 = New
                 mdIncGrp.set(mdEntryPx);
 //                mdIncGrp.set(mdEntrySize);
