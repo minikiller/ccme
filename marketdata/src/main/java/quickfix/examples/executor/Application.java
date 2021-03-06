@@ -604,7 +604,7 @@ public class Application extends quickfix.MessageCracker implements quickfix.App
                 mdIncGrp.setInt(MDEntrySize.FIELD,report.getInt(8889));
 
                 MDEntryPx mdEntryPx=new MDEntryPx(Double.parseDouble(report.getString(Price.FIELD)));
-                MDEntrySize mdEntrySize=new MDEntrySize(report.getInt(LeavesQty.FIELD));
+//                MDEntrySize mdEntrySize=new MDEntrySize(report.getInt(LeavesQty.FIELD));
                 OrdStatus ordStatus = (OrdStatus) report.getField(new OrdStatus());
                 if(ordStatus.valueEquals(OrdStatus.NEW))
                 {
@@ -618,7 +618,7 @@ public class Application extends quickfix.MessageCracker implements quickfix.App
                 }
                 mdIncGrp.setDouble(LastPx.FIELD, Double.parseDouble(report.getString(Price.FIELD))); //0 = New
                 mdIncGrp.set(mdEntryPx);
-                mdIncGrp.set(mdEntrySize);
+//                mdIncGrp.set(mdEntrySize);
                 marketDataIncrementalRefresh.addGroup(mdIncGrp);
                 try {
                     Session.sendToTarget(marketDataIncrementalRefresh,"FEMD",targetId);

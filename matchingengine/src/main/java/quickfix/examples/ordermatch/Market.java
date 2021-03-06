@@ -224,11 +224,13 @@ public class Market {
     public int getMDEntrySize(Order order) {
         if (order.getSide() == Side.BUY) {
             Long sum=bidOrders.stream()
+                    .filter(x->(x.getPrice()==order.getPrice()))
                     .map(x -> (x.getQuantity()))    // map
                     .reduce(Long.valueOf(0), Long::sum);
             return Math.toIntExact(sum);
         } else {
             Long sum=askOrders.stream()
+                    .filter(x->(x.getPrice()==order.getPrice()))
                     .map(x -> (x.getQuantity()))    // map
                     .reduce(Long.valueOf(0), Long::sum);
             return Math.toIntExact(sum);
