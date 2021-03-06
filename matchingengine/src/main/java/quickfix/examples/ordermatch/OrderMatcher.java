@@ -105,6 +105,7 @@ public class OrderMatcher {
         String targetCompId = message.getHeader().getString(TargetCompID.FIELD);
         String clOrdId = message.getString(ClOrdID.FIELD);
         String symbol = message.getString(Symbol.FIELD);
+
         char side = message.getChar(Side.FIELD);
         char ordType = message.getChar(OrdType.FIELD);
 
@@ -126,7 +127,10 @@ public class OrderMatcher {
 
             Order order = new Order(clOrdId, symbol, senderCompId, targetCompId, side, ordType,
                     price, (int) qty);
-
+            //所下的订单symbol不在MD内
+            if (!getMarkets().containsKey(symbol)){
+                rejectOrder(targetCompId, senderCompId, clOrdId, symbol, side, "not find symbol in Market Data!");
+            }
             processOrder(order);
         } catch (Exception e) {
             rejectOrder(targetCompId, senderCompId, clOrdId, symbol, side, e.getMessage());
