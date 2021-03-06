@@ -127,11 +127,11 @@ public class OrderMatcher {
 
             Order order = new Order(clOrdId, symbol, senderCompId, targetCompId, side, ordType,
                     price, (int) qty);
-            //所下的订单symbol不在MD内
-            if (!getMarkets().containsKey(symbol)){
-                rejectOrder(targetCompId, senderCompId, clOrdId, symbol, side, "not find symbol in Market Data!");
-                return;
-            }
+            //todo 所下的订单symbol不在MD内
+//            if (MatchUtil.getNameList().indexOf(symbol)<0){
+//                rejectOrder(targetCompId, senderCompId, clOrdId, symbol, side, "not find symbol in Market Data!");
+//                return;
+//            }
             processOrder(order);
         } catch (Exception e) {
             rejectOrder(targetCompId, senderCompId, clOrdId, symbol, side, e.getMessage());

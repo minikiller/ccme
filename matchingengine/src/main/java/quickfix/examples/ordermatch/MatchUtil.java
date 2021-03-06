@@ -20,6 +20,9 @@ public class MatchUtil {
     private static final String MATCH_RULE = getMatchRule();
     private static final String Match_Rule = "MatchRule";
 
+    public static List<String> getNameList() {
+        return nameList;
+    }
 
     private static String getMatchRule() {
         String str = null;

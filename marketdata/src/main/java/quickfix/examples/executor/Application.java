@@ -577,11 +577,7 @@ public class Application extends quickfix.MessageCracker implements quickfix.App
         if (SENDER_COMP_ID.equals(targetCompId) & TARGET_COMP_ID.equals(senderCompId)) {
             System.out.println("get message from matching engine ...");
             Util.printMsg(report);
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+
             for (Map.Entry<String, String> entry : subscribeMap.entrySet()) {
                 String symbolList = entry.getValue(); ///default value is all
                 String targetId = entry.getKey();
@@ -590,10 +586,6 @@ public class Application extends quickfix.MessageCracker implements quickfix.App
                 String symbol=report.getString(Symbol.FIELD);
                 quickfix.fix50sp2.MarketDataIncrementalRefresh marketDataIncrementalRefresh=new quickfix.fix50sp2.MarketDataIncrementalRefresh();
 //                SecurityID securityID=new SecurityID("002");
-                marketDataIncrementalRefresh.setString(SecurityID.FIELD, instrumentMap.get(symbol));
-                marketDataIncrementalRefresh.setString(Symbol.FIELD, symbol);
-
-                marketDataIncrementalRefresh.setInt(MDPriceLevel.FIELD,report.getInt(8888));
 
                 MDIncGrp.NoMDEntries mdIncGrp=new MDIncGrp.NoMDEntries();
 
@@ -605,6 +597,10 @@ public class Application extends quickfix.MessageCracker implements quickfix.App
                 }else{
                     mdIncGrp.setChar(MDEntryType.FIELD, '2'); //trade
                 }
+
+                mdIncGrp.setString(SecurityID.FIELD, instrumentMap.get(symbol));
+                mdIncGrp.setString(Symbol.FIELD, symbol);
+                mdIncGrp.setInt(MDPriceLevel.FIELD,report.getInt(8888));
 
                 MDEntryPx mdEntryPx=new MDEntryPx(Double.parseDouble(report.getString(Price.FIELD)));
                 MDEntrySize mdEntrySize=new MDEntrySize(report.getInt(LeavesQty.FIELD));
