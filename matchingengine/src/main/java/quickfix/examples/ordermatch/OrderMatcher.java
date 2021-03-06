@@ -130,6 +130,7 @@ public class OrderMatcher {
             //所下的订单symbol不在MD内
             if (!getMarkets().containsKey(symbol)){
                 rejectOrder(targetCompId, senderCompId, clOrdId, symbol, side, "not find symbol in Market Data!");
+                return;
             }
             processOrder(order);
         } catch (Exception e) {
