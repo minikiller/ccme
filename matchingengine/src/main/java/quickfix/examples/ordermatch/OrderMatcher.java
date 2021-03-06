@@ -259,6 +259,8 @@ public class OrderMatcher {
             fixOrder.setInt(8888, priceLevel);
             int mdEntrySize = this.getMarket(order.getSymbol()).getMDEntrySize(order);
             fixOrder.setInt(8889, mdEntrySize);
+            int ordersize = this.getMarket(order.getSymbol()).getOrderSize(order);
+            fixOrder.setInt(8887, ordersize);
         }
         if (status == OrdStatus.NEW ) {//新订单，肯定是隐藏订单
             fixOrder.setChar(OrdType.FIELD, OrdType.LIMIT);

@@ -602,6 +602,7 @@ public class Application extends quickfix.MessageCracker implements quickfix.App
                 mdIncGrp.setString(Symbol.FIELD, symbol);
                 mdIncGrp.setInt(MDPriceLevel.FIELD,report.getInt(8888));
                 mdIncGrp.setInt(MDEntrySize.FIELD,report.getInt(8889));
+                mdIncGrp.setInt(NumberOfOrders.FIELD,report.getInt(8887));
 
                 MDEntryPx mdEntryPx=new MDEntryPx(Double.parseDouble(report.getString(Price.FIELD)));
 //                MDEntrySize mdEntrySize=new MDEntrySize(report.getInt(LeavesQty.FIELD));

@@ -237,6 +237,18 @@ public class Market {
         }
     }
 
+    public int getOrderSize(Order order) {
+        if (order.getSide() == Side.BUY) {
+            List data=bidOrders.stream()
+                    .filter(x->(x.getPrice()==order.getPrice())).collect(Collectors.toList());;
+            return data.size();
+        } else {
+            List data=askOrders.stream()
+                    .filter(x->(x.getPrice()==order.getPrice())).collect(Collectors.toList());;
+            return data.size();
+        }
+    }
+
     private void printMsg(DecimalFormat priceFormat, DecimalFormat qtyFormat, Order order, String str) {
         PrintTable tableGenerator = new PrintTable();
         List<String> headersList = new ArrayList<>();
