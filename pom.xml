@@ -1,98 +1,113 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>org.quickfixj</groupId>
-		<artifactId>quickfixj-parent</artifactId>
-		<version>2.2.0</version>
-	</parent>
+    <parent>
+        <groupId>org.quickfixj</groupId>
+        <artifactId>quickfixj-parent</artifactId>
+        <version>2.2.0</version>
+    </parent>
 
-	<artifactId>ccme-project</artifactId>
-	<packaging>pom</packaging>
+    <artifactId>ccme-project</artifactId>
+    <packaging>pom</packaging>
 
-	<name>CCME Project</name>
-	<description>QuickFIX/J example applications</description>
-	<url>http://www.quickfixj.org</url>
+    <name>CCME Project</name>
+    <description>QuickFIX/J example applications</description>
+    <url>http://www.quickfixj.org</url>
 
-	<modules>
-		<module>marketdata</module>
-		<module>matchingengine</module>
-		<module>banzai</module>
-	</modules>
+    <modules>
+        <module>marketdata</module>
+        <module>matchingengine</module>
+        <module>banzai</module>
+    </modules>
 
-	<dependencies>
-		<dependency>
-			<groupId>org.quickfixj</groupId>
-			<artifactId>quickfixj-core</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.quickfixj</groupId>
-			<artifactId>quickfixj-messages-all</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-			<version>${slf4j.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-jdk14</artifactId>
-			<version>${slf4j.version}</version>
-			<scope>runtime</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.junit.jupiter</groupId>
-			<artifactId>junit-jupiter-engine</artifactId>
-			<version>5.5.2</version>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
+    <dependencies>
+        <dependency>
+            <groupId>org.quickfixj</groupId>
+            <artifactId>quickfixj-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.quickfixj</groupId>
+            <artifactId>quickfixj-messages-all</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-jdk14</artifactId>
+            <version>${slf4j.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>5.5.2</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 
-	<build>
-		<pluginManagement>
-			<plugins>
-				<plugin>
-					<groupId>org.apache.felix</groupId>
-					<artifactId>maven-bundle-plugin</artifactId>
-					<configuration>
-						<archive>
-							<manifest>
-								<mainClass>${mainClass}</mainClass>
-								<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-								<!-- automatically add all dependencies to classpath as jars in the ./lib folder -->
-								<addClasspath>true</addClasspath>
-								<classpathPrefix>./lib/</classpathPrefix>
-							</manifest>
-							<manifestEntries>
-								<Main-Class>${mainClass}</Main-Class>
-								<!-- manually add quickfixj-* dependencies to classpath as jars in current directory -->
-								<Class-Path>./quickfixj-core-${project.version}.jar ./quickfixj-messages-all-${project.version}.jar</Class-Path>
-							</manifestEntries>
-						</archive>
-					</configuration>
-				</plugin>
-				<!-- create a self-executing jar (including all dependencies) -->
-				<plugin>
-					<artifactId>maven-shade-plugin</artifactId>
-					<executions>
-						<execution>
-							<id>create-self-executing-jar</id>
-							<phase>package</phase>
-							<goals>
-								<goal>shade</goal>
-							</goals>
-							<configuration>
-								<createDependencyReducedPom>false</createDependencyReducedPom>
-								<shadedArtifactAttached>true</shadedArtifactAttached>
-								<shadedClassifierName>standalone</shadedClassifierName>
-							</configuration>
-						</execution>
-					</executions>
-				</plugin>
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.felix</groupId>
+                    <artifactId>maven-bundle-plugin</artifactId>
+                    <configuration>
+                        <archive>
+                            <manifest>
+                                <mainClass>${mainClass}</mainClass>
+                                <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                                <!-- automatically add all dependencies to classpath as jars in the ./lib folder -->
+                                <addClasspath>true</addClasspath>
+                                <classpathPrefix>./lib/</classpathPrefix>
+                            </manifest>
+                            <manifestEntries>
+                                <Main-Class>${mainClass}</Main-Class>
+                                <!-- manually add quickfixj-* dependencies to classpath as jars in current directory -->
+                                <Class-Path>./quickfixj-core-${project.version}.jar
+                                    ./quickfixj-messages-all-${project.version}.jar
+                                </Class-Path>
+                            </manifestEntries>
+                        </archive>
+                    </configuration>
+                </plugin>
+                <!-- create a self-executing jar (including all dependencies) -->
+                <plugin>
+                    <artifactId>maven-shade-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <id>create-self-executing-jar</id>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>shade</goal>
+                            </goals>
+                            <configuration>
+                                <createDependencyReducedPom>false</createDependencyReducedPom>
+                                <shadedArtifactAttached>true</shadedArtifactAttached>
+                                <shadedClassifierName>standalone</shadedClassifierName>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
 
-			</plugins>
-		</pluginManagement>
-	</build>
+                <plugin>
+                    <groupId>com.heroku.sdk</groupId>
+                    <artifactId>heroku-maven-plugin</artifactId>
+                    <version>3.0.3</version>
+                    <configuration>
+                        <processTypes>
+                            <web>java $JAVA_OPTS -cp marketdata/target/ccme-marketdata-2.2.0-standalone.jar quickfix.examples.executor.MarketDataServer</web>
+                        </processTypes>
+                    </configuration>
+                </plugin>
+
+            </plugins>
+        </pluginManagement>
+    </build>
+
 </project>
