@@ -27,6 +27,18 @@
             <plugin>
                 <artifactId>maven-source-plugin</artifactId>
             </plugin>
+
+            <plugin>
+                <groupId>com.heroku.sdk</groupId>
+                <artifactId>heroku-maven-plugin</artifactId>
+                <version>3.0.3</version>
+                <configuration>
+                    <appName>ccfemd</appName>
+                    <processTypes>
+                        <web>java $JAVA_OPTS -cp target/ccme-marketdata-2.2.0-standalone.jar quickfix.examples.executor.MarketDataServer</web>
+                    </processTypes>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
     <dependencies>
