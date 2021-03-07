@@ -35,7 +35,7 @@
                 <configuration>
                     <appName>ccfemd</appName>
                     <processTypes>
-                        <web>java -Dserver.port=$PORT $JAVA_OPTS -cp target/ccme-marketdata-2.2.0-standalone.jar quickfix.examples.executor.MarketDataServer</web>
+                        <web>java -Dserver.port=9880 $JAVA_OPTS -cp target/ccme-marketdata-2.2.0-standalone.jar quickfix.examples.executor.MarketDataServer</web>
                     </processTypes>
                 </configuration>
             </plugin>
