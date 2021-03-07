@@ -71,7 +71,11 @@ public class MarketDataServer {
         MessageStoreFactory messageStoreFactory = new FileStoreFactory(settings);
         LogFactory logFactory = new ScreenLogFactory(true, true, true);
         MessageFactory messageFactory = new DefaultMessageFactory();
-
+        int acceptorPort = Integer.parseInt(System.getProperty("server.port"));
+        System.out.println(settings.getInt(SETTING_SOCKET_ACCEPT_PORT));
+        System.out.println( "server port is "+acceptorPort);
+        settings.setLong(SETTING_SOCKET_ACCEPT_PORT,acceptorPort);
+//        int acceptorPort = (int) settings.getLong(sessionID, SETTING_SOCKET_ACCEPT_PORT);
         acceptor = new SocketAcceptor(application, messageStoreFactory, settings, logFactory,
                 messageFactory);
 
@@ -119,7 +123,7 @@ public class MarketDataServer {
             acceptorHost = settings.getString(sessionID, SETTING_SOCKET_ACCEPT_ADDRESS);
         }
         int acceptorPort = (int) settings.getLong(sessionID, SETTING_SOCKET_ACCEPT_PORT);
-
+//        int acceptorPort = Integer.parseInt(System.getProperty("server.port"));
         return new InetSocketAddress(acceptorHost, acceptorPort);
     }
 
