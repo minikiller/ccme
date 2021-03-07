@@ -55,6 +55,7 @@ public class ComplicateMatchSingleTest {
         assert buyOrder2.getImplyOrderMap().size()==1;
         assert sellOrder1.getImplyOrderMap().size()==1;
         assert  orderMatcher.getMarket("FMG3-MAR21-JUN21").getBidOrders().size()==1;
+        assert  orderMatcher.getMarket("FMG3-MAR21-JUN21").getAskOrders().size()==0;
         orders.clear();
 
         Order sellOrder2  = new Order("123", "FMG3-JUN21", "N2N", "FEME",
@@ -63,8 +64,8 @@ public class ComplicateMatchSingleTest {
 
         orders= orderMatcher.createImplyOrder(sellOrder2);
 
-        assert orders.size()==2;
-        ImplyOrder _order2=orders.get(0);
+        assert orders.size()==3; //有一个订单被取消了
+        ImplyOrder _order2=orders.get(1);
 
         assert _order2.getPrice()==10.61;
         assert _order2.getSide()==Side.BUY;
@@ -73,7 +74,7 @@ public class ComplicateMatchSingleTest {
         assert buyOrder2.getImplyOrderMap().size()==1;
         assert sellOrder2.getImplyOrderMap().size()==1;
 
-        ImplyOrder _order3=orders.get(1);
+        ImplyOrder _order3=orders.get(2);
 
         assert _order3.getPrice()==10.57;
         assert _order3.getSide()==Side.BUY;
@@ -89,7 +90,7 @@ public class ComplicateMatchSingleTest {
         market.insert(buyOrder3);
 
         orders= orderMatcher.createImplyOrder(buyOrder3);
-        assert orders.size()==2;
+        assert orders.size()==4; //两个新订单，2个取消订单
         ImplyOrder _order4=orders.get(0);
         assert _order4.getSide()==Side.BUY;
         assert _order4.getPrice()==10.61;
@@ -97,7 +98,7 @@ public class ComplicateMatchSingleTest {
         assert _order4.getRightOrder()==sellOrder2;
         assert buyOrder2.getImplyOrderMap().size()==1;
         assert sellOrder2.getImplyOrderMap().size()==1;
-        ImplyOrder _order5=orders.get(1);
+        ImplyOrder _order5=orders.get(3);
         assert _order5.getSide()==Side.BUY;
         assert _order5.getPrice()==10.58;
         assert _order5.getLeftOrder()==buyOrder3;

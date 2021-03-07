@@ -60,8 +60,8 @@ public class ComplicateMatchDoubleTest {
         market1.insert(sellOrder2);
         orders= orderMatcher.createImplyOrder(sellOrder2);
 
-        assert orders.size()==2;
-        ImplyOrder _order2=orders.get(0);
+        assert orders.size()==3;
+        ImplyOrder _order2=orders.get(1);
 
         assert _order2.getPrice()==110.13;
         assert _order2.getSide()==Side.BUY;
@@ -70,7 +70,7 @@ public class ComplicateMatchDoubleTest {
         assert buyOrder1.getImplyOrderMap().size()==1;
         assert sellOrder2.getImplyOrderMap().size()==1;
 
-        ImplyOrder _order3=orders.get(1);
+        ImplyOrder _order3=orders.get(2);
 
         assert _order3.getPrice()==110.09;
         assert _order3.getSide()==Side.BUY;
@@ -87,8 +87,8 @@ public class ComplicateMatchDoubleTest {
         market1.insert(sellOrder3);
         orders= orderMatcher.createImplyOrder(sellOrder3);
 
-        assert orders.size()==2;
-        ImplyOrder _order4=orders.get(0);
+        assert orders.size()==4;
+        ImplyOrder _order4=orders.get(2);
         assert _order4.getSide()==Side.BUY;
         assert _order4.getPrice()==110.15;
         assert _order4.getLeftOrder()==buyOrder1;
@@ -96,7 +96,7 @@ public class ComplicateMatchDoubleTest {
         assert buyOrder1.getImplyOrderMap().size()==1;
         assert sellOrder3.getImplyOrderMap().size()==1;
 
-        ImplyOrder _order5=orders.get(1);
+        ImplyOrder _order5=orders.get(3);
         assert _order5.getSide()==Side.BUY;
         assert _order5.getPrice()==110.11;
         assert _order5.getLeftOrder()==buyOrder2;

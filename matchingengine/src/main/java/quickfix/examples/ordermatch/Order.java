@@ -29,7 +29,7 @@ import java.util.Map;
 
 import static java.util.Collections.reverseOrder;
 
-public class Order implements Serializable,Cloneable {
+public class Order implements Serializable, Cloneable {
     private final long entryTime;
     private final String clientOrderId;
     private String origClOrdID; //replace used it
@@ -181,7 +181,13 @@ public class Order implements Serializable,Cloneable {
     }
 
     public String toString() {
-        return symbol + " -> " + (side == Side.BUY ? "BUY" : "SELL") + " " + quantity + "@$" + price + " (" + openQuantity + ")";
+        String strStatus="";
+        if (status == OrdStatus.NEW) strStatus = "New";
+        if (status == OrdStatus.CANCELED) strStatus = "Cancel";
+        if (status == OrdStatus.REPLACED) strStatus = "Replace";
+        if (status == OrdStatus.FILLED) strStatus = "Filled";
+        if (status == OrdStatus.PARTIALLY_FILLED) strStatus = "pFilled";
+        return symbol + " -> " + (side == Side.BUY ? "BUY" : "SELL")+ ":" + strStatus + " " + quantity + "@$" + price + " (" + openQuantity + ")";
     }
 
     public long getEntryTime() {
@@ -225,7 +231,6 @@ public class Order implements Serializable,Cloneable {
     }
 
 
-
     public int getSortCount() {
         return 0;
     }
@@ -242,4 +247,4 @@ public class Order implements Serializable,Cloneable {
     protected Order clone() throws CloneNotSupportedException {
         return (Order) super.clone();
     }
-    }
+}
