@@ -155,10 +155,10 @@ public class MarketDataServer {
             MarketDataServer marketDataServer = new MarketDataServer(settings);
             marketDataServer.start();
 
-            System.out.println("press <enter> to quit");
-            System.in.read();
-
-            marketDataServer.stop();
+//            System.out.println("press <enter> to quit");
+//            System.in.read();
+//
+//            marketDataServer.stop();
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
