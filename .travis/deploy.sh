@@ -4,5 +4,5 @@ git config --global push.default simple # we only want to push one branch — ma
 # specify the repo on the live server as a remote repo, and name it 'production'
 # <user> here is the separate user you created for deploying
 git remote add production ssh://root@192.119.116.101/root/project/ccfe
-git pull production master # push our updates
-mvn clean package
+git push production master # push our updates
+#mvn clean package
