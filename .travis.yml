@@ -1,7 +1,7 @@
 language: java
 jdk: oraclejdk11
-install: true
-script: mvn clean install
+#install: true
+#script: mvn clean install
 dist: trusty
 sudo: false
 addons:
