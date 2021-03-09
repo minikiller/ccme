@@ -17,7 +17,7 @@ before_install:
 deploy:
 - provider: script
   skip_cleanup: true
-  script: .travis/deploy.sh
+  script: bash .travis/deploy.sh
   verbose: true
   on:
 #    branch: master
