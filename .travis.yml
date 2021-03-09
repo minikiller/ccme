@@ -19,7 +19,7 @@ deploy:
   skip_cleanup: true
   script: bash .travis/deploy.sh
   on:
-    branch: testing
+    branch: master
 cache:
   directories:
   - "$HOME/.m2"
