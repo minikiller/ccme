@@ -17,10 +17,11 @@ before_install:
 deploy:
 - provider: script
   skip_cleanup: true
-  script: bash .travis/deploy.sh
+  script: .travis/deploy.sh
+  verbose: true
   on:
-#    branch: master
-    all_branches: true
+    branch: master
+#    all_branches: true
 cache:
   directories:
   - "$HOME/.m2"
