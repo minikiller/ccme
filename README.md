@@ -55,3 +55,11 @@ sudo docker run --name 11.0.9.1 -d \
     openjdk:11 \
     nohup java -jar /home/feme-md.jar
 ```
+
+### 8. use travis 
+create token on github first,then run following command:
+``` 
+travis login --github-token 5c05edc78fcb7960a2abbb01aabb64a254bc3533 --com
+travis encrypt-file deploy_rsa --add --com  
+
+```
