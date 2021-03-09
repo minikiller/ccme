@@ -20,8 +20,8 @@ deploy:
   script: bash .travis/deploy.sh
   verbose: true
   on:
-#    branch: master
-    all_branches: true
+    branch: main
+#    all_branches: true
 cache:
   directories:
   - "$HOME/.m2"
