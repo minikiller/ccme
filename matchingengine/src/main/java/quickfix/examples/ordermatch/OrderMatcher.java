@@ -223,9 +223,9 @@ public class OrderMatcher {
     private void cancelOrder(Order order, boolean sendReport) {
         order.cancel();
         cancelImplyOrder(order);
-        erase(order);
         if (sendReport)
             updateOrder(order, OrdStatus.CANCELED);
+        erase(order);
     }
 
     private void cancelOrder(Order order) {
