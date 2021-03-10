@@ -16,6 +16,8 @@ before_install:
 - cp .travis/id_rsa ~/.ssh/deploy_rsa
 - chmod 600 ~/.ssh/deploy_rsa
 - ssh-add ~/.ssh/deploy_rsa
+
+after_install:
 - docker build -t kalix/marketdata marketdata
 - docker build -t kalix/matchingengine matchingengine
 
