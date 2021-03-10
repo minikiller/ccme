@@ -17,9 +17,13 @@ before_install:
 - chmod 600 ~/.ssh/deploy_rsa
 - ssh-add ~/.ssh/deploy_rsa
 
-after_install:
+before_script:
 - docker build -t kalix/marketdata marketdata
+- docker run -d -p 9880:9880 kalix/marketdata
+- docker ps -a
 - docker build -t kalix/matchingengine matchingengine
+- docker run -d -p 8323:8323 kalix/matchingengine
+- docker ps -a
 
 deploy:
 - provider: script
