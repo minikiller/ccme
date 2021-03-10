@@ -18,10 +18,10 @@ before_install:
 - ssh-add ~/.ssh/deploy_rsa
 
 before_deploy:
-- docker build -t kalix/marketdata marketdata
+- docker build -t kalix/femd marketdata
 - docker run -d -p 127.0.0.1:9880:9880 kalix/femd
 - docker ps -a
-- docker build -t kalix/matchingengine matchingengine
+- docker build -t kalix/feme matchingengine
 - docker run -d -p 8323:8323 kalix/feme
 - docker ps -a
 
