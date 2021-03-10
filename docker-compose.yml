@@ -1,0 +1,30 @@
+version: "3.9"
+
+services:
+  femd:
+    image: kalix/femd:latest
+    ports:
+      - "9880:9880"
+#    volumes:
+#      - db_data:/var/lib/mysql
+    restart: always
+#    environment:
+#      MYSQL_ROOT_PASSWORD: somewordpress
+#      MYSQL_DATABASE: wordpress
+#      MYSQL_USER: wordpress
+#      MYSQL_PASSWORD: wordpress
+
+  feme:
+    depends_on:
+      - femd
+    image: kalix/femd:latest
+    ports:
+      - "8323:8323"
+    restart: always
+#    environment:
+#      WORDPRESS_DB_HOST: db:3306
+#      WORDPRESS_DB_USER: wordpress
+#      WORDPRESS_DB_PASSWORD: wordpress
+#      WORDPRESS_DB_NAME: wordpress
+#volumes:
+#  db_data: {}

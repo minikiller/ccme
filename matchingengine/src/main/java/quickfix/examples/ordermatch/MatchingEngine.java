@@ -74,7 +74,7 @@ public class MatchingEngine {
 
             BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
             acceptor.start();
-            label:
+            /*label:
             while (true) {
                 System.out.println("type #quit to quit");
                 String value = in.readLine();
@@ -93,7 +93,7 @@ public class MatchingEngine {
             }
             acceptor.stop();
             initiator.stop();
-            System.exit(0);
+            System.exit(0);*/
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
