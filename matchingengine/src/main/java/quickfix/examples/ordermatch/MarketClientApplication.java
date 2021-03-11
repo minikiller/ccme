@@ -1,9 +1,10 @@
 package quickfix.examples.ordermatch;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import quickfix.*;
 import quickfix.Application;
 import quickfix.field.*;
-import quickfix.fix44.ExecutionReport;
 import quickfix.fix44.SecurityDefinitionRequest;
 import quickfix.fix50sp2.component.MDIncGrp;
 
@@ -17,12 +18,18 @@ public class MarketClientApplication extends MessageCracker implements Applicati
     public static final String SENDER_COMP_ID = "MD_CLIENT";
     public static final String TARGET_COMP_ID = "FEMD";
     static public final String BEGIN_STRING_MARKET_DATA = "FIXT.1.1";
+    private final Map<String, OrderBook> orderBookMap = new HashMap<>();
+    private static final Logger logger = LoggerFactory.getLogger(MarketClientApplication.class);
 
     OrderMatcher orderMatcher = null;
     private Map<String, String> instrumentMap = new HashMap<>();
 
     public void setOrderMatcher(OrderMatcher orderMatcher) {
         this.orderMatcher = orderMatcher;
+    }
+
+    public OrderBook getOrderBook(String symbol) {
+        return orderBookMap.computeIfAbsent(symbol, k -> new OrderBook(symbol));
     }
 
     public MarketClientApplication() {
@@ -75,7 +82,7 @@ public class MarketClientApplication extends MessageCracker implements Applicati
      * @throws UnsupportedMessageType
      */
     public void onMessage(quickfix.fix50sp2.SecurityDefinition message, SessionID sessionID) throws FieldNotFound, IncorrectTagValue, UnsupportedMessageType {
-        System.out.println("get SecurityDefinition message ");
+        logger.info("get SecurityDefinition message ");
         String symbol = message.getString(Symbol.FIELD);
         String securityID = message.getString(SecurityID.FIELD);
         instrumentMap.put(symbol, securityID);
@@ -172,6 +179,49 @@ public class MarketClientApplication extends MessageCracker implements Applicati
             marketDataIncrementalRefresh.addGroup(mdIncGrp);
             Session.sendToTarget(marketDataIncrementalRefresh, sessionID);
         } catch (FieldNotFound fieldNotFound) {
+            fieldNotFound.printStackTrace();
+        }
+    }
+
+    public void updateMarketData(quickfix.fix44.Message msg, Order order) {
+        try {
+            String symbol = order.getSymbol();
+            OrderBook orderBook = getOrderBook(symbol);
+            ExecID execID = (ExecID) msg.getField(new ExecID());
+            List<MarketDataGroup> list = new ArrayList<>();
+            System.out.println("send execId to MarkerData is " + execID);
+            SessionID sessionID = new SessionID(BEGIN_STRING_MARKET_DATA, SENDER_COMP_ID, TARGET_COMP_ID);
+            OrdStatus ordStatus = (OrdStatus) msg.getField(new OrdStatus());
+            if (ordStatus.valueEquals(OrdStatus.NEW)) {
+                list = orderBook.newOrder(order);
+            } else if (ordStatus.valueEquals(OrdStatus.CANCELED)) {
+                list = orderBook.removeOrder(order);
+            } else if (ordStatus.valueEquals(OrdStatus.REPLACED)) {
+                logger.info("get replace message need send to MD");
+                orderMatcher.getMarket(order.getSymbol()).find(order.getSymbol(),order.getSide(),order.getClientOrderId());
+                list = orderBook.updateOrder(order);
+            } else if (ordStatus.valueEquals(OrdStatus.FILLED)) {
+                logger.info("get filled message need send to MD");
+                list = orderBook.removeOrder(order);
+            }
+
+            quickfix.fix50sp2.MarketDataIncrementalRefresh marketDataIncrementalRefresh = new quickfix.fix50sp2.MarketDataIncrementalRefresh();
+            MDIncGrp.NoMDEntries mdIncGrp = new MDIncGrp.NoMDEntries();
+            for (MarketDataGroup data : list) {
+                mdIncGrp.setString(SecurityID.FIELD, instrumentMap.get(symbol));
+                mdIncGrp.setString(Symbol.FIELD, symbol);
+                mdIncGrp.set(data.getMdPriceLevel());
+                mdIncGrp.set(data.getMdEntrySize());
+                mdIncGrp.set(data.getNumberOfOrders());
+                mdIncGrp.set(data.getMdUpdateAction());
+                mdIncGrp.set(data.getMdEntryPx());
+                mdIncGrp.setDouble(LastPx.FIELD, Double.parseDouble(msg.getString(Price.FIELD))); //0 = New
+                marketDataIncrementalRefresh.addGroup(mdIncGrp);
+            }
+
+            Session.sendToTarget(marketDataIncrementalRefresh, sessionID);
+
+        } catch (FieldNotFound | SessionNotFound fieldNotFound) {
             fieldNotFound.printStackTrace();
         }
     }

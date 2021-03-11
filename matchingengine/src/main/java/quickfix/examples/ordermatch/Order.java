@@ -51,6 +51,8 @@ public class Order implements Serializable, Cloneable {
     // 指向隐含单Map,String为orderId
     private Map<String, ImplyOrder> implyOrderMap = new HashMap<>();
 
+    private double oldPrice;
+
     public void clearImply(ImplyOrder order) {
         implyOrderMap.remove(order.getClientOrderId());
     }
@@ -138,6 +140,14 @@ public class Order implements Serializable, Cloneable {
 
     public char getType() {
         return type;
+    }
+
+    public double getOldPrice() {
+        return oldPrice;
+    }
+
+    public void setOldPrice(double oldPrice) {
+        this.oldPrice = oldPrice;
     }
 
     public boolean isFilled() {

@@ -231,6 +231,7 @@ public class OrderBook {
 
     /**
      * 从大盘数据中删除一个订单
+     *
      * @param order
      * @return
      */
@@ -309,10 +310,11 @@ public class OrderBook {
 
     /**
      * 处理插入订单或者取消订单
-     * @param _oldSize 更新前的size
-     * @param position 更新后的level
+     *
+     * @param _oldSize  更新前的size
+     * @param position  更新后的level
      * @param marketMap market全部数据
-     * @param order 处理的订单
+     * @param order     处理的订单
      * @return
      */
 
@@ -364,6 +366,7 @@ public class OrderBook {
 
     /**
      * 生成删除MDUpdateAction的相关数据
+     *
      * @param position
      * @param key
      * @return
@@ -391,32 +394,60 @@ public class OrderBook {
 
     /**
      * 新增一个订单，返回需要操作的MarketDataGroup
+     *
      * @param order
      * @return
      */
     public List<MarketDataGroup> newOrder(Order order) {
         int oldSize = _addOrder(order);
-        TreeMap<Double, List<Order>> market=(TreeMap<Double, List<Order>>) getOrderMap(order);
-        int position = findPosition(order.getPrice(),market ); //在新的tree里面的位置
+        TreeMap<Double, List<Order>> market = (TreeMap<Double, List<Order>>) getOrderMap(order);
+        int position = findPosition(order.getPrice(), market); //在新的tree里面的位置
         List<MarketDataGroup> list = createGroup(oldSize, position, market, order);
         return list;
     }
 
     /**
-     * 取消一个订单，返回操作的MarketDataGroup
+     * 移去一个订单，返回操作的MarketDataGroup
+     *
      * @param order
      * @return
      */
-    public List<MarketDataGroup> cancelOrder(Order order) {
-        TreeMap<Double, List<Order>> market=(TreeMap<Double, List<Order>>) getOrderMap(order);
-        int position = findPosition(order.getPrice(),market ); //在旧的tree里面的位置
-        int oldSize = _removeOrder(order);
+    public List<MarketDataGroup> removeOrder(Order order) {
+        TreeMap<Double, List<Order>> market = (TreeMap<Double, List<Order>>) getOrderMap(order);
+        int position = findPosition(order.getPrice(), market); //在旧的tree里面的位置
+        int oldSize = _updateOrder(order);
+        List<MarketDataGroup> list = createGroup(oldSize, position, market, order);
+        return list;
+    }
+
+    private int _updateOrder(Order order) {
+        Map<Double, List<Order>> market = order.getSide() == Side.BUY ? this.bids : this.asks;
+        int size=market.size();
+        List<Order> orders = market.get(order.getOldPrice());
+        for (Order _order : orders) {
+            if (order.getOrigClOrdID().equals(_order.getClientOrderId())) {
+                orders.remove(_order);
+                break;
+            }
+        }
+        if (orders.size() == 0) market.remove(order.getOldPrice());
+        _addOrder(order);
+        //todo add ReplaceOrder class
+        return size;
+    }
+
+    public List<MarketDataGroup> updateOrder(Order order) {
+        TreeMap<Double, List<Order>> market = (TreeMap<Double, List<Order>>) getOrderMap(order);
+        int oldSize = _updateOrder(order);
+        int position = findPosition(order.getPrice(), market); //在旧的tree里面的位置
+
         List<MarketDataGroup> list = createGroup(oldSize, position, market, order);
         return list;
     }
 
     /**
      * 根据订单的类型，返回不同的map
+     *
      * @param order
      * @return
      */

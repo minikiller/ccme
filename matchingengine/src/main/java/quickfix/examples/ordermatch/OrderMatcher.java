@@ -134,6 +134,7 @@ public class OrderMatcher {
 //            }
             processOrder(order);
         } catch (Exception e) {
+            e.printStackTrace();
             rejectOrder(targetCompId, senderCompId, clOrdId, symbol, side, e.getMessage());
         }
     }
@@ -173,6 +174,7 @@ public class OrderMatcher {
 //        String origClOrdID = message.getString(ClOrdID.FIELD);
         try {
             if (order != null) {
+                Double oldPrice=order.getPrice();
                 cancelOrder(order, false);//取消原来的订单
                 char ordType = message.getChar(OrdType.FIELD);
                 double price = 0;
@@ -185,6 +187,7 @@ public class OrderMatcher {
                         price, (int) qty);
                 _order.setStatus(OrdStatus.REPLACED);
                 _order.setOrigClOrdID(origClOrdID);
+                _order.setOldPrice(oldPrice);
                 processOrder(_order);
             } else {
                 cancelRejectOrder(message);
@@ -288,7 +291,8 @@ public class OrderMatcher {
         try {
             Session.sendToTarget(fixOrder, senderCompId, targetCompId);
             if (marketClientApplication != null && order != null) { //是否发送给大盘,order 为空不发送给MD
-                marketClientApplication.sendTradeToMarketData(fixOrder, order);
+//                marketClientApplication.sendTradeToMarketData(fixOrder, order);
+                marketClientApplication.updateMarketData(fixOrder, order);
             }
         } catch (SessionNotFound e) {
             e.printStackTrace();

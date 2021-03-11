@@ -5,9 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
 import org.junit.jupiter.api.Test;
-import quickfix.field.OrdStatus;
 import quickfix.field.OrdType;
 import quickfix.field.Side;
 
@@ -58,7 +56,7 @@ public class OrderBookGroupTest {
 //        assert list4.size() == 1;
 
         //取消一个订单，
-        List<MarketDataGroup> list5 = orderBook.cancelOrder(buyOrder4);
+        List<MarketDataGroup> list5 = orderBook.removeOrder(buyOrder4);
         assert list5.size() == 2;
 
     }

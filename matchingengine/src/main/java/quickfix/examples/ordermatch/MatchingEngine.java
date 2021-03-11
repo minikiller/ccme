@@ -33,7 +33,7 @@ import java.io.InputStreamReader;
 public class MatchingEngine {
     public static void main(String[] args) {
         InputStream inputStream = null;
-        boolean runMdClient = false;
+        boolean runMdClient = true;
         try {
 //            if (args.length == 0) {
 //                inputStream = OrderMatcher.class.getResourceAsStream("ordermatch.cfg");
@@ -45,11 +45,11 @@ public class MatchingEngine {
 //                return;
 //         }
             // 根据参数判断是否启动 market client
-            if (args.length == 1) {
-                String value = args[0];
-                if (value.equals("run_md_client"))
-                    runMdClient = true;
-            }
+//            if (args.length == 1) {
+//                String value = args[0];
+//                if (value.equals("run_md_client"))
+//                    runMdClient = true;
+//            }
             Initiator initiator = null; //run market client connect to market data
 
             inputStream = OrderMatcher.class.getResourceAsStream("ordermatch.cfg");
@@ -74,7 +74,7 @@ public class MatchingEngine {
 
             BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
             acceptor.start();
-            /*label:
+            label:
             while (true) {
                 System.out.println("type #quit to quit");
                 String value = in.readLine();
@@ -93,7 +93,7 @@ public class MatchingEngine {
             }
             acceptor.stop();
             initiator.stop();
-            System.exit(0);*/
+            System.exit(0);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
