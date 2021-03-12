@@ -415,7 +415,7 @@ public class OrderBook {
     public List<MarketDataGroup> removeOrder(Order order) {
         TreeMap<Double, List<Order>> market = (TreeMap<Double, List<Order>>) getOrderMap(order);
         int position = findPosition(order.getPrice(), market); //在旧的tree里面的位置
-        int oldSize = _updateOrder(order);
+        int oldSize = _removeOrder(order);
         List<MarketDataGroup> list = createGroup(oldSize, position, market, order);
         return list;
     }
