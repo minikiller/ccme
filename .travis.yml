@@ -32,7 +32,9 @@ before_script:
 script:
   - mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar
   - docker build -t kalix/femd:v1 marketdata
+  - docker build -t kalix/feme:v1 matchingengine
   - docker tag kalix/femd:v1 registry.heroku.com/$HEROKU_APP/web
+  - docker tag kalix/femm:v1 registry.heroku.com/travis-feme/web
 
 deploy:
 - provider: script
@@ -42,6 +44,7 @@ deploy:
     docker push kalix/femd:v1;
     docker push registry.heroku.com/$HEROKU_APP/web;
     heroku container:release web --app $HEROKU_APP
+    heroku container:release web --app travis-feme
   verbose: true
   on:
     branch: main
