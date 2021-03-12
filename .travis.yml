@@ -43,6 +43,7 @@ deploy:
   script:
     docker push kalix/femd:v1;
     docker push registry.heroku.com/$HEROKU_APP/web;
+    docker push registry.heroku.com/travis-feme/web;
     heroku container:release web --app $HEROKU_APP
     heroku container:release web --app travis-feme
   verbose: true
