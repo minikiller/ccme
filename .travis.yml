@@ -34,7 +34,7 @@ script:
   - docker build -t kalix/femd:v1 marketdata
   - docker build -t kalix/feme:v1 matchingengine
   - docker tag kalix/femd:v1 registry.heroku.com/$HEROKU_APP/web
-  - docker tag kalix/femm:v1 registry.heroku.com/travis-feme/web
+  - docker tag kalix/feme:v1 registry.heroku.com/travis-feme/web
 
 deploy:
 - provider: script
