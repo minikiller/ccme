@@ -18,19 +18,30 @@ before_install:
 - cp .travis/id_rsa ~/.ssh/deploy_rsa
 - chmod 600 ~/.ssh/deploy_rsa
 - ssh-add ~/.ssh/deploy_rsa
-before_deploy:
-- docker build -t kalix/femd marketdata
-- docker run -d -p 127.0.0.1:9880:9880 kalix/femd
-- docker ps -a
-- docker build -t kalix/feme matchingengine
-- docker run -d -p 8323:8323 kalix/feme
-- docker ps -a
+#before_deploy:
+#- docker build -t kalix/femd marketdata
+#- docker run -d -p 127.0.0.1:9880:9880 kalix/femd
+#- docker ps -a
+#- docker build -t kalix/feme matchingengine
+#- docker run -d -p 8323:8323 kalix/feme
+#- docker ps -a
+before_script:
+#  - echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin   #login to dockerhub
+  - curl https://cli-assets.heroku.com/install.sh | sh  #install heroku
+  - docker login --username=$HEROKU_LOGIN --password=$HEROKU_API_KEY registry.heroku.com  #login to registry.heroku.com
 script:
-- mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar
+  - mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar
+  - docker build -t kalix/femd:v1 marketdata
+  - docker tag kalix/femd:v1 registry.heroku.com/$HEROKU_APP/web
+
 deploy:
 - provider: script
   skip_cleanup: true
-  script: bash .travis/deploy.sh
+#  script: bash .travis/deploy.sh
+  script:
+    docker push kalix/femd:v1;
+    docker push registry.heroku.com/$HEROKU_APP/web;
+    heroku container:release web --app $HEROKU_APP
   verbose: true
   on:
     branch: main

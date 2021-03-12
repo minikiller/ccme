@@ -64,6 +64,18 @@ public class OrderBookGroupTest {
     @Test
     void test_replace(){
 
+        Order buyOrder1 = new Order("1211", "FMG3-MAR21", "N2N", "FEME",
+                Side.BUY, OrdType.LIMIT, 10, 1);
+        OrderBook orderBook = new OrderBook("FMG3-MAR21");
+        List<MarketDataGroup> list = orderBook.newOrder(buyOrder1);
+        buyOrder1.setOldPrice(10);
+        buyOrder1.setOrigClOrdID(buyOrder1.getClientOrderId());
+        buyOrder1.setPrice(20);
+        buyOrder1.setQuantity(3);
+        buyOrder1.setClientOrderId("1233");
+        List<MarketDataGroup> list5 = orderBook.updateOrder(buyOrder1);
+        assert list5.size() == 2;
+
     }
 
     @Test

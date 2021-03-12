@@ -31,7 +31,7 @@ import static java.util.Collections.reverseOrder;
 
 public class Order implements Serializable, Cloneable {
     private final long entryTime;
-    private final String clientOrderId;
+    private String clientOrderId;
     private String origClOrdID; //replace used it
     private final String symbol;
     private final String owner;
@@ -74,6 +74,10 @@ public class Order implements Serializable, Cloneable {
         entryTime = System.currentTimeMillis();
         //判断单脚单还是双脚单
         if (symbol.split("-").length == 3) this.isSingle = false;
+    }
+
+    public void setClientOrderId(String clientOrderId) {
+        this.clientOrderId = clientOrderId;
     }
 
     public String getOrigClOrdID() {
