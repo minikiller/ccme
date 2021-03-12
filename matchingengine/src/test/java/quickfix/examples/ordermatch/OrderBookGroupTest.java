@@ -61,6 +61,16 @@ public class OrderBookGroupTest {
 
     }
 
+    @Test
+    void test_replace(){
+
+    }
+
+    @Test
+    void test_trade(){
+
+    }
+
 
     @Test
     void test_summary() {
