@@ -1,14 +1,16 @@
 language: java
 jdk: oraclejdk11
-#install: true
-#script: mvn clean install
 dist: trusty
 sudo: false
 addons:
   ssh_known_hosts:
-  - "192.119.116.101"
+  - 192.119.116.101
+  sonarcloud:
+    organization: minikiller
+    token:
+      secure: 7eece342107bc53e013949beec4547a5b233176f
 services:
-  - docker
+- docker
 before_install:
 - openssl aes-256-cbc -K $encrypted_db2095f63ba3_key -iv $encrypted_db2095f63ba3_iv
   -in .travis/deploy_rsa.enc -out .travis/id_rsa -d
@@ -16,7 +18,6 @@ before_install:
 - cp .travis/id_rsa ~/.ssh/deploy_rsa
 - chmod 600 ~/.ssh/deploy_rsa
 - ssh-add ~/.ssh/deploy_rsa
-
 before_deploy:
 - docker build -t kalix/femd marketdata
 - docker run -d -p 127.0.0.1:9880:9880 kalix/femd
@@ -24,7 +25,8 @@ before_deploy:
 - docker build -t kalix/feme matchingengine
 - docker run -d -p 8323:8323 kalix/feme
 - docker ps -a
-
+script:
+- mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar
 deploy:
 - provider: script
   skip_cleanup: true
@@ -32,7 +34,9 @@ deploy:
   verbose: true
   on:
     branch: main
-#    all_branches: true
 cache:
   directories:
   - "$HOME/.m2"
+env:
+  global:
+    secure: qpbzoNcmDUqrh1Cb9y8/IUn+e1ydsy+7E4fJIdlzB5wtSsvmYPd3u44ZrIYi7yavxbWWJwiMRrKR74wpahTkGmabiww2VFApT9hW8gk8dg8LVVpAvPH9FyAJsVpfWdU6BOH009EYQCSMAMjvl5swivsj30k6E9b0qQA13c+7wOnw7gckunrFGiIGOc9lo2HQ0AfmpO93S9Glxh3oCbJsXOBfrE4ikGYDXw12WkiE/U5gVVCoY4seDj7O44Yhd5t3Gp3L0uLG8Ld052W1TLk/ZfrKBp+ihtSPsjDodlFoEmysRTdavr0x8KjdVKHZ/klO4ZIpnF1X+2NnpUS4A8/Mt2LhqCR7Ra+OSPTBMeNd/vW6KXTbYTsJbrLPr/+LKsmicElfnxIHNHt8XwD6ctqZph1yHFgZCoDLjclg14bqIgT2M+ueBHqv0DlCM1SgIGJ6xFnafXjzTB3HlWTcpmGTmXBaiCJndZSBXwtbbMj4ATlhFIEzv1KCevbv+LFJTiWzbALK45Uv+VOebhHKopUG8lUrsIWx9TM7xHliIpT6+D382IGU27uvhwne7KtKYswlI7lWeQdfqeODQq8xROLgjWsI+XoyY1X0oQePSYRjthT2sLLm+WWYucx3XFSDzFatSPJd15hpwrxUj+PyHdbBtrhaxXiq4UQMy5ImVH9xYmo=
