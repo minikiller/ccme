@@ -92,7 +92,9 @@ public class MatchingEngine {
                 }
             }
             acceptor.stop();
-            initiator.stop();
+            if (initiator != null) {
+                initiator.stop();
+            }
             System.exit(0);
         } catch (Exception e) {
             e.printStackTrace();

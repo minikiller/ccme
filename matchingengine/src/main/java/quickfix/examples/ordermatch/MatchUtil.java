@@ -341,7 +341,7 @@ public class MatchUtil {
 
             }
         }
-        BigDecimal b = new BigDecimal(price);
+        BigDecimal b = BigDecimal.valueOf(price);
         price = b.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
         return price;
     }

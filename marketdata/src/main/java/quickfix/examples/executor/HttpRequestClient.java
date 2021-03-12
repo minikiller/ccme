@@ -3,17 +3,18 @@ package quickfix.examples.executor;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 
 import java.util.List;
 
-public class HttpClient {
+public class HttpRequestClient {
     public static List<LinkedTreeMap> demoGetRESTAPI() throws Exception {
-        DefaultHttpClient httpClient = new DefaultHttpClient();
+//        HttpClient httpClient = HttpClientBuilder.create().build();
+        HttpClient client = HttpClientBuilder.create().build();
         try {
             //Define a HttpGet request; You can choose between HttpPost, HttpDelete or HttpPut also.
             //Choice depends on type of method you will be invoking.
@@ -26,7 +27,7 @@ public class HttpClient {
             getRequest.addHeader("accept", "application/json");
 
             //Send the request; It will immediately return the response in HttpResponse object
-            HttpResponse response = httpClient.execute(getRequest);
+            HttpResponse response = client.execute(getRequest);
 
             //verify the valid error code first
             int statusCode = response.getStatusLine().getStatusCode();
@@ -66,7 +67,7 @@ public class HttpClient {
 
         } finally {
             //Important: Close the connect
-            httpClient.getConnectionManager().shutdown();
+            client.getConnectionManager().shutdown();
         }
     }
 
@@ -182,7 +183,7 @@ public class HttpClient {
 
 
     public static void main(String[] args) throws Exception {
-        HttpClient client = new HttpClient();
+        HttpRequestClient client = new HttpRequestClient();
         client.demoGetRESTAPI();
     }
 }

@@ -61,7 +61,7 @@ public class OrderBook {
 
 
     private String _checks(Order order) {
-        if (order.getSymbol() != this.symbol)
+        if (!order.getSymbol().equals(this.symbol))
             return "[Internal] incorrect orderbook assignment";
 
         if (!live_order_ids.containsKey(order.getClientOrderId())) {

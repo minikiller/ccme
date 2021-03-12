@@ -50,13 +50,15 @@ public class Order implements Cloneable {
     }
 
     public Object clone() {
+        Order order = null;
         try {
-            Order order = (Order) super.clone();
+            order = (Order) super.clone();
             order.setOriginalID(getID());
             order.setID(order.generateID());
-            return order;
-        } catch (CloneNotSupportedException e) {}
-        return null;
+        } catch (CloneNotSupportedException e) {
+        }
+        return order;
+
     }
 
     public String generateID() {
@@ -99,7 +101,9 @@ public class Order implements Cloneable {
         return executed;
     }
 
-    public void setExecuted(double executed) { this.executed = executed; }
+    public void setExecuted(double executed) {
+        this.executed = executed;
+    }
 
     public OrderSide getSide() {
         return side;
