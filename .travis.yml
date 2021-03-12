@@ -26,7 +26,7 @@ before_install:
 #- docker run -d -p 8323:8323 kalix/feme
 #- docker ps -a
 before_script:
-#  - echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin   #login to dockerhub
+  - echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin   #login to dockerhub
   - curl https://cli-assets.heroku.com/install.sh | sh  #install heroku
   - docker login --username=$HEROKU_LOGIN --password=$HEROKU_API_KEY registry.heroku.com  #login to registry.heroku.com
 script:
