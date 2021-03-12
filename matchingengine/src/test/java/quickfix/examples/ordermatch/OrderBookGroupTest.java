@@ -71,19 +71,19 @@ public class OrderBookGroupTest {
 
         orderBook._addOrder(orderBook.getBids(), buyOrder1);
         TreeMap<Double, OrderSummary> tree = orderBook.getBidsSummary();
-        assert tree.size() == 1;
+        assert tree.size() == 0;
 
         Order buyOrder2 = new Order("121", "FMG3-MAR21", "N2N", "FEME",
                 Side.BUY, OrdType.LIMIT, 10, 2);
 
         orderBook._addOrder(orderBook.getBids(), buyOrder2);
-        assert tree.size() == 1;
+        assert tree.size() == 0;
 
         Order buyOrder3 = new Order("121", "FMG3-MAR21", "N2N", "FEME",
                 Side.BUY, OrdType.LIMIT, 9, 1);
 
         orderBook._addOrder(orderBook.getBids(), buyOrder3);
-        assert tree.size() == 2;
+        assert tree.size() == 0;
 
     }
 
