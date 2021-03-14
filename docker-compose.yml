@@ -1,12 +1,25 @@
 version: "3.9"
 
 services:
+  watchtower:
+    command: --label-enable --cleanup --interval 300
+    image: containrrr/watchtower
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+    network_mode: none
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
   femd:
-    image: kalix/femd:latest
+    image: kalix/femd:v1
+    depends_on:
+      - watchtower
     ports:
       - "9880:9880"
 #    volumes:
 #      - db_data:/var/lib/mysql
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
     restart: always
 #    environment:
 #      MYSQL_ROOT_PASSWORD: somewordpress
@@ -17,10 +30,15 @@ services:
   feme:
     depends_on:
       - femd
-    image: kalix/femd:latest
+      - watchtower
+    image: kalix/feme:v1
+    networks:
+      - default
     ports:
       - "8323:8323"
     restart: always
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
 #    environment:
 #      WORDPRESS_DB_HOST: db:3306
 #      WORDPRESS_DB_USER: wordpress
