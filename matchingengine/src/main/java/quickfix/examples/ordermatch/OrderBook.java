@@ -423,15 +423,26 @@ public class OrderBook {
     private int _updateOrder(Order order) {
         Map<Double, List<Order>> market = order.getSide() == Side.BUY ? this.bids : this.asks;
         int size=market.size();
-        List<Order> orders = market.get(order.getOldPrice());
-        for (Order _order : orders) {
-            if (order.getOrigClOrdID().equals(_order.getClientOrderId())) {
-                orders.remove(_order);
-                break;
+        List<Order> orders=null;
+        if (order.getStatus()==OrdStatus.PARTIALLY_FILLED){
+            orders = market.get(order.getPrice());
+            for (Order _order : orders) {
+                if (order.getClientOrderId().equals(_order.getClientOrderId())) {
+                    _order.setQuantity(order.getQuantity()-order.getExecutedQuantity());
+                    break;
+                }
             }
+        }else{ //replace order
+            orders = market.get(order.getOldPrice());
+            for (Order _order : orders) {
+                if (order.getOrigClOrdID().equals(_order.getClientOrderId())) {
+                    orders.remove(_order);
+                    break;
+                }
+            }
+            if (orders.size() == 0) market.remove(order.getOldPrice());
+            _addOrder(order);
         }
-        if (orders.size() == 0) market.remove(order.getOldPrice());
-        _addOrder(order);
         //todo add ReplaceOrder class
         return size;
     }

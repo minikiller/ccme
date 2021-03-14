@@ -197,12 +197,15 @@ public class MarketClientApplication extends MessageCracker implements Applicati
             } else if (ordStatus.valueEquals(OrdStatus.CANCELED)) {
                 list = orderBook.removeOrder(order);
             } else if (ordStatus.valueEquals(OrdStatus.REPLACED)) {
-                logger.info("get replace message need send to MD");
-                orderMatcher.getMarket(order.getSymbol()).find(order.getSymbol(),order.getSide(),order.getClientOrderId());
+                logger.info("get REPLACED message need send to MD");
+                orderMatcher.getMarket(order.getSymbol()).find(order.getSymbol(), order.getSide(), order.getClientOrderId());
                 list = orderBook.updateOrder(order);
             } else if (ordStatus.valueEquals(OrdStatus.FILLED)) {
-                logger.info("get filled message need send to MD");
+                logger.info("get FILLED message need send to MD");
                 list = orderBook.removeOrder(order);
+            }else if (ordStatus.valueEquals(OrdStatus.PARTIALLY_FILLED)) {
+                logger.info("get PARTIALLY_FILLED message need send to MD");
+                list = orderBook.updateOrder(order);
             }
 
             quickfix.fix50sp2.MarketDataIncrementalRefresh marketDataIncrementalRefresh = new quickfix.fix50sp2.MarketDataIncrementalRefresh();
@@ -224,7 +227,8 @@ public class MarketClientApplication extends MessageCracker implements Applicati
                 mdIncGrp.set(data.getNumberOfOrders());
                 mdIncGrp.set(data.getMdUpdateAction());
                 mdIncGrp.set(data.getMdEntryPx());
-                mdIncGrp.setDouble(LastPx.FIELD, Double.parseDouble(msg.getString(Price.FIELD))); //0 = New
+                if (msg.isSetField(Price.FIELD))
+                    mdIncGrp.setDouble(LastPx.FIELD, Double.parseDouble(msg.getString(Price.FIELD))); //0 = New
                 marketDataIncrementalRefresh.addGroup(mdIncGrp);
             }
 
