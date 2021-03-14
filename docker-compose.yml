@@ -22,6 +22,8 @@ services:
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
     restart: always
+    volumes:
+      - myapp:/opt/app
 #    environment:
 #      MYSQL_ROOT_PASSWORD: somewordpress
 #      MYSQL_DATABASE: wordpress
@@ -52,3 +54,5 @@ services:
 #      WORDPRESS_DB_NAME: wordpress
 #volumes:
 #  db_data: {}
+volumes:
+  myapp:
