@@ -11,6 +11,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
   femd:
+    hostname: femd
     image: kalix/femd:v1
     depends_on:
       - watchtower
@@ -28,17 +29,22 @@ services:
 #      MYSQL_PASSWORD: wordpress
 
   feme:
+    hostname: feme
     depends_on:
       - femd
       - watchtower
     image: kalix/feme:v1
-    networks:
-      - default
     ports:
       - "8323:8323"
+    links:
+      - femd
     restart: always
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
+#    network_mode: "host"
+#    extra_hosts: # <---- here
+#      - localhost:192.168.1.38
+
 #    environment:
 #      WORDPRESS_DB_HOST: db:3306
 #      WORDPRESS_DB_USER: wordpress
