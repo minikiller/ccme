@@ -80,6 +80,35 @@ public class OrderBookGroupTest {
 
     @Test
     void test_trade(){
+        OrderBook orderBook = new OrderBook("FMG3-MAR21");
+
+        Order buyOrder1 = new Order("1211", "FMG3-MAR21", "N2N", "FEME",
+                Side.BUY, OrdType.LIMIT, 10, 3);
+        List<MarketDataGroup> list = orderBook.newOrder(buyOrder1);
+        assert list.size() == 1;
+
+        Order buyOrder2 = new Order("1212", "FMG3-MAR21", "N2N", "FEME",
+                Side.SELL, OrdType.LIMIT, 10, 3);
+
+        List<MarketDataGroup> list1 = orderBook.newOrder(buyOrder2);
+        assert list1.size() == 1;
+
+    }
+
+    @Test
+    void test_part_trade(){
+        OrderBook orderBook = new OrderBook("FMG3-MAR21");
+
+        Order buyOrder1 = new Order("1211", "FMG3-MAR21", "N2N", "FEME",
+                Side.BUY, OrdType.LIMIT, 10, 3);
+        List<MarketDataGroup> list = orderBook.newOrder(buyOrder1);
+        assert list.size() == 1;
+
+        Order buyOrder2 = new Order("1212", "FMG3-MAR21", "N2N", "FEME",
+                Side.SELL, OrdType.LIMIT, 10, 1);
+
+        List<MarketDataGroup> list1 = orderBook.newOrder(buyOrder2);
+        assert list1.size() == 1;
 
     }
 
