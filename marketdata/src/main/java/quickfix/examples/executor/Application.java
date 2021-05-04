@@ -506,7 +506,7 @@ public class Application extends quickfix.MessageCracker implements quickfix.App
 //            EvntGrp evntGrp=new EvntGrp();
             quickfix.fix50sp2.component.EvntGrp.NoEvents noEvents = new EvntGrp.NoEvents();
             EventType eventType = new EventType(EventType.ACTIVATION);
-            EventDate eventDate = new EventDate(ini.fetch(symbol, "·ActivationDate"));
+            EventDate eventDate = new EventDate(ini.fetch(symbol, "ActivationDate"));
             noEvents.set(eventType);
             noEvents.set(eventDate);
             securityDefinition.addGroup(noEvents);
