@@ -74,28 +74,28 @@ public class MatchingEngine {
 
             BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
             acceptor.start();
-//            label:
-//            while (true) {
-//                System.out.println("type #quit to quit");
-//                String value = in.readLine();
-//                if (value != null) {
-//                    switch (value) {
-//                        case "#symbols":
-//                            application.getOrderMatcher().display();
-//                            break;
-//                        case "#quit":
-//                            break label;
-//                        default:
-//                            application.getOrderMatcher().display();
-//                            break;
-//                    }
-//                }
-//            }
-//            acceptor.stop();
-//            if (initiator != null) {
-//                initiator.stop();
-//            }
-//            System.exit(0);
+            label:
+            while (true) {
+                System.out.println("type #quit to quit");
+                String value = in.readLine();
+                if (value != null) {
+                    switch (value) {
+                        case "#symbols":
+                            application.getOrderMatcher().display();
+                            break;
+                        case "#quit":
+                            break label;
+                        default:
+                            application.getOrderMatcher().display();
+                            break;
+                    }
+                }
+            }
+            acceptor.stop();
+            if (initiator != null) {
+                initiator.stop();
+            }
+            System.exit(0);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {

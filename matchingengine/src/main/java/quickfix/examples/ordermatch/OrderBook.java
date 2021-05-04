@@ -349,7 +349,7 @@ public class OrderBook {
                 //position 不可能大于_newSize
             }
         } else {//旧的tree的size大于新的tree
-            MarketDataGroup marketDataGroup = deleteData(position, key);
+            MarketDataGroup marketDataGroup = deleteData(position, key,order.getExecutedQuantity());
             marketDataGroups.add(marketDataGroup);
             Iterator<Double> itr = marketMap.keySet().iterator();
             int i = 0;
@@ -376,6 +376,16 @@ public class OrderBook {
         marketDataGroup.setMdUpdateAction(new MDUpdateAction(MDUpdateAction.DELETE));
         marketDataGroup.setMdEntryPx(new MDEntryPx(key));
         marketDataGroup.setMdEntrySize(new MDEntrySize(0));
+        marketDataGroup.setMdPriceLevel(new MDPriceLevel(position));
+        marketDataGroup.setNumberOfOrders(new NumberOfOrders(0));
+        return marketDataGroup;
+    }
+
+    public MarketDataGroup deleteData(int position, Double key,long size) {
+        MarketDataGroup marketDataGroup = new MarketDataGroup();
+        marketDataGroup.setMdUpdateAction(new MDUpdateAction(MDUpdateAction.DELETE));
+        marketDataGroup.setMdEntryPx(new MDEntryPx(key));
+        marketDataGroup.setMdEntrySize(new MDEntrySize(size));
         marketDataGroup.setMdPriceLevel(new MDPriceLevel(position));
         marketDataGroup.setNumberOfOrders(new NumberOfOrders(0));
         return marketDataGroup;

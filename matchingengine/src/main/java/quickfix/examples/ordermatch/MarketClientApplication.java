@@ -211,13 +211,16 @@ public class MarketClientApplication extends MessageCracker implements Applicati
             quickfix.fix50sp2.MarketDataIncrementalRefresh marketDataIncrementalRefresh = new quickfix.fix50sp2.MarketDataIncrementalRefresh();
             MDIncGrp.NoMDEntries mdIncGrp = new MDIncGrp.NoMDEntries();
             for (MarketDataGroup data : list) {
-                Side side = (Side) msg.getField(new Side());
-                if (side.valueEquals(Side.BUY)) {
-                    mdIncGrp.setChar(MDEntryType.FIELD, '0');  //bid
-                } else if (side.valueEquals(Side.SELL)) {
-                    mdIncGrp.setChar(MDEntryType.FIELD, '1'); //offer
-                } else {
+                if (ordStatus.valueEquals(OrdStatus.FILLED)){
                     mdIncGrp.setChar(MDEntryType.FIELD, '2'); //trade
+                }
+                else{
+                    Side side = (Side) msg.getField(new Side());
+                    if (side.valueEquals(Side.BUY)) {
+                        mdIncGrp.setChar(MDEntryType.FIELD, '0');  //bid
+                    } else if (side.valueEquals(Side.SELL)) {
+                        mdIncGrp.setChar(MDEntryType.FIELD, '1'); //offer
+                    }
                 }
 
                 mdIncGrp.set(data.getMdEntrySize());
